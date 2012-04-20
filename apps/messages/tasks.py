@@ -31,7 +31,8 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.template.loader import render_to_string
 
-from sentry.client.models import client
+from raven.contrib.django.models import get_client
+
 from celery.task import task
 
 from auth.models import CustomUser as User
@@ -44,6 +45,10 @@ from teams.moderation_const import REVIEWED_AND_PUBLISHED, \
 from utils import send_templated_email
 from utils import get_object_or_none
 from utils.translation import get_language_label
+
+
+client = get_client()
+
 
 def get_url_base():
     return "http://" + Site.objects.get_current().domain

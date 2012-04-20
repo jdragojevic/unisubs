@@ -204,8 +204,6 @@ class YoutubeVideoType(VideoType):
         try:
             self.get_subtitles(video_obj)
         except :
-            import sentry_logger
-            logger = logging.getLogger("youtube")
             logger.exception("Error getting subs from youtube:" )
 
         return video_obj

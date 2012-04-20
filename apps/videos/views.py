@@ -63,6 +63,7 @@ rpc_router = RpcRouter('videos:rpc_router', {
     'VideosApi': VideosApiClass()
 })
 
+
 def index(request):
     context = widget.add_onsite_js_files({})
     context['all_videos'] = Video.objects.count()

@@ -5,6 +5,7 @@ Vagrant::Config.run do |config|
 
   config.vm.forward_port 80, 8000
   config.vm.forward_port 8983, 8983
+  config.vm.forward_port 9000, 9000
 
   config.vm.share_folder "unisubs", "/opt/unisubs", "."
 

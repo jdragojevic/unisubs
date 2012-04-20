@@ -53,6 +53,9 @@ from utils.panslugify import pan_slugify
 from apps.teams.moderation_const import (
     WAITING_MODERATION, APPROVED, MODERATION_STATUSES, UNMODERATED, REJECTED
 )
+from raven.contrib.django.models import get_client
+
+client = get_client()
 
 
 NO_SUBTITLES, SUBTITLES_FINISHED = range(2)
@@ -245,8 +248,7 @@ class Video(models.Model):
         try:
             st_video_view_handler_update.delay(video_id=self.video_id)
         except:
-            from sentry.client.models import client
-            client.create_from_exception()
+            client.captureException()
 
     def update_subtitles_fetched(self, lang=None):
         """Queue a Celery task that will increment the number of times this video's subtitles were fetched."""
@@ -258,8 +260,7 @@ class Video(models.Model):
 
                 update_subtitles_fetched_counter_for_sl.delay(sl_pk=lang.pk)
         except:
-            from sentry.client.models import client
-            client.create_from_exception()
+            client.captureException()
 
     def get_thumbnail(self, fallback=True):
         """Return a URL to this video's thumbnail.

@@ -76,8 +76,6 @@ from widget.rpc import add_general_settings
 from widget.views import base_widget_params
 
 
-import sentry_logger # Magical import to make Sentry's error recording happen.
-assert sentry_logger # It's okay, Pyflakes.  Trust me.
 logger = logging.getLogger("teams.views")
 
 

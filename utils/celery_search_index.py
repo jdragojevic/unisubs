@@ -31,8 +31,6 @@ class CelerySearchIndex(indexes.SearchIndex):
 
 
 def log(*args, **kwargs):
-    import sentry_logger
-    assert sentry_logger # Shut up, Pyflakes.
     import logging
     logger = logging.getLogger('search.index.updater')
     logger.warning(*args, **kwargs)

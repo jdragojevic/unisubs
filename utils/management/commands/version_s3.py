@@ -17,11 +17,11 @@
 # http://www.gnu.org/licenses/agpl-3.0.html.
 
 from django.core.management.base import BaseCommand
-from sentry.models import Message, GroupedMessage, FilterValue
 import datetime
 from storages.backends import s3boto
 try:
     from boto.s3 import Key
+    from sentry.models import Message, GroupedMessage, FilterValue
 except:
     from boto.s3 import key
     Key = key.Key

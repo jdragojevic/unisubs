@@ -24,7 +24,6 @@ from django.template import RequestContext, loader
 from sitemaps import sitemaps, sitemap_view, sitemap_index
 from socialauth.models import (AuthMeta, OpenidProfile, TwitterUserProfile,
      FacebookUserProfile)
-import sentry_logger
 
 admin.autodiscover()
 

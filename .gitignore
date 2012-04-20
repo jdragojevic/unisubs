@@ -3,6 +3,7 @@
 *.swo
 *.swp
 *.orig
+*.db
 pip-log.txt
 deploy/src/*
 *.sqlite3

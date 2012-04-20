@@ -33,7 +33,6 @@ from videos.models import VIDEO_TYPE_YOUTUBE
 from videos.types.youtube import YouTubeApiBridge
 
 import logging
-import sentry_logger # Magical import to make sure Sentry's error recording happens.
 logger = logging.getLogger("authbelt.views")
 
 

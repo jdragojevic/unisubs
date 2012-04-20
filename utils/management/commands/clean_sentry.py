@@ -17,7 +17,10 @@
 # http://www.gnu.org/licenses/agpl-3.0.html.
 
 from django.core.management.base import BaseCommand
-from sentry.models import Message, GroupedMessage, FilterValue
+try:
+    from sentry.models import Message, GroupedMessage, FilterValue
+except ImportError:
+    pass
 
 class Command(BaseCommand):
     

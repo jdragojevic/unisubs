@@ -310,6 +310,8 @@ TEMPLATE_LOADERS = (
 
 
 MIDDLEWARE_CLASSES = (
+    'raven.contrib.django.middleware.SentryResponseErrorIdMiddleware',
+    'raven.contrib.django.middleware.Sentry404CatchMiddleware',
     'middleware.ResponseTimeMiddleware',
     'utils.ajaxmiddleware.AjaxErrorMiddleware',
     'localeurl.middleware.LocaleURLMiddleware',
@@ -367,8 +369,7 @@ INSTALLED_APPS = (
     'livesettings',
     'paging',
     'rosetta',
-    'sentry',
-    'sentry.client',
+    'raven.contrib.django',
     'sorl.thumbnail',
     'south',
     'tastypie',

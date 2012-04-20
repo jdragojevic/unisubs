@@ -170,7 +170,9 @@ def send_templated_email(to, subject, body_template, body_dict,
             print >> sys.stderr, "Oboe error: %s" % e
     return email.send(fail_silently)
 
-from sentry.client.models import client
+from raven.contrib.django.models import get_client
+
+client = get_client()
 
 def catch_exception(exceptions, subject="", default=None, ignore=False):
     """

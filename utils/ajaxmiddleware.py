@@ -5,8 +5,10 @@ from django.conf import settings
 from django.db.models.base import ObjectDoesNotExist
 from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext as _
-from sentry.client.models import client
 
+from raven.contrib.django.models import get_client
+
+client = get_client()
 
 class AjaxErrorMiddleware(object):
     '''Return AJAX errors to the browser in a sensible way.
@@ -55,7 +57,7 @@ class AjaxErrorMiddleware(object):
 
     def server_error(self, request, exception):
         exc_info = sys.exc_info()
-        client.create_from_exception(exc_info)
+        client.captureException()
 
         if settings.DEBUG:
             (exc_type, exc_info, tb) = exc_info

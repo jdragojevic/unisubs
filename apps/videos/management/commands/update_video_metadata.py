@@ -2,12 +2,12 @@ from django.core.management.base import BaseCommand
 from apps.videos.models import Video
 from apps.videos.metadata_manager import update_metadata
 from time import sleep
-import sentry_logger                
 import logging 
-logger = logging.getLogger(__name__)
 import sys
 from time import sleep
 import math
+
+logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     

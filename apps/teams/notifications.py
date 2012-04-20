@@ -25,8 +25,8 @@ from utils import send_templated_email
 from libs.unilangs import LanguageCode
 from videos.models import Video
 
-import sentry_logger
-logger = sentry_logger.logging.getLogger("team-notifier")
+import logging
+logger = logging.getLogger("team-notifier")
 
 class BaseNotification(object):
     """

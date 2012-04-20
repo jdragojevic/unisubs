@@ -18,7 +18,10 @@
 
 import datetime
 from django.contrib.sites.models import Site
-from sentry.models import GroupedMessage
+try:
+    from sentry.models import GroupedMessage
+except ImportError:
+    pass
 
 
 def _errors_seen_on(date, last_seen=True):
