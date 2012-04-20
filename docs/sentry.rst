@@ -16,3 +16,14 @@ are logged.  Regular Django logging goes to sentry as well.
     the host to ``localhost``.
 9.  Start your development server
 10. Profit
+
+Resources
+---------
+
+You might find these helpful when playing with Sentry:
+
+
+* `Sentry docs <http://sentry.readthedocs.org/en/latest/index.html>`_
+* `Sentry source <https://github.com/dcramer/sentry>`_
+* `Raven docs <http://raven.readthedocs.org/en/latest/index.html>`_
+* `Raven source <https://github.com/dcramer/raven>`_
