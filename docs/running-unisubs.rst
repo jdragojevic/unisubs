@@ -154,3 +154,5 @@ To run the development version:
         ./dev-runserver.sh
 
    You can access the site at http://unisubs.example.com:8000.
+
+6. (Optional) :doc:`Set up Sentry </sentry>`.
