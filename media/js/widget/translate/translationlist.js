@@ -57,8 +57,6 @@ unisubs.translate.TranslationList.prototype.createDom = function() {
 
     var map = this.captionSet_.makeMap();
 
-    var videoPlayerType = this.dialog_.getVideoPlayerInternal().videoPlayerType_;
-
     if (this.dialog_.reviewOrApprovalType_) {
         this.baseLanguageCaptionSet_ = this.captionSet_;
     } else {
@@ -87,17 +85,7 @@ unisubs.translate.TranslationList.prototype.createDom = function() {
 unisubs.translate.TranslationList.prototype.enterDocument = function() {
     unisubs.translate.TranslationList.superClass_.enterDocument.call(this);
     var handler = this.getHandler();
-    var videoPlayerType = this.dialog_.getVideoPlayerInternal().videoPlayerType_;
     var that = this;
-
-    // Start loading the video.
-    if (videoPlayerType !== 'vimeo') {
-        this.dialog_.getVideoPlayerInternal().setPlayheadTime(0);
-    }
-    if (videoPlayerType === 'html5') {
-        this.dialog_.getVideoPlayerInternal().play();
-    }
-    this.dialog_.getVideoPlayerInternal().pause();
 
     // Setup listening for video + subtitles.
     handler.listen(this.captionManager_,

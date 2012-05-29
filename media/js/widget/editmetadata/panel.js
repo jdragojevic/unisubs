@@ -120,15 +120,6 @@ unisubs.editmetadata.Panel.prototype.enterDocument = function() {
         var that = this;
         var captionSet = this.dialog_.translationPanel_.translationList_.captionSet_;
 
-        // Start loading the video.
-        if (videoPlayerType !== 'vimeo') {
-            this.dialog_.getVideoPlayerInternal().setPlayheadTime(0);
-        }
-        if (videoPlayerType === 'html5') {
-            this.dialog_.getVideoPlayerInternal().play();
-        }
-        this.dialog_.getVideoPlayerInternal().pause();
-
         // Setup listening for video + subtitles.
         handler.listen(this.captionManager_,
                        unisubs.CaptionManager.CAPTION,
