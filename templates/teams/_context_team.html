@@ -53,54 +53,7 @@
             <h4>{% trans "Member" %}{{ team.member_count|pluralize }}</h4>
         </a>
     </li>
-    <li>
-        <a href="{% url teams:team_tasks team.slug %}?assignee=none">
-            <p>{{ team.tasks_count|simplify_number }}</p>
-            <h4>{% trans "Task" %}{{ team.tasks_count|pluralize }}</h4>
-        </a>
-    </li>
-    <li>
-        <a href="{{ team.get_absolute_url }}">
-            <p>{{ projects|length|simplify_number }}</p>
-            <h4>{% trans "Project" %}{{ projects|length|pluralize }}</h4>
-        </a>
-    </li>
 </ul>
-{% if team|is_team_member:user %}
-    <h3>Member Tools</h3>
-    {% if team.max_tasks_per_member or team.task_expiration %}
-        <p class="notation policy">
-        {% if team.max_tasks_per_member %}
-        <strong>{{ team.max_tasks_per_member }}</strong> task{{ team.max_tasks_per_member|pluralize }} per member{% if team.task_expiration %} • {% endif %}
-        {% endif %}
-        {% if team.task_expiration %}
-            <strong>{{ team.task_expiration }}</strong> day{{ team.task_expiration|pluralize }} per task
-        {% endif %}
-        </p>
-    {% endif %}
-    <ul>
-        <li>
-            <a href="{% url teams:team_tasks team.slug %}?assignee=me">{% trans 'My tasks' %}</a>
-            ({{ team|user_tasks_count:user }})
-        </li>
-        {% with user.get_languages as langs %}
-            {% if langs %}
-                <li>
-                    <a href="{% url teams:team_tasks team.slug %}?lang=mine">{% trans 'Tasks in my languages' %}</a>
-                </li>
-            {% else %}
-                <li class="set-languages">
-                    {% blocktrans %}
-                        See tasks in <a href="#" data-modal="language_modal">your languages</a>
-                    {% endblocktrans %}
-                </li>
-            {% endif %}
-        {% endwith %}
-        <li>
-            <a href="{% url teams:team_tasks team.slug %}?assignee=none">{% trans 'All available tasks' %}</a>
-        </li>
-    </ul>
-{% endif %}
 
 {% if team.is_visible %}
     <h3>{% trans 'Share' %}</h3>

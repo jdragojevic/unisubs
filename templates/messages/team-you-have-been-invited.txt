@@ -1,7 +1,7 @@
 
 Hi {{ user }},
 
-{{ inviter }} has invited you to become a {{ role }} for the team {{team.name}} ( {{url_base}}{% url teams:detail slug=team.slug %} ) on Amara. Lucky you!
+{{ inviter }} has invited you to become a {{ role }} for the team {{team.name}} ( {{url_base}}{% url teams:dashboard slug=team.slug %} ) on Amara. Lucky you!
 {% if custom_message %}
 {{ custom_message|safe }}
 {% endif %}

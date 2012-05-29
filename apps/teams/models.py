@@ -288,7 +288,7 @@ class Team(models.Model):
     # URLs
     @models.permalink
     def get_absolute_url(self):
-        return ('teams:detail', [self.slug])
+        return ('teams:dashboard', [self.slug])
 
     def get_site_url(self):
         """Return the full, absolute URL for this team, including http:// and the domain."""

@@ -33,7 +33,7 @@
                                 <h4><a href="{% url teams:user_teams %}">{% trans "Teams" %}</a></h4>
                                 {% for t in user_teams %}
                                 <li id="team-{{ t.slug }}" {% if team == t %} class="active"{% endif %}>
-                                    <a href="{% url teams:detail slug=t.slug %}">{{ t }}</a>
+                                    <a href="{% url teams:dashboard slug=t.slug %}">{{ t }}</a>
                                 </li>
                                 {% endfor %}
                             </div>

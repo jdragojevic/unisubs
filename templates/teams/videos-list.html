@@ -86,7 +86,7 @@
                 </div>
             </p>
             {% if filtered or request.GET.sort %}
-                <a href="{% url teams:detail team.slug %}" class="clear-filters">{% trans 'Clear' %}</a>
+                <a href="{% url teams:dashboard team.slug %}" class="clear-filters">{% trans 'Clear' %}</a>
             {% endif %}
         </div>
 

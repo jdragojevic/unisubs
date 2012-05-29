@@ -37,7 +37,7 @@
             </fieldset>
 
             {% if form.is_moderated_by_other_team %}
-                {% trans 'This video is being moderated by team' %} <a href="{% url teams:detail slug=form.is_moderated_by_other_team.slug %}">{{form.is_moderated_by_other_team}}</a>.
+                {% trans 'This video is being moderated by team' %} <a href="{% url teams:dashboard slug=form.is_moderated_by_other_team.slug %}">{{form.is_moderated_by_other_team}}</a>.
             {% endif %}
 
             <div class="submit">

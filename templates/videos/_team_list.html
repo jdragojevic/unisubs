@@ -5,7 +5,7 @@
         <h3>{% trans "Collaborate" %}</h3>
         {% for team in teams %}
             <p>
-                {% trans 'Visit' %} <a href="{% url teams:detail slug=team.slug %}">{{team.name}} {% trans 'Translation Project' %}</a>.
+                {% trans 'Visit' %} <a href="{% url teams:dashboard slug=team.slug %}">{{team.name}} {% trans 'Translation Project' %}</a>.
             </p>
         {% endfor %}
         {% if team_video.task_set.not_deleted.exists %}

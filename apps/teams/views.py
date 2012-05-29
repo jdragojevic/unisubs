@@ -17,6 +17,7 @@
 # http://www.gnu.org/licenses/agpl-3.0.html.
 import logging
 import random
+import string
 
 from django.conf import settings
 from django.contrib import messages
@@ -96,7 +97,7 @@ ACTIONS_ON_PAGE = getattr(settings, 'ACTIONS_ON_PAGE', 20)
 DEV = getattr(settings, 'DEV', False)
 DEV_OR_STAGING = DEV or getattr(settings, 'STAGING', False)
 
-
+# Teams
 def index(request, my_teams=False):
     q = request.REQUEST.get('q')
 
@@ -148,161 +149,6 @@ def index(request, my_teams=False):
                        template_name='teams/teams-list.html',
                        template_object_name='teams',
                        extra_context=extra_context)
-
-@timefn
-@render_to('teams/videos-list.html')
-def detail(request, slug, project_slug=None, languages=None):
-    team = Team.get(slug, request.user)
-    filtered = 0
-
-    if project_slug is not None:
-        project = get_object_or_404(Project, team=team, slug=project_slug)
-    else:
-        project = None
-
-    query = request.GET.get('q')
-    sort = request.GET.get('sort')
-    language = request.GET.get('lang')
-
-    if language:
-        filtered = filtered + 1
-
-    if language != 'none':
-        qs = team.get_videos_for_languages_haystack(
-             language, user=request.user, project=project, query=query, sort=sort)
-    else:
-        qs = team.get_videos_for_languages_haystack(
-             num_completed_langs=0, user=request.user, project=project, query=query, sort=sort)
-
-    extra_context = widget.add_onsite_js_files({})
-
-    extra_context['all_videos_count'] = team.get_videos_for_languages_haystack(
-        None, user=request.user, project=None, query=None, sort=sort).count()
-
-    extra_context.update({
-        'team': team,
-        'project':project,
-        'can_add_video': can_add_video(team, request.user, project),
-        'can_edit_videos': can_add_video(team, request.user, project),
-        'filtered': filtered
-    })
-
-    if extra_context['can_add_video'] or extra_context['can_edit_videos']:
-        # Cheat and reduce the number of videos on the page if we're dealing with
-        # someone who can edit videos in the team, for performance reasons.
-        is_editor = True
-        per_page = 8
-    else:
-        is_editor = False
-        per_page = VIDEOS_ON_PAGE
-
-    general_settings = {}
-    add_general_settings(request, general_settings)
-    extra_context['general_settings'] = json.dumps(general_settings)
-
-    if team.video:
-        extra_context['widget_params'] = base_widget_params(request, {
-            'video_url': team.video.get_video_url(),
-            'base_state': {}
-        })
-
-    readable_langs = TeamLanguagePreference.objects.get_readable(team)
-    language_choices = [(code, name) for code, name in get_language_choices()
-                        if code in readable_langs]
-
-    extra_context['language_choices'] = language_choices
-    extra_context['query'] = query
-
-    sort_names = {
-        'name': 'Name, A-Z',
-        '-name': 'Name, Z-A',
-        'time': 'Time, Oldest',
-        '-time': 'Time, Newest',
-        'subs': 'Subtitles, Least',
-        '-subs': 'Subtitles, Most',
-    }
-    if sort:
-        extra_context['order_name'] = sort_names[sort]
-    else:
-        extra_context['order_name'] = sort_names['-time']
-
-    extra_context['current_videos_count'] = qs.count()
-    extra_context['filtered'] = filtered
-
-    team_video_md_list, pagination_info = paginate(qs, per_page, request.GET.get('page'))
-    extra_context.update(pagination_info)
-    extra_context['team_video_md_list'] = team_video_md_list
-    extra_context['team_workflows'] = list(
-        Workflow.objects.filter(team=team.id)
-                        .select_related('project', 'team', 'team_video'))
-
-    if not filtered and not query:
-        is_indexing = team.videos.all().count() != extra_context['current_videos_count']
-        extra_context['is_indexing'] = is_indexing
-
-    if is_editor:
-        team_video_ids = [record.team_video_pk for record in team_video_md_list]
-        team_videos = list(TeamVideo.objects.filter(id__in=team_video_ids).select_related('video', 'team', 'project'))
-        team_videos = dict((tv.pk, tv) for tv in team_videos)
-        for record in team_video_md_list:
-            if record:
-                record._team_video = team_videos.get(record.team_video_pk)
-                if record._team_video:
-                    record._team_video.original_language_code = record.original_language
-                    record._team_video.completed_langs = record.video_completed_langs
-
-    return extra_context
-
-def role_saved(request, slug):
-    messages.success(request, _(u'Member saved.'))
-    return_path = reverse('teams:detail_members', args=[], kwargs={'slug': slug})
-    return HttpResponseRedirect(return_path)
-
-def completed_videos(request, slug):
-    team = Team.get(slug, request.user)
-    if team.is_member(request.user):
-        qs  = TeamVideoLanguagesIndex.results_for_members(team)
-    else:
-        qs = TeamVideoLanguagesIndex.results()
-    qs = qs.filter(team_id=team.id).filter(is_complete=True).order_by('-video_complete_date')
-
-    extra_context = widget.add_onsite_js_files({})
-    extra_context.update({
-        'team': team
-    })
-
-    if team.video:
-        extra_context['widget_params'] = base_widget_params(request, {
-            'video_url': team.video.get_video_url(),
-            'base_state': {}
-        })
-
-    return object_list(request, queryset=qs,
-                       paginate_by=VIDEOS_ON_PAGE,
-                       template_name='teams/completed_videos.html',
-                       extra_context=extra_context,
-                       template_object_name='team_video')
-
-def videos_actions(request, slug):
-    team = Team.get(slug, request.user)
-
-    try:
-        user = request.user if request.user.is_authenticated() else None
-        member = team.members.get(user=user) if user else None
-    except TeamMember.DoesNotExist:
-        member = False
-
-    public_only = False if member else True
-    qs = Action.objects.for_team(team, public_only=public_only)
-
-    extra_context = {
-        'team': team
-    }
-    return object_list(request, queryset=qs,
-                       paginate_by=ACTIONS_ON_PAGE,
-                       template_name='teams/videos_actions.html',
-                       extra_context=extra_context,
-                       template_object_name='videos_action')
 
 @render_to('teams/create.html')
 @staff_member_required
@@ -533,6 +379,110 @@ def settings_languages(request, slug):
 
 
 # Videos
+@timefn
+@render_to('teams/videos-list.html')
+def videos_list(request, slug, project_slug=None, languages=None):
+    team = Team.get(slug, request.user)
+    filtered = 0
+
+    if project_slug is not None:
+        project = get_object_or_404(Project, team=team, slug=project_slug)
+    else:
+        project = None
+
+    query = request.GET.get('q')
+    sort = request.GET.get('sort')
+    language = request.GET.get('lang')
+
+    if language:
+        filtered = filtered + 1
+
+    if language != 'none':
+        qs = team.get_videos_for_languages_haystack(
+             language, user=request.user, project=project, query=query, sort=sort)
+    else:
+        qs = team.get_videos_for_languages_haystack(
+             num_completed_langs=0, user=request.user, project=project, query=query, sort=sort)
+
+    extra_context = widget.add_onsite_js_files({})
+
+    extra_context['all_videos_count'] = team.get_videos_for_languages_haystack(
+        None, user=request.user, project=None, query=None, sort=sort).count()
+
+    extra_context.update({
+        'team': team,
+        'project':project,
+        'can_add_video': can_add_video(team, request.user, project),
+        'can_edit_videos': can_add_video(team, request.user, project),
+        'filtered': filtered
+    })
+
+    if extra_context['can_add_video'] or extra_context['can_edit_videos']:
+        # Cheat and reduce the number of videos on the page if we're dealing with
+        # someone who can edit videos in the team, for performance reasons.
+        is_editor = True
+        per_page = 8
+    else:
+        is_editor = False
+        per_page = VIDEOS_ON_PAGE
+
+    general_settings = {}
+    add_general_settings(request, general_settings)
+    extra_context['general_settings'] = json.dumps(general_settings)
+
+    if team.video:
+        extra_context['widget_params'] = base_widget_params(request, {
+            'video_url': team.video.get_video_url(),
+            'base_state': {}
+        })
+
+    readable_langs = TeamLanguagePreference.objects.get_readable(team)
+    language_choices = [(code, name) for code, name in get_language_choices()
+                        if code in readable_langs]
+
+    extra_context['language_choices'] = language_choices
+    extra_context['query'] = query
+
+    sort_names = {
+        'name': 'Name, A-Z',
+        '-name': 'Name, Z-A',
+        'time': 'Time, Oldest',
+        '-time': 'Time, Newest',
+        'subs': 'Subtitles, Least',
+        '-subs': 'Subtitles, Most',
+    }
+    if sort:
+        extra_context['order_name'] = sort_names[sort]
+    else:
+        extra_context['order_name'] = sort_names['-time']
+
+    extra_context['current_videos_count'] = qs.count()
+    extra_context['filtered'] = filtered
+
+    team_video_md_list, pagination_info = paginate(qs, per_page, request.GET.get('page'))
+    extra_context.update(pagination_info)
+    extra_context['team_video_md_list'] = team_video_md_list
+    extra_context['team_workflows'] = list(
+        Workflow.objects.filter(team=team.id)
+                        .select_related('project', 'team', 'team_video'))
+
+    if not filtered and not query:
+        is_indexing = team.videos.all().count() != extra_context['current_videos_count']
+        extra_context['is_indexing'] = is_indexing
+
+    if is_editor:
+        team_video_ids = [record.team_video_pk for record in team_video_md_list]
+        team_videos = list(TeamVideo.objects.filter(id__in=team_video_ids).select_related('video', 'team', 'project'))
+        team_videos = dict((tv.pk, tv) for tv in team_videos)
+        for record in team_video_md_list:
+            if record:
+                record._team_video = team_videos.get(record.team_video_pk)
+                if record._team_video:
+                    record._team_video.original_language_code = record.original_language
+                    record._team_video.completed_langs = record.video_completed_langs
+
+    return extra_context
+
 @render_to('teams/add_video.html')
 @login_required
 def add_video(request, slug):
@@ -678,6 +628,27 @@ def remove_video(request, team_video_pk):
     else:
         messages.success(request, msg)
         return HttpResponseRedirect(next)
+
+def videos_actions(request, slug):
+    team = Team.get(slug, request.user)
+
+    try:
+        user = request.user if request.user.is_authenticated() else None
+        member = team.members.get(user=user) if user else None
+    except TeamMember.DoesNotExist:
+        member = False
+
+    public_only = False if member else True
+    qs = Action.objects.for_team(team, public_only=public_only)
+
+    extra_context = {
+        'team': team
+    }
+    return object_list(request, queryset=qs,
+                       paginate_by=ACTIONS_ON_PAGE,
+                       template_name='teams/videos_actions.html',
+                       extra_context=extra_context,
+                       template_object_name='videos_action')
 
 
 # Members
@@ -971,6 +942,11 @@ def search_members(request, slug):
 
     return { 'results': results }
 
+def role_saved(request, slug):
+    messages.success(request, _(u'Member saved.'))
+    return_path = reverse('teams:detail_members', args=[], kwargs={'slug': slug})
+    return HttpResponseRedirect(return_path)
+
 
 # Tasks
 def _get_or_create_workflow(team_slug, project_id, team_video_id):
@@ -1048,6 +1024,7 @@ def _tasks_list(request, team, project, filters, user):
     * team_video: team video ID as an integer
 
     '''
+
     tasks = Task.objects.filter(team=team.id, deleted=False)
 
     if project:
@@ -1062,10 +1039,17 @@ def _tasks_list(request, team, project, filters, user):
         tasks = tasks.filter(completed=None)
 
     if filters.get('language'):
-        if filters.get('language') == 'mine' and request.user.is_authenticated():
-            tasks = tasks.filter(language__in=[ul.language for ul in request.user.get_languages()])
-        else:
-            tasks = tasks.filter(language=filters['language'])
+        languages = filters.get('language').split(',')
+
+        if 'mine' in languages and request.user.is_authenticated():
+            languages.remove('mine')
+            languages += [ul.language for ul in request.user.get_languages()]
+
+        if 'none' in languages:
+            languages.remove('none')
+            languages.append('')
+        
+        tasks = tasks.filter(language__in=languages)
 
     if filters.get('q'):
         terms = get_terms(filters['q'])
@@ -1112,6 +1096,47 @@ def _get_task_filters(request):
              'team_video': request.GET.get('team_video'),
              'assignee': request.GET.get('assignee'),
              'q': request.GET.get('q'), }
+
+@timefn
+@render_to('teams/dashboard.html')
+def dashboard(request, slug):
+
+    team = Team.get(slug, request.user)
+
+    user = request.user if request.user.is_authenticated() else None
+    member = team.members.get(user=user) if user else None
+
+    filters = {}
+
+    if user and user.get_languages():
+        filters['language'] = 'mine,none'
+
+    videos = {}
+    video_pks = set()
+    tasks = _tasks_list(request, team, None, filters, user)
+    
+    for task in tasks:
+        pk = str(task.team_video.id)
+        
+        if not pk in video_pks:
+            videos[pk] = task.team_video
+            videos[pk].tasks = []
+            video_pks.add(pk)
+
+        video = videos[pk]
+        video.tasks.append(task)
+
+    context = {
+        'team': team,
+        'member': member,
+        'videos': videos
+    }
+
+    if user:
+        user_filter = {'assignee':str(user.id)}
+        context['user_tasks'] = _tasks_list(request, team, None, user_filter, user)
+
+    return context
 
 @timefn
 @render_to('teams/tasks.html')

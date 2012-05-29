@@ -850,6 +850,14 @@ div.fix-chosen div.chzn-container {
     }
 
 }
+.v1 .listing.tasks.yours > li {
+    padding-left: 0;
+    min-height: 0;
+
+    &:last-child {
+        border: none;
+    }
+}
 .v1 .listing.teams > li {
     padding-right: 150px;
 }
@@ -2178,5 +2186,33 @@ a.truncated-expand {
     }
     div.submit {
         margin-top: 10px;
+    }
+}
+
+.team_dashboard .view {
+
+    h3 {
+        padding: 1em 10px;
+        @include linear-gradient(top, hsla(0, 0%, 96%, 1), hsla(0, 0%, 98%, 1) 5%, hsla(0, 0%, 97%, 1));
+        margin: -1px 0 0 -10px;
+        font-size: 13px;
+        border-top: 1px solid #eaeaea;
+        border-bottom: 1px solid #eaeaea;
+        text-align: center;
+    }
+
+    .listing.videos {
+        li {
+            h4 a {
+                display: block;
+                position: absolute;
+                top: 20px; left: 10px;
+                padding: 1em 0;
+                width: 290px;
+                background: rgba(0,0,0,.8);
+                color: #fff;
+                text-indent: 1em;
+            }
+        }
     }
 }

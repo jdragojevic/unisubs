@@ -7,7 +7,7 @@ Hi {{ user }},
 
 Congratulations! You are now a member of the {{ team.name }} team.
 
-Start browsing team videos at {{url_base}}{% url teams:detail slug=team.slug %} 
+Start browsing team videos at {{url_base}}{% url teams:dashboard slug=team.slug %} 
 or look for tasks at {{url_base}}{% url teams:team_tasks slug=team.slug %} you can take on to help out.
 
 Happy subtitling!

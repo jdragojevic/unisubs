@@ -1,11 +1,16 @@
 {% load i18n teams_tags %}
 
 <ul class="tabs">
-    <li{% if current == "videos" %} class="current" {% endif %}>
+    <li{% if current == "dashboard" %} class="current" {% endif %}>
         <a href="{{ team.get_absolute_url }}">
-            {% trans "Videos" %}
+            {% trans "Dashboard" %}
         </a>
     </li>
+    <li{% if current == "videos" %} class="current" {% endif %}>
+            <a href="{% url teams:videos_list team.slug %}">
+                {% trans "Videos" %}
+            </a>
+        </li>
     <li{% if current == "members" %} class="current" {% endif %}>
         <a href="{% url teams:detail_members team.slug %}">
             {% trans "Members" %}
@@ -16,19 +21,11 @@
             {% trans "Activity" %}
         </a>
     </li>
-    {% if team|is_team_member:user %}
-        <li{% if current == "tasks" %} class="current" {% endif %}>
-            <a href="{% url teams:team_tasks team.slug %}?assignee=none">
-                {% trans "Tasks" %}
+    {% if team|can_view_settings_tab:user %}
+        <li{% if current == "settings" %} class="current" {% endif %}>
+            <a href="{% url teams:settings_basic slug=team.slug %}">
+                {% trans "Settings" %}
             </a>
         </li>
-
-        {% if team|can_view_settings_tab:user %}
-            <li{% if current == "settings" %} class="current" {% endif %}>
-                <a href="{% url teams:settings_basic slug=team.slug %}">
-                    {% trans "Settings" %}
-                </a>
-            </li>
-        {% endif %}
     {% endif %}
 </ul>

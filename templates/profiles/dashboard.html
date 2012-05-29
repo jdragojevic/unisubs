@@ -110,7 +110,7 @@
                     <ul>
                         {% for t in user_teams %}
                             <li>
-                                <a href="{% url teams:detail slug=t.slug %}">{{ t }}</a>
+                                <a href="{% url teams:dashboard slug=t.slug %}">{{ t }}</a>
                                 {% if t|can_leave_team:user %}
                                     (<a id="leave" onclick="return confirm('{% trans "Do you really wish to leave this team?" %}')" href="{% url teams:leave_team t.slug %}">{% trans "leave team" %}</a>)
                                 {% endif %}

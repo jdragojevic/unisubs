@@ -99,7 +99,7 @@
                         <ul>
                             {% for t in user_teams %}
                             <li>
-                                <a href="{% url teams:detail slug=t.slug %}">{{ t }}</a>
+                                <a href="{% url teams:dashboard slug=t.slug %}">{{ t }}</a>
                             </li>
                             {% endfor %}
                         </ul>

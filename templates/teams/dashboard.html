@@ -1,0 +1,81 @@
+{% extends "teams/base.html" %}
+
+{% load i18n to_json utils_tags teams_tags paginator markup media_compressor profiles_tags %}
+
+{% block title %}
+    {% trans 'Dashboard' %} - {{ team }} | Amara
+{% endblock %}
+
+{% block html_attrs %}class="team_dashboard"{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    {% include_bundle "widget-css"%}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {% include_bundle "unisubs-offsite-compiled" %}
+    {% include_bundle "js-teams" %}
+{% endblock %}
+
+{% block select_language_dialog %}
+    {% select_language_dialog %}
+{% endblock %}
+
+{% block view_content %}
+
+    <div class="grid_8 view omega">
+        {% with "dashboard" as current %}
+            {% if not project %}
+                {% include 'teams/_tabs.html' %}
+            {% else %}
+                {% include 'teams/_tabs_projects.html' %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="tools group">
+            <a href="#" class="button reduced">
+                {% trans 'Admin Mode' %}
+            </a>
+        </div>
+
+        {% if user_tasks %}
+            <h3>Videos you're working on</h3>
+            <ul class="listing tasks yours">
+                {% for task in user_tasks %}
+                    <li>{{ task.get_type_display }} {{ task.get_language_display }} for &#8220;{{ task.team_video }}&#8221;</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if videos %}
+            <h3>More videos you can help with</h3>
+            <ul class="listing videos">
+                {% for id, video in videos.items %}
+                    <li>
+                        <a href="{{ video.video.get_absolute_url }}" class="thumb"><img src="{{ video.get_thumbnail }}" alt="{{ video.title }}"></a>
+                        <h4><a href="{{ video.video.get_absolute_url }}">{{ video|truncatewords:15 }}</a></h4>
+                        <ul>
+                            {% for task in video.tasks %}
+                                <li>
+                                    {% if task.get_type_display == 'Subtitle' or task.get_type_display == 'Translate' %}
+                                        Needs {{ task.get_language_display }} subtitles
+                                    {% else %}
+                                        {{ task.get_language_display }} subtitles need 
+                                        {{ task.get_type_display }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if is_paginated %}{% paginator %}{% endif %}
+        {% else %}
+            <p class="empty">
+                {% trans "Sorry, nothing to see here" %}
+                ...
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}
