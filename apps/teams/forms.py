@@ -695,6 +695,8 @@ class UploadDraftForm(forms.Form):
         return language
 
     def save(self):
+        from videos.tasks import video_changed_tasks
+
         task = self.cleaned_data['task']
         video = task.team_video.video
 
@@ -734,3 +736,6 @@ class UploadDraftForm(forms.Form):
 
         task.language = video_language
         task.save()
+
+        # we created a new subtitle version let's fire a notification
+        video_changed_tasks.delay(video.id, version.id)

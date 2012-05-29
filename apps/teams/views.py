@@ -19,6 +19,7 @@ import logging
 import random
 import string
 
+from django.db import transaction
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -31,7 +32,7 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils import simplejson as json
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import iri_to_uri
+from django.utils.encoding import iri_to_uri, force_unicode
 from django.views.generic.list_detail import object_list
 
 import teams.moderation_const as MODERATION
@@ -1380,6 +1381,8 @@ def assign_task_ajax(request, slug):
     else:
         return HttpResponseForbidden(_(u'Invalid assignment attempt.'))
 
+@login_required
+@transaction.commit_manually
 def upload_draft(request, slug):
 
     if request.POST:
@@ -1388,14 +1391,20 @@ def upload_draft(request, slug):
         if form.is_valid():
             try:
                 form.save()
-            except Exception, e:
-                import logging
-                logging.exception('error')
+            except Exception:
                 messages.error(request, _(u"Sorry, the subtitles don't match the lines, so we can't upload them."))
+                transaction.rollback()
             else:
                 messages.success(request, _(u"Draft uploaded successfully."))
+                transaction.commit()
         else:
-            messages.error(request, _(u"There was a problem uploading that draft."))
+            for key, value in form.errors.items():
+                messages.error(request, _('/n'.join([force_unicode(i) for i in value])))
+
+            transaction.rollback()
+
+        if transaction.is_dirty():
+            transaction.rollback()
 
         return HttpResponseRedirect(reverse('teams:team_tasks', args=[], kwargs={'slug': slug}))
     else:

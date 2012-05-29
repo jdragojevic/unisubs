@@ -1238,13 +1238,20 @@ class SubtitleVersionManager(models.Manager):
 
         if version is not None:
             version_no = version.version_no + 1
+            title = version.title
+            description = version.description
+        else:
+            video = language.video
+            title = video.get_title_display()
+            description = video.get_description_display()
 
         forked = not bool(translated_from)
 
         version = SubtitleVersion(
                 language=language, version_no=version_no, note=note,
-                is_forked=forked, time_change=1, text_change=1)
-        
+                is_forked=forked, time_change=1, text_change=1,
+                title=title, description=description)
+
         version.is_forked = forked
         version.datetime_started = timestamp or datetime.now()
         version.user = user
