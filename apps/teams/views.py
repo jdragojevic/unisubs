@@ -468,7 +468,10 @@ def videos_list(request, slug, project_slug=None, languages=None):
                         .select_related('project', 'team', 'team_video'))
 
     if not filtered and not query:
-        is_indexing = team.videos.all().count() != extra_context['current_videos_count']
+        if project:
+            is_indexing = project.videos_count != extra_context['current_videos_count']
+        else:
+            is_indexing = team.videos.all().count() != extra_context['current_videos_count']
         extra_context['is_indexing'] = is_indexing
 
     if is_editor:
