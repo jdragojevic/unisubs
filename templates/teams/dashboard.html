@@ -6,7 +6,7 @@
     {% trans 'Dashboard' %} - {{ team }} | Amara
 {% endblock %}
 
-{% block html_attrs %}class="team_dashboard"{% endblock %}
+{% block body_attrs %}class="v1 team_dashboard"{% endblock %}
 
 {% block css %}
     {{ block.super }}
@@ -17,6 +17,7 @@
     {{ block.super }}
     {% include_bundle "unisubs-offsite-compiled" %}
     {% include_bundle "js-teams" %}
+    <script src="{% url teams:rpc_api %}" type="text/javascript"></script>
 {% endblock %}
 
 {% block select_language_dialog %}
@@ -35,16 +36,36 @@
         {% endwith %}
 
         <div class="tools group">
-            <a href="#" class="button reduced">
-                {% trans 'Admin Mode' %}
-            </a>
+            <a href="#">What is this?</a>
         </div>
 
         {% if user_tasks %}
             <h3>Videos you're working on</h3>
             <ul class="listing tasks yours">
                 {% for task in user_tasks %}
-                    <li>{{ task.get_type_display }} {{ task.get_language_display }} for &#8220;{{ task.team_video }}&#8221;</li>
+                    <li>
+                        {{ task.get_type_display }}
+                        {% if task.get_language_display %}
+                            {{ task.get_language_display }} for
+                        {% endif %}
+                        <a href="{{ task.team_video.video.get_absolute_url }}" title="View video">
+                            &#8220;{{ task.team_video }}&#8221;
+                        </a>
+                        {% if task.expiration_date != None %}
+                            {% if task.future %}
+                                <span class="due">Due in {{ task.expiration_date|timeuntil }}</span>
+                            {% else %}
+                                <span class="due overdue">Overdue by {{ task.expiration_date|timesince }}</span>
+                            {% endif %}
+                        {% endif %}
+                        <a class="perform-task button reduced">
+                            {% if task.get_subtitle_version %}
+                                {% trans 'Resume' %}
+                            {% else %}
+                                {% trans 'Start now' %}
+                            {% endif %}
+                        </a>
+                    </li>
                 {% endfor %}
             </ul>
         {% endif %}

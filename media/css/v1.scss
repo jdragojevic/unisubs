@@ -352,6 +352,17 @@ div.fix-chosen div.chzn-container {
     text-align: right;
     @include linear-gradient( bottom, hsla(0, 0%, 98%, 1), hsla(0, 0%, 100%, 1) 25%, hsla(0, 0%, 100%, 1) );
 
+    a {
+        color: $light;
+        text-decoration: none;
+        padding: 0 1em;
+        line-height: 18px;
+
+        &:hover {
+            color: $dark;
+        }
+    }
+
     .button, button {
         background: transparent;
         border: 1px solid transparent;
@@ -657,16 +668,28 @@ div.fix-chosen div.chzn-container {
     position: relative;
     width: 310px;
 
-    h3 {
-        clear: both;
-        height: 2em;
-        margin: 6px 10px 10px;
+    h3 a {
+        display: block;
+        position: absolute;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        top: 10px; left: 10px;
+        padding: 1em;
+        width: 290px;
+        background: rgba(0,0,0,.75);
+        color: #fff;
+
+        &:hover {
+            border: none;
+        }
     }
 
     .thumb {
         height: 180px;
         overflow: hidden;
         position: relative;
+        float: left;
         top: 0;
 
         img {
@@ -712,9 +735,9 @@ div.fix-chosen div.chzn-container {
     .admin-controls {
         background: hsla(0%, 0%, 0%, .55);
         border: none;
-        bottom: .6em;
+        bottom: 10px;
         opacity: 1;
-        right: 1em;
+        right: 10px;
         text-shadow: 1px 1px 1px #444;
         padding: .5em;
 
@@ -1478,7 +1501,7 @@ div#language_picker {
     border-left: none;
     border-right: 1px solid $fainter;
     margin-right: 0;
-    padding: 0 20px 0 0;
+    padding: 0 20px 4em 0;
     width: 289px;
     word-wrap: break-word;
     @include linear-gradient(right, hsla(0, 0%, 97%, 1), hsla(0, 0%, 100%, 1) 2%, hsla(0, 0%, 100%, 1));
@@ -2193,12 +2216,28 @@ a.truncated-expand {
 
     h3 {
         padding: 1em 10px;
-        @include linear-gradient(top, hsla(0, 0%, 96%, 1), hsla(0, 0%, 98%, 1) 5%, hsla(0, 0%, 97%, 1));
+        @include linear-gradient(top, $fainter, darken($faintest, 2%) 5%, darken($faintest, 3%));
         margin: -1px 0 0 -10px;
         font-size: 13px;
-        border-top: 1px solid #eaeaea;
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid $fainter;
         text-align: center;
+    }
+
+    .listing.yours {
+
+        .due {
+            margin-left: .5em;
+            color: $normal;
+        }
+
+        .overdue {
+            color: #CA4C43;
+        }
+
+        .perform-task {
+            position: absolute;
+            top:.25em; right: 1em;
+        }
     }
 
     .listing.videos {
@@ -2206,12 +2245,18 @@ a.truncated-expand {
             h4 a {
                 display: block;
                 position: absolute;
+                -moz-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
                 top: 20px; left: 10px;
-                padding: 1em 0;
+                padding: 1em;
                 width: 290px;
-                background: rgba(0,0,0,.8);
+                background: rgba(0,0,0,.65);
                 color: #fff;
-                text-indent: 1em;
+
+            }
+            &:hover h4 a {
+                background: rgba(0,0,0,.75);
             }
         }
     }

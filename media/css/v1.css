@@ -349,6 +349,15 @@ div.fix-chosen div.chzn-container {
   background-image: -webkit-linear-gradient(bottom, #fafafa, white 25%, white);
   background-image: linear-gradient(bottom, #fafafa, white 25%, white);
 }
+.v1 .view .tools a {
+  color: #7692a3;
+  text-decoration: none;
+  padding: 0 1em;
+  line-height: 18px;
+}
+.v1 .view .tools a:hover {
+  color: #486f87;
+}
 .v1 .view .tools .button, .v1 .view .tools button {
   background: transparent;
   border: 1px solid transparent;
@@ -644,15 +653,27 @@ div.fix-chosen div.chzn-container {
   position: relative;
   width: 310px;
 }
-.v1 .listing.videos > li h3 {
-  clear: both;
-  height: 2em;
-  margin: 6px 10px 10px;
+.v1 .listing.videos > li h3 a {
+  display: block;
+  position: absolute;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  top: 10px;
+  left: 10px;
+  padding: 1em;
+  width: 290px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+}
+.v1 .listing.videos > li h3 a:hover {
+  border: none;
 }
 .v1 .listing.videos > li .thumb {
   height: 180px;
   overflow: hidden;
   position: relative;
+  float: left;
   top: 0;
 }
 .v1 .listing.videos > li .thumb img {
@@ -712,9 +733,9 @@ div.fix-chosen div.chzn-container {
 .v1 .listing.videos > li .admin-controls {
   background: rgba(0, 0, 0, 0.55);
   border: none;
-  bottom: .6em;
+  bottom: 10px;
   opacity: 1;
-  right: 1em;
+  right: 10px;
   text-shadow: 1px 1px 1px #444;
   padding: .5em;
 }
@@ -1472,7 +1493,7 @@ div#language_picker select {
   border-left: none;
   border-right: 1px solid #dce2e5;
   margin-right: 0;
-  padding: 0 20px 0 0;
+  padding: 0 20px 4em 0;
   width: 289px;
   word-wrap: break-word;
   background-image: -moz-linear-gradient(right, #f7f7f7, white 2%, white);
@@ -2170,25 +2191,41 @@ a.truncated-expand.expanded {
 
 .team_dashboard .view h3 {
   padding: 1em 10px;
-  background-image: -moz-linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
-  background-image: -ms-linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
-  background-image: -o-linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
-  background-image: -webkit-linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
-  background-image: linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
+  background-image: -moz-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
+  background-image: -ms-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
+  background-image: -o-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
+  background-image: -webkit-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
+  background-image: linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
   margin: -1px 0 0 -10px;
   font-size: 13px;
-  border-top: 1px solid #eaeaea;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #dce2e5;
   text-align: center;
+}
+.team_dashboard .view .listing.yours .due {
+  margin-left: .5em;
+  color: #678ca3;
+}
+.team_dashboard .view .listing.yours .overdue {
+  color: #CA4C43;
+}
+.team_dashboard .view .listing.yours .perform-task {
+  position: absolute;
+  top: .25em;
+  right: 1em;
 }
 .team_dashboard .view .listing.videos li h4 a {
   display: block;
   position: absolute;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
   top: 20px;
   left: 10px;
-  padding: 1em 0;
+  padding: 1em;
   width: 290px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.65);
   color: #fff;
-  text-indent: 1em;
+}
+.team_dashboard .view .listing.videos li:hover h4 a {
+  background: rgba(0, 0, 0, 0.75);
 }

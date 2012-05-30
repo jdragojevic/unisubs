@@ -2,11 +2,10 @@
 
 <li class="team_video_listing_{{ search_record.team_video_pk }}">
 
-    <div class="thumb">
-        <a href="{% url videos:video video_id=search_record.video_id %}" title="{{ search_record.video_title }}">
+        <a href="{% url videos:video video_id=search_record.video_id %}" title="{{ search_record.video_title }}" class="thumb">
             <img src="{{ search_record.thumbnail }}" alt="{{ search_record.title }} thumbnail">
         </a>
-        <a href="{% url videos:video video_id=search_record.video_id %}" class="languages">
+        <!--<a href="{% url videos:video video_id=search_record.video_id %}" class="languages">
             {% with num_total=search_record.num_total_langs num_complete=search_record.num_completed_langs %}
                 {% if num_total %}
                     {% blocktrans count num_total as num %}
@@ -39,7 +38,7 @@
                         {% endblocktrans %}
                 </a>
             {% endif %}
-        {% endif %}
+        {% endif %}-->
         {% if can_edit_videos %}
             {% with search_record|can_edit_video:request.user as can_edit_this_video %}
                 {% if can_edit_this_video %}
@@ -63,10 +62,9 @@
                 {% endif %}
             {% endwith %}
         {% endif %}
-    </div>
 
     <h3>
-        <a href="{% url videos:video video_id=search_record.video_id %}">{{ search_record.title|truncatewords:9 }}</a>
+        <a href="{% url videos:video video_id=search_record.video_id %}">{{ search_record.title }}</a>
     </h3>
 
     <script type="text/javascript">
