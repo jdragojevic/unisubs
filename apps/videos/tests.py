@@ -916,10 +916,8 @@ class ViewsTest(WebUseTest):
         self.failUnlessEqual(response.status_code, 200)
 
         language = self.video.subtitle_language(language_code)
-        version = language.latest_version(public_only=True)
+        version = language.latest_version(public_only=False)
         self.assertEqual(len(version.subtitles()), 2)
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertIn(self.user.email, mail.outbox[0].to[0])
 
     def test_paste_transcription_windows(self):
         self._login()

@@ -76,7 +76,7 @@ from videos.tasks import (
     upload_subtitles_to_original_service, delete_captions_in_original_service,
     delete_captions_in_original_service_by_code
 )
-from videos.models import Action, VideoUrl, SubtitleLanguage, SubtitleVersion
+from videos.models import Action, VideoUrl, SubtitleLanguage, SubtitleVersion, Video
 from widget.rpc import add_general_settings
 from widget.views import base_widget_params
 from widget.srt_subs import GenerateSubtitlesHandler
@@ -1193,7 +1193,9 @@ def team_tasks(request, slug, project_slug=None):
     from apps.widget.rpc import add_general_settings
     add_general_settings(request, widget_settings)
 
-    video_pks = [t.team_video.video_id for t in tasks]
+    team_video_pks = [t.team_video_id for t in tasks]
+    video_pks = Video.objects.filter(teamvideo__in=team_video_pks).values_list('id', flat=True)
+
     video_urls = dict([(vu.video_id, vu.effective_url) for vu in
                        VideoUrl.objects.filter(video__in=video_pks, primary=True)])
 

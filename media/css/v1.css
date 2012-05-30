@@ -27,6 +27,15 @@ body {
 .v1 .bootstrap div.modal div.plain-text label {
   padding-top: 0;
 }
+.v1 .bootstrap .upload-draft-modal label {
+  width: auto;
+}
+.v1 .bootstrap .upload-draft-modal p {
+  margin-bottom: 2em;
+}
+.v1 .bootstrap .upload-draft-modal p.notation {
+  margin: 0;
+}
 
 .v1 .notation {
   color: #7692a3;

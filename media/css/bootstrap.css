@@ -1895,22 +1895,11 @@
   background-color: #c7eefe;
 }
 .well {
-  -moz-border-radius: 4px;
-  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  -webkit-border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   background: rgba(245, 245, 238, .7);
-  border: 1px solid #eee;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  left: 0;
-  height: 1000%;
-  margin-bottom: 20px;
-  min-height: 20px;
-  padding: 19px;
   position: absolute;
   top: 0;
+  left: 0;
+  height: 1000%;
   width: 100%;
   z-index: 10000;
 }

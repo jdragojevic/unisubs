@@ -381,6 +381,29 @@ class SubtitlesUploadBaseForm(forms.Form):
 
         return language
 
+    def verify_tasks(self, is_complete):
+        video = self.cleaned_data['video']
+        language = self.cleaned_data['language']
+
+        team_video = video.get_team_video()
+
+        if team_video:
+            tasks = team_video.task_set.incomplete_subtitle_or_translate().filter(language__in=[language, ''])
+
+            if tasks.exists():
+                task = tasks.get()
+
+                if not task.assignee and self.user and can_assign_task(task, self.user):
+                    task.assignee = self.user
+
+                    # we save only if is_complete because
+                    # .complete() actually saves the task too
+                    if not is_complete:
+                        task.save()
+
+                if is_complete:
+                    task.complete()
+
     def get_errors(self):
         output = {}
         for key, value in self.errors.items():
@@ -436,6 +459,7 @@ class SubtitlesUploadForm(SubtitlesUploadBaseForm):
         sl.is_complete = is_complete
 
         latest_version = sl.latest_version()
+
         if latest_version and len(latest_version.subtitles()) > 0:
             # this will eventually get updated on the async test
             # but if it takes too long on html file uplods
@@ -445,27 +469,7 @@ class SubtitlesUploadForm(SubtitlesUploadBaseForm):
 
         sl.save()
 
-        video = self.cleaned_data['video']
-        language = self.cleaned_data['language']
-
-        team_video = video.get_team_video()
-
-        if team_video:
-            tasks = team_video.task_set.incomplete_subtitle_or_translate().filter(language__in=[language, ''])
-
-            if tasks.exists():
-                task = tasks.get()
-
-                if not task.assignee and self.user and can_assign_task(task, self.user):
-                    task.assignee = self.user
-
-                    # we save only if is_complete because
-                    # .complete() actually saves the task too
-                    if not is_complete:
-                        task.save()
-
-                if is_complete:
-                    task.complete()
+        self.verify_tasks(is_complete)
 
         if latest_version and sl.latest_version():
             video_changed_tasks.delay(sl.video_id, sl.latest_version().id)
@@ -480,12 +484,12 @@ class PasteTranscriptionForm(SubtitlesUploadBaseForm):
     def save(self):
         subtitles = self.cleaned_data['subtitles']
         parser = TxtSubtitleParser(subtitles)
-        language = self.save_subtitles(parser)
+        language = self.save_subtitles(parser, update_video=False, is_complete=False)
 
-        if language.is_original:
-            language.video.subtitlelanguage_set.exclude(pk=language.pk).update(is_forked=True)
+        self.verify_tasks(is_complete=False)
 
         latest_version = language.latest_version()
+
         if latest_version:
             video_changed_tasks.delay(language.video_id, language.latest_version().id)
         else:

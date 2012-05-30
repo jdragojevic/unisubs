@@ -116,6 +116,21 @@ body {
             }
         }
     }
+    .upload-draft-modal {
+
+        label {
+            width: auto;
+        }
+
+        p {
+            margin-bottom: 2em;
+
+            &.notation {
+                margin: 0;
+            }
+        }
+
+    }
 }
 .v1 .notation {
     color: $light;

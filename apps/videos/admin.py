@@ -80,12 +80,24 @@ class SubtitleVersionInline(admin.TabularInline):
 
 
 class SubtitleLanguageAdmin(admin.ModelAdmin):
-    actions = None
-    list_display = ['video', 'is_original', 'language', 'is_complete', 'had_version', 'subtitle_count']
+    # We specifically pull video out into a property to force one query per
+    # row.  This sounds like a bad idea, but:
+    #
+    # 1. MySQL was performing a full table scan when using the select_related()
+    #    for some reason.
+    # 2. It's only 20 extra queries, so it's not the end of the world.
+    list_display = ['video_title', 'is_original', 'language', 'is_complete',
+                    'had_version', 'subtitle_count']
     list_filter = ['is_original', 'is_complete']
     search_fields = ['video__title', 'video__video_id', 'language']
     raw_id_fields = ['video']
     inlines = [SubtitleVersionInline]
+    list_per_page = 20
+    actions = None
+
+    def video_title(self, obj):
+        return unicode(obj.video)
+    video_title.short_description = 'video'
 
     def delete_model(self, request, obj):
         video = obj.video
@@ -104,14 +116,27 @@ class SubtitleLanguageAdmin(admin.ModelAdmin):
     versions.allow_tags = True
 
 class SubtitleVersionAdmin(admin.ModelAdmin):
-    list_display = ['video', 'language', 'version_no', 'note', 'timeline_changes',
-                    'text_changes', 'datetime_started', 'moderation_status']
+    # We specifically pull language out into a property to force one query per
+    # row.  This sounds like a bad idea, but:
+    #
+    # 1. MySQL was performing a full table scan when using the select_related()
+    #    for some reason.
+    # 2. It's only 20 extra queries, so it's not the end of the world.
+    list_display = ['video', 'language_title', 'version_no', 'note',
+                    'timeline_changes', 'text_changes', 'datetime_started',
+                    'moderation_status']
     list_filter = []
     raw_id_fields = ['language', 'user', 'forked_from']
     search_fields = ['language__video__title', 'language__video__video_id', 'language__language']
+    list_per_page = 20
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def language_title(self, obj):
+        return unicode(obj.language)
+    language_title.short_description = 'language'
+    language_title.admin_order_field = 'language__language'
 
     def video(self, obj):
         if obj.language.video:
