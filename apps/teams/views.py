@@ -1135,7 +1135,9 @@ def dashboard(request, slug):
 
     if user:
         user_filter = {'assignee':str(user.id)}
-        context['user_tasks'] = _tasks_list(request, team, None, user_filter, user)
+        user_tasks = _tasks_list(request, team, None, user_filter, user)
+        user_tasks.order_by('expiration_date')
+        context['user_tasks'] = user_tasks
 
     return context
 
