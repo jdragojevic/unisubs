@@ -694,6 +694,7 @@ div.fix-chosen div.chzn-container {
         width: 290px;
         background: rgba(0,0,0,.75);
         color: #fff;
+        text-shadow: 0px 0px 2px #000;
 
         &:hover {
             border: none;
@@ -718,19 +719,11 @@ div.fix-chosen div.chzn-container {
     }
 
     .languages {
-        background: hsla(0%, 0%, 0%, .35);
-        color: #eee;
-        left: 17px;
-        margin: 0;
-        padding: .5em .75em;
-        position: absolute;
-        text-shadow: 1px 1px 1px #444;
-        top: 17px;
-        width: auto;
-        @include border-radius(3px);
+        li {
+            padding: .5em;
+        }
     }
     &:hover .languages {
-        background: hsla(0%, 0%, 0%, .55);
     }
 
     .callout {
@@ -1944,6 +1937,10 @@ div#rollback-button {
     @include border-radius(3px);
     @include linear-gradient(top, hsla(0, 0%, 96%, 1), hsla(0, 0%, 98%, 1) 5%, hsla(0, 0%, 97%, 1));
 
+    &.halves li {
+        width: 49.5%
+    }
+
     li {
         border-right: 1px solid #eaeaea;
         float: left;
@@ -2230,15 +2227,23 @@ a.truncated-expand {
 .team_dashboard .view {
 
     h3 {
-        padding: 1em 10px;
-        @include linear-gradient(top, $fainter, darken($faintest, 2%) 5%, darken($faintest, 3%));
-        margin: -1px 0 0 -10px;
+        clear: both;
+        margin: 0 0 0 -10px;
+        padding: 1.5em 10px;
+        @include linear-gradient( bottom, hsla(0, 0%, 97%, 1), hsla(0, 0%, 100%, 1) 25%, hsla(0, 0%, 100%, 1) );
+        border-bottom: 1px solid #e8ebed;
         font-size: 13px;
-        border-bottom: 1px solid $fainter;
         text-align: center;
     }
 
     .listing.yours {
+
+        margin-bottom: 3em;
+
+        > li {
+            margin-left: -10px;
+            padding: 1.5em 10px;
+        }
 
         .due {
             margin-left: .5em;
@@ -2251,7 +2256,7 @@ a.truncated-expand {
 
         .perform-task {
             position: absolute;
-            top:.25em; right: 1em;
+            top:0; right: 1em;
         }
     }
 

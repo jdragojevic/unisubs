@@ -35,12 +35,8 @@
             {% endif %}
         {% endwith %}
 
-        <div class="tools group">
-            <a href="#">What is this?</a>
-        </div>
-
         {% if user_tasks %}
-            <h3>Videos you're working on</h3>
+            <h3>You're working on {{ user_tasks.count }} videos...</h3>
             <ul class="listing tasks yours">
                 {% for task in user_tasks %}
                     <li>
@@ -70,13 +66,13 @@
             </ul>
         {% endif %}
         {% if videos %}
-            <h3>More videos you can help with</h3>
+            <h3>There are {{ videos.items|length }} more videos you can help with...</h3>
             <ul class="listing videos">
                 {% for id, video in videos.items %}
                     <li>
                         <a href="{{ video.video.get_absolute_url }}" class="thumb"><img src="{{ video.get_thumbnail }}" alt="{{ video.title }}"></a>
                         <h4><a href="{{ video.video.get_absolute_url }}">{{ video|truncatewords:15 }}</a></h4>
-                        <ul>
+                        <ul class="languages">
                             {% for task in video.tasks %}
                                 <li>
                                     {% if task.get_type_display == 'Subtitle' or task.get_type_display == 'Translate' %}

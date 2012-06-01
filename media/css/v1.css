@@ -674,6 +674,7 @@ div.fix-chosen div.chzn-container {
   width: 290px;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
+  text-shadow: 0px 0px 2px #000;
 }
 .v1 .listing.videos > li h3 a:hover {
   border: none;
@@ -692,25 +693,8 @@ div.fix-chosen div.chzn-container {
 .v1 .listing.videos > li a {
   text-decoration: none;
 }
-.v1 .listing.videos > li .languages {
-  background: rgba(0, 0, 0, 0.35);
-  color: #eee;
-  left: 17px;
-  margin: 0;
-  padding: .5em .75em;
-  position: absolute;
-  text-shadow: 1px 1px 1px #444;
-  top: 17px;
-  width: auto;
-  -moz-background-clip: padding-box;
-  -moz-border-radius: 3px;
-  -webkit-background-clip: padding-box;
-  -webkit-border-radius: 3px;
-  background-clip: padding-box;
-  border-radius: 3px;
-}
-.v1 .listing.videos > li:hover .languages {
-  background: rgba(0, 0, 0, 0.55);
+.v1 .listing.videos > li .languages li {
+  padding: .5em;
 }
 .v1 .listing.videos > li .callout {
   color: #fff;
@@ -1926,6 +1910,9 @@ div#rollback-button {
   background-image: -webkit-linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
   background-image: linear-gradient(top, #f5f5f5, #fafafa 5%, #f7f7f7);
 }
+.v1 .context .metrics.halves li {
+  width: 49.5%;
+}
 .v1 .context .metrics li {
   border-right: 1px solid #eaeaea;
   float: left;
@@ -2199,16 +2186,24 @@ a.truncated-expand.expanded {
 }
 
 .team_dashboard .view h3 {
-  padding: 1em 10px;
-  background-image: -moz-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
-  background-image: -ms-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
-  background-image: -o-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
-  background-image: -webkit-linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
-  background-image: linear-gradient(top, #dce2e5, #edf1f4 5%, #e9eff2);
-  margin: -1px 0 0 -10px;
+  clear: both;
+  margin: 0 0 0 -10px;
+  padding: 1.5em 10px;
+  background-image: -moz-linear-gradient(bottom, #f7f7f7, white 25%, white);
+  background-image: -ms-linear-gradient(bottom, #f7f7f7, white 25%, white);
+  background-image: -o-linear-gradient(bottom, #f7f7f7, white 25%, white);
+  background-image: -webkit-linear-gradient(bottom, #f7f7f7, white 25%, white);
+  background-image: linear-gradient(bottom, #f7f7f7, white 25%, white);
+  border-bottom: 1px solid #e8ebed;
   font-size: 13px;
-  border-bottom: 1px solid #dce2e5;
   text-align: center;
+}
+.team_dashboard .view .listing.yours {
+  margin-bottom: 3em;
+}
+.team_dashboard .view .listing.yours > li {
+  margin-left: -10px;
+  padding: 1.5em 10px;
 }
 .team_dashboard .view .listing.yours .due {
   margin-left: .5em;
@@ -2219,7 +2214,7 @@ a.truncated-expand.expanded {
 }
 .team_dashboard .view .listing.yours .perform-task {
   position: absolute;
-  top: .25em;
+  top: 0;
   right: 1em;
 }
 .team_dashboard .view .listing.videos li h4 a {
