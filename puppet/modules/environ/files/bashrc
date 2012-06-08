@@ -95,6 +95,7 @@ alias go='cu && so && ./dev-runserver.sh plus'
 alias d='./dev-runserver.sh plus'
 alias us='sudo deploy/update_solr_schema_vagrant.sh'
 alias clean_unisubs_messages='rm /tmp/unisubs-messages/*.log'
+alias preparetestdb='python manage.py syncdb --all --settings=dev_settings_test --noinput; python manage.py migrate --fake --settings=dev_settings_test'
 
 alias ..='cd ..'
 alias ...='cd ../..'

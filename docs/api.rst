@@ -679,6 +679,8 @@ Fields
     * ``Translate``
     * ``Review``
     * ``Approve``
+* ``version_no`` - Subtitle version number (required for ``Approve`` and
+  ``Review`` tasks)
 
 An example response:
 

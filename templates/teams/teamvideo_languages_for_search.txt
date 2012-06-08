@@ -2,5 +2,6 @@
 {{ object }}
 {{ object.video.description }}
 {{ object.video.title }}
+{{ object.description }}
 {% for lp in object.searchable_language_pairs %}{{lp}} {% endfor %}
 {% for l in object.searchable_languages %}{{l}} {% endfor %}

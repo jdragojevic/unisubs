@@ -766,10 +766,16 @@ def _save_embedjs_on_app_servers():
     straight from squid in order to be able to set the CORS heades
     (amazon's s3 does not allow that header to be set)
     '''
-    env.host_string = env.admin_host
     # to find the url, we must revsolve the current STATIC_ROOT
-    with cd(os.path.join(env.admin_dir, 'unisubs')):
-        python_exe = '{0}/env/bin/python'.format(env.admin_dir)
+    if env.admin_dir:
+        env.host_string = env.admin_host
+        base_dir = env.admin_dir
+    else:
+        env.host_string = DEV_HOST
+        base_dir = env.web_dir
+
+    with cd(os.path.join(base_dir, 'unisubs')):
+        python_exe = '{0}/env/bin/python'.format(base_dir)
         res = run('{0} manage.py  get_settings_values STATIC_URL_BASE --single-host --settings=unisubs_settings'.format(python_exe))
         media_url = res.replace("\n", "").strip()
         url = "%sembed.js" % media_url
