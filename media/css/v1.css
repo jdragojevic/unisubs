@@ -250,17 +250,22 @@ div.fix-chosen div.chzn-container {
   width: auto !important;
 }
 
-.action-group {
+.v1 .listing .action-group {
   position: relative;
 }
-.action-group .trigger {
+.v1 .listing .action-group .trigger {
   cursor: pointer;
 }
-.action-group ul {
+.v1 .listing .action-group ul {
   display: none;
 }
-.action-group:hover ul {
+.v1 .listing .action-group:hover ul {
   display: block;
+}
+.v1 .listing .action-group li.disabled {
+  text-align: left;
+  color: #CA4C43;
+  padding: .5em 1em;
 }
 
 /* Tabs */
@@ -806,7 +811,10 @@ div.fix-chosen div.chzn-container {
   padding-right: 0;
 }
 .v1 .listing.tasks > li.disabled h3, .v1 .listing.tasks > li.disabled p, .v1 .listing.tasks > li.disabled a, .v1 .listing.tasks > li.disabled ul {
-  opacity: .2;
+  opacity: .5;
+}
+.v1 .listing.tasks > li.disabled img {
+  opacity: .3;
 }
 .v1 .listing.tasks > li.disabled ul.actions, .v1 .listing.tasks > li.disabled ul.admin-controls {
   display: none !important;
@@ -1638,6 +1646,9 @@ ol.subtitles li .quiet {
   left: 100px;
   position: absolute;
   top: 1em;
+}
+ol.subtitles.is_rtl li div.translation-text {
+  direction: rtl;
 }
 
 div#rollback-button {

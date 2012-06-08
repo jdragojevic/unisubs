@@ -18,12 +18,22 @@
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+import optparse
 import socket
 class Command(BaseCommand):
-    help = u'Test if Solr, Redis and Memcached are available'
+    help = u'Lists the settings values for a given setting name'
     
+    option_list = BaseCommand.option_list + (
+        optparse.make_option('--single-host',
+            action='store_true', dest='single_host', default=False,
+            help="Print only the value for one host"),
+    )
+
     def handle(self, *args, **kwargs):
-        
+        if kwargs.get("single_host", False):
+            for name in args :
+                print getattr(settings, name, "")
+            return
         hostname = socket.gethostname()
         print "@ %s"  % hostname
         for name in args :

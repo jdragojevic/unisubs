@@ -583,9 +583,10 @@ class Rpc(BaseRpc):
             else:
                 self._copy_subtitles(previous_version, new_version)
 
+
             # this is really really hackish.
             # TODO: clean all this mess on a friday
-            if not new_version.language.is_complete_and_synced(public_only=False):
+            if not new_version.is_synced():
                 self._moderate_incomplete_version(new_version, user)
             elif should_create_task:
                 self._create_review_or_approve_task(new_version)
@@ -736,10 +737,17 @@ class Rpc(BaseRpc):
         subtitle_version.moderation_status = WAITING_MODERATION
         subtitle_version.save()
 
-        task = Task(team=team_video.team, team_video=team_video,
-                    language=language, type=Task.TYPE_IDS['Subtitle'])
+        if subtitle_version.is_dependent():
+            task_type = Task.TYPE_IDS['Translate']
+            can_do = can_create_and_edit_translations
+        else:
+            task_type = Task.TYPE_IDS['Subtitle']
+            can_do = can_create_and_edit_subtitles
 
-        if can_create_and_edit_subtitles(user, team_video):
+        task = Task(team=team_video.team, team_video=team_video,
+                    language=language, type=task_type)
+
+        if can_do(user, team_video):
             task.assignee = user
 
         task.save()
@@ -1066,7 +1074,8 @@ class Rpc(BaseRpc):
             base_language,
             language.get_title(public_only=False),
             language.get_description(public_only=False),
-            language.is_rtl()
+            language.is_rtl(),
+            language.video.is_moderated,
         )
 
 

@@ -49,7 +49,7 @@ from teams.forms import (
 )
 from teams.models import (
     Team, TeamMember, Invite, Application, TeamVideo, Task, Project, Workflow,
-    Setting, TeamLanguagePreference, autocreate_tasks
+    Setting, TeamLanguagePreference
 )
 from teams.permissions import (
     can_add_video, can_assign_role, can_assign_tasks, can_create_task_subtitle,
@@ -76,7 +76,7 @@ from videos.tasks import (
     upload_subtitles_to_original_service, delete_captions_in_original_service,
     delete_captions_in_original_service_by_code
 )
-from videos.models import Action, VideoUrl, SubtitleLanguage, SubtitleVersion, Video
+from videos.models import Action, VideoUrl, SubtitleLanguage, Video
 from widget.rpc import add_general_settings
 from widget.views import base_widget_params
 from widget.srt_subs import GenerateSubtitlesHandler
@@ -98,7 +98,8 @@ ACTIONS_ON_PAGE = getattr(settings, 'ACTIONS_ON_PAGE', 20)
 DEV = getattr(settings, 'DEV', False)
 DEV_OR_STAGING = DEV or getattr(settings, 'STAGING', False)
 
-# Teams
+
+# Management
 def index(request, my_teams=False):
     q = request.REQUEST.get('q')
 
@@ -619,12 +620,14 @@ def remove_video(request, team_video_pk):
 
     video = team_video.video
 
-    team_video.delete()
-
     if wants_delete:
+        # create the action handler before deleting the video, so that
+        # it can grab the video's title
+        Action.delete_video_handler(video, team_video.team, request.user)
         video.delete()
         msg = _(u'Video has been deleted from Amara.')
     else:
+        team_video.delete()
         msg = _(u'Video has been removed from the team.')
 
     if request.is_ajax():
@@ -633,7 +636,9 @@ def remove_video(request, team_video_pk):
         messages.success(request, msg)
         return HttpResponseRedirect(next)
 
-def videos_actions(request, slug):
+@timefn
+@render_to('teams/activity.html')
+def activity(request, slug):
     team = Team.get(slug, request.user)
 
     try:
@@ -643,17 +648,25 @@ def videos_actions(request, slug):
         member = False
 
     public_only = False if member else True
-    qs = Action.objects.for_team(team, public_only=public_only)
 
-    extra_context = {
-        'team': team
-    }
-    return object_list(request, queryset=qs,
-                       paginate_by=ACTIONS_ON_PAGE,
-                       template_name='teams/videos_actions.html',
-                       extra_context=extra_context,
-                       template_object_name='videos_action')
+    # This section is here to work around MySQL's poor decisions.
+    #
+    # Much like the Tasks page, this query performs extremely poorly when run
+    # normally.  So we split it into two parts here so that each will run fast.
+    action_ids = Action.objects.for_team(team, public_only=public_only, ids=True)
+    action_ids, pagination_info = paginate(action_ids, ACTIONS_ON_PAGE,
+                                           request.GET.get('page'))
+    action_ids = list(action_ids)
 
+    activity_list = list(Action.objects.filter(id__in=action_ids).select_related(
+            'video', 'user', 'language', 'language__video'
+    ).order_by())
+    activity_list.sort(key=lambda a: action_ids.index(a.pk))
+
+    context = { 'activity_list': activity_list, 'team': team }
+    context.update(pagination_info)
+
+    return context
 
 # Members
 @timefn
@@ -1078,7 +1091,7 @@ def _tasks_list(request, team, project, filters, user):
         elif assignee:
             tasks = tasks.filter(assignee=User.objects.get(username=assignee))
 
-    return tasks.select_related('team_video__video', 'team_video__team', 'assignee', 'team', 'team_video__project')
+    return tasks
 
 def _order_tasks(request, tasks):
     sort = request.GET.get('sort', '-created')
@@ -1176,6 +1189,24 @@ def team_tasks(request, slug, project_slug=None):
                          _tasks_list(request, team, project, filters, user))
     category_counts = _task_category_counts(team, filters, request.user)
     tasks, pagination_info = paginate(tasks, TASKS_ON_PAGE, request.GET.get('page'))
+
+    # We pull out the task IDs here for performance.  It's ugly, I know.
+    #
+    # MySQL doesn't use the ideal indexes when you try to filter and
+    # select_related all the various stuff, but if you split the process into
+    # two queries they'll both be fast.
+    #
+    # Thanks, MySQL.
+    task_ids = list(tasks.values_list('id', flat=True))
+    tasks = list(Task.objects.filter(id__in=task_ids).select_related(
+            'team_video__video',
+            'team_video__team',
+            'team_video__project',
+            'assignee',
+            'team',
+            'subtitle_version__language__standard_language',
+            'subtitle_version__user'))
+    tasks.sort(key=lambda t: task_ids.index(t.pk))
 
     if filters.get('team_video'):
         filters['team_video'] = TeamVideo.objects.get(pk=filters['team_video'])
@@ -1404,8 +1435,8 @@ def upload_draft(request, slug):
         if form.is_valid():
             try:
                 form.save()
-            except Exception:
-                messages.error(request, _(u"Sorry, the subtitles don't match the lines, so we can't upload them."))
+            except Exception, e:
+                messages.error(request, unicode(e))
                 transaction.rollback()
             else:
                 messages.success(request, _(u"Draft uploaded successfully."))

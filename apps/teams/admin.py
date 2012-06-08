@@ -120,19 +120,44 @@ class WorkflowAdmin(admin.ModelAdmin):
     ordering = ('-created',)
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('id', 'type', 'team', 'team_video', 'language',
-                    'assignee', 'is_complete', 'deleted')
+    # We specifically pull assignee, team_video, team, and language out into
+    # properties to force extra queries per row.  This sounds like a bad idea,
+    # but:
+    #
+    # 1. MySQL was performing a full table scan when using the select_related()
+    #    for some reason.
+    # 2. It's only a few extra queries, so it's not the end of the world.
+    list_display = ('id', 'type', 'team_title', 'team_video_title',
+                    'language_title', 'assignee_name', 'is_complete', 'deleted')
     list_filter = ('type', 'deleted', 'created', 'modified', 'completed')
     search_fields = ('assignee__username', 'team__name', 'assignee__first_name',
                      'assignee__last_name', 'team_video__title',
                      'team_video__video__title')
     raw_id_fields = ('team_video', 'team', 'assignee', 'subtitle_version',
                      'review_base_version')
-    ordering = ('-created',)
+    ordering = ('-id',)
+    list_per_page = 20
 
     def is_complete(self, o):
         return True if o.completed else False
     is_complete.boolean = True
+
+    def assignee_name(self, o):
+        return unicode(o.assignee) if o.assignee else ''
+    assignee_name.short_description = 'assignee'
+
+    def team_video_title(self, o):
+        return unicode(o.team_video) if o.team_video else ''
+    team_video_title.short_description = 'team video'
+
+    def team_title(self, o):
+        return unicode(o.team) if o.team else ''
+    team_title.short_description = 'team'
+
+    def language_title(self, o):
+        return unicode(o.language) if o.language else ''
+    language_title.short_description = 'language'
+    language_title.admin_order_field = 'language__language'
 
 class TeamLanguagePreferenceAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'team', 'language_code', 'preferred',

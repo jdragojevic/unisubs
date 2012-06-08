@@ -627,6 +627,7 @@ class UnpublishForm(forms.Form):
 class UploadDraftForm(forms.Form):
     draft = forms.FileField(required=True)
     task = forms.ModelChoiceField(Task.objects, required=True)
+    translate_from = forms.ChoiceField(required=False, choices=[("", "Direct")] + ALL_LANGUAGES, initial='en')
     language = forms.ChoiceField(required=False, choices=ALL_LANGUAGES, initial='en')
 
     def __init__(self, user, *args, **kwargs):
@@ -641,6 +642,18 @@ class UploadDraftForm(forms.Form):
             raise forms.ValidationError(_(u'You cannot perform that task.'))
 
         return task
+
+    def clean_translate_from(self):
+        language = self.cleaned_data['translate_from']
+        task = self.cleaned_data['task']
+
+        video = Video.objects.get(teamvideo=task.team_video_id)
+        allowed_languages = [sl.language for sl in video.subtitlelanguage_set.all() if sl.is_complete_and_synced()]
+
+        if language and language not in allowed_languages:
+            raise forms.ValidationError(_(u'Invalid language to translate from.'))
+
+        return language
 
     def clean_draft(self):
         subtitles = self.cleaned_data['draft']
@@ -685,10 +698,22 @@ class UploadDraftForm(forms.Form):
         if end == 'dfxp':
             return DfxpSubtitleParser
 
-    def _save_new_language(self, video, lang_code):
+    def _save_new_language(self, video, lang_code, translate_from):
         language = SubtitleLanguage()
         language.language = lang_code
-        language.is_original = True
+
+        if not translate_from:
+            language.is_original = True
+        else:
+            language.is_original = False
+            language.is_forked = False
+
+            # iuck
+            if translate_from.is_original:
+                language.standard_language = translate_from
+            else:
+                language.standard_language = translate_from.standard_language
+
         language.video = video
         language.save()
 
@@ -699,20 +724,26 @@ class UploadDraftForm(forms.Form):
 
         task = self.cleaned_data['task']
         video = task.team_video.video
+        language_to_translate = self.cleaned_data['translate_from']
 
-        task.assignee = self.user
+        if not task.assignee and can_assign_task(task, self.user):
+            task.assignee = self.user
 
         if task.language:
             video_language = task.language
         else:
             video_language = self.cleaned_data['language']
         
-        if task.subtitle_version:
-            # we already had a version, that means
-            # it's a review/approve or a continue
-            version = task.subtitle_version
-            language = task.subtitle_version.language
+        translated_from = None
+
+        if task.get_subtitle_version():
+            version = task.get_subtitle_version()
+            language = task.get_subtitle_version().language
+
+            if not language.is_original:
+                translated_from = language.standard_language
         else:
+            translated_from = video.subtitle_language(language_to_translate) if language_to_translate else None
             language = video.subtitle_language(video_language)
 
             if language and language.has_version:
@@ -721,20 +752,28 @@ class UploadDraftForm(forms.Form):
                 version = None
 
                 if not language:
-                    language = self._save_new_language(video, video_language)
+                    language = self._save_new_language(video, video_language, translated_from)
 
         # if there isn't a version we don't need to check this
         # since it's the first upload for this version
-        if version and version.subtitle_set.count() != len(self._parser):
-            raise Exception("We are strict and your subtitles are bad")
+        if version and version.subtitle_set.count() < len(self._parser):
+            raise Exception(_(u"Sorry, the subtitles don't match the lines, so we can't upload them."))
 
         # we need to set the moderation_status to WAITING_MODERATION
         # so the version is not public. At the same time, we cannot
-        # set task.subtitle_version, otherwise the task will get
-        # blocked. :(
-        version = SubtitleVersion.objects.new_version(self._parser, language, self.user, moderation_status=WAITING_MODERATION)
+        # set task.subtitle_version if it's review/approve, otherwise 
+        # the task will get blocked. :(
+        version = SubtitleVersion.objects.new_version(self._parser, language, self.user, 
+                                                      moderation_status=WAITING_MODERATION,
+                                                      translated_from=translated_from,
+                                                      note="Uploaded")
+        
+        if task.type in (Task.TYPE_IDS['Review'], Task.TYPE_IDS['Approve']):
+            task.subtitle_version = version
 
-        task.language = video_language
+        if not task.language:
+            task.language = video_language
+
         task.save()
 
         # we created a new subtitle version let's fire a notification

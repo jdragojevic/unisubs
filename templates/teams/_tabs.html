@@ -17,7 +17,7 @@
         </a>
     </li>
     <li{% if current == "activity" %} class="current" {% endif %}>
-        <a href="{% url teams:videos_actions team.slug %}">
+        <a href="{% url teams:activity team.slug %}">
             {% trans "Activity" %}
         </a>
     </li>

@@ -41,7 +41,8 @@ unisubs.subtitle.TranscribeEntry.R = 3;
 unisubs.subtitle.TranscribeEntry.S = 1;
 // in pixels, js resizes the widget dinamically
 unisubs.subtitle.TranscribeEntry.LINE_HEIGHT = 31;
-
+// caption standard says 4 lines with max 32 chars in each
+unisubs.subtitle.TranscribeEntry.CHAR_LIMIT = 128;
 unisubs.subtitle.TranscribeEntry.prototype.createDom = function() {
     unisubs.subtitle.TranscribeEntry.superClass_.createDom.call(this);
     this.getElement().setAttribute('class', 'unisubs-transcribeControls');
@@ -164,14 +165,13 @@ unisubs.subtitle.TranscribeEntry.prototype.addNewTitle_ = function() {
 unisubs.subtitle.TranscribeEntry.prototype.issueLengthWarning_ =
     function(breakable)
 {
-    var MAX_CHARS = 100;
     var length = this.labelInput_.getValue().length;
-    if (breakable && length > MAX_CHARS)
+    if (breakable && length > unisubs.subtitle.TranscribeEntry.CHAR_LIMIT)
         this.addNewTitle_();
     else
         unisubs.style.setProperty(
             this.getElement(), 'background',
-            this.warningColor_(length, 50, MAX_CHARS));
+            this.warningColor_(length, 90, unisubs.subtitle.TranscribeEntry.CHAR_LIMIT));
 };
 unisubs.subtitle.TranscribeEntry.prototype.warningColor_ =
     function(length, firstChars, maxChars) {

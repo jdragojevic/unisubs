@@ -51,17 +51,22 @@
 <script type="text/javascript">
     $('#apply-modal button').click(function(){
         var $t = $('#apply-modal textarea');
-        TeamsApi.create_application($(this).attr('team_id'), $t.val(), function(response){
-            if (response.error){
-                $.jGrowl.error(response.error);
-            }else{
-                $('#apply-modal').hide();
-                $('#apply').remove();
-                $('body div.well').remove();
-                $.jGrowl(response.msg);
-                $t.val('');
-            }
-        });
+
+        if ($t.val() !== '') {
+            TeamsApi.create_application($(this).attr('team_id'), $t.val(), function(response){
+                if (response.error){
+                    $.jGrowl.error(response.error);
+                }else{
+                    $('#apply-modal').hide();
+                    $('#apply').remove();
+                    $('body div.well').remove();
+                    $.jGrowl(response.msg);
+                    $t.val('');
+                }
+            });
+        } else {
+            alert('The "About you" field is required in order to apply.');
+        }
         return false;
     });
 </script>

@@ -64,17 +64,31 @@ unisubs.widget.DropLockDialog.prototype.createDom = function() {
     unisubs.style.setProperty(
         this.clearDiv_, 'clear', 'both');
     this.clearDiv_.innerHTML = "&nbsp;";
-    goog.dom.append(
-        this.contentDiv_,
-        $d("p", null,
-           "Warning: you've been idle for more than " + 
-           unisubs.Dialog.MINUTES_TILL_WARNING + 
-           " minutes.  To give other users a chance to help, " + 
-           "we will close your session in ",
-           this.timeRemainingSpan_,
-           " seconds."),
-        this.backToEditingButton_,
-        this.clearDiv_);
+
+    if (this.serverModel_.getCaptionSet().isModerated) {
+        goog.dom.append(
+            this.contentDiv_,
+            $d("p", null,
+               "Warning: you've been idle for more than " + 
+               unisubs.Dialog.MINUTES_TILL_WARNING + 
+               " minutes. To ensure your work is not lost, we will save this draft and close your session in " + 
+               this.timeRemainingSpan_,
+               " seconds."),
+            this.backToEditingButton_,
+            this.clearDiv_);
+    } else {
+        goog.dom.append(
+            this.contentDiv_,
+            $d("p", null,
+               "Warning: you've been idle for more than " + 
+               unisubs.Dialog.MINUTES_TILL_WARNING + 
+               " minutes.  To give other users a chance to help, " + 
+               "we will close your session in ",
+               this.timeRemainingSpan_,
+               " seconds."),
+            this.backToEditingButton_,
+            this.clearDiv_);
+    }
 };
 
 unisubs.widget.DropLockDialog.prototype.showLockDroppedDom_ = function(e){

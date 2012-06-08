@@ -15,10 +15,10 @@
             {% include "teams/_tabs.html" %}
         {% endwith %}
 
-        {% if videos_action_list %}
+        {% if activity_list %}
             <ul class="activity listing">
                 {% with 1 as medium_thumb %}
-                    {% for item in videos_action_list %}
+                    {% for item in activity_list %}
                         <li>{{ item.render }}</li>
                     {% endfor %}
                 {% endwith %}

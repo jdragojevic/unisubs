@@ -48,6 +48,8 @@ class lucid32 {
   package { "git-core": ensure => "installed", }
   package { "swig": ensure => "installed", }
   package { "vim": ensure => "installed", }
+  package { "libxslt-dev": ensure => "installed", }
+  package { "libxml2-dev": ensure => "installed", }
 
   class { "redis::server":
     version => "2.4.8",

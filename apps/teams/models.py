@@ -441,7 +441,7 @@ class Team(models.Model):
 
         if query:
             for term in get_terms(query):
-                qs = qs.filter(video_title__icontains=qs.query.clean(term))
+                qs = qs.auto_query(qs.query.clean(term))
 
         if language:
             qs = qs.filter(video_completed_langs=language)
@@ -722,6 +722,7 @@ class TeamVideo(models.Model):
         """
         # these imports are here to avoid circular imports, hacky
         from teams.signals import api_teamvideo_new
+        from teams.signals import video_moved_from_team_to_team
         from videos import metadata_manager
         # For now, we'll just delete any tasks associated with the moved video.
         self.task_set.update(deleted=True)
@@ -742,9 +743,11 @@ class TeamVideo(models.Model):
         # TODO: Dedupe this and the team video delete signal.
         video = self.video
 
-        SubtitleVersion.objects.filter(language__video=video).exclude(
-            moderation_status=MODERATION.APPROVED).update(
-                moderation_status=MODERATION.UNMODERATED)
+        workflow = new_team.get_workflow()
+        if not (workflow.review_enabled or workflow.approve_enabled):
+            SubtitleVersion.objects.filter(language__video=video).exclude(
+                moderation_status=MODERATION.APPROVED).update(
+                    moderation_status=MODERATION.UNMODERATED)
 
         video.is_public = True
         video.moderated_by = new_team if new_team.moderates_videos() else None
@@ -768,6 +771,8 @@ class TeamVideo(models.Model):
 
         # fire a http notification that a new video has hit this team:
         api_teamvideo_new.send(self)
+        video_moved_from_team_to_team.send(sender=self,
+                destination_team=new_team, video=self.video)
 
 
 def _create_translation_tasks(team_video, subtitle_version):
@@ -1873,7 +1878,11 @@ class Task(models.Model):
         that causes the version to get published).
         """
 
-        if self.subtitle_version:
+        # autocreate sets the subtitle_version to another
+        # language's subtitle_version and that was breaking
+        # not only the interface but the new upload method.
+        if self.subtitle_version and \
+                self.subtitle_version.language.language == self.language:
             return self.subtitle_version
 
         if not hasattr(self, "_subtitle_version"):

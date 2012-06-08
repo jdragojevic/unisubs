@@ -63,8 +63,6 @@ unisubs.editmetadata.RightPanel.prototype.appendHelpContentsInternal = function(
             this.getHandler().listen(
                 link, 'click', goog.partial(function(step, e) {
                     e.preventDefault();
-                    that.dispatchEvent(
-                        new unisubs.RightPanel.GoToStepEvent(step));
                 }, i));
             stepsUL.appendChild($d('li', null, link));
         }

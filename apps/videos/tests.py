@@ -37,8 +37,10 @@ from apps.auth.models import CustomUser as User
 from messages.models import Message
 from teams.models import Team, TeamVideo, Workflow, TeamMember
 from testhelpers.views import _create_videos
-from utils import SrtSubtitleParser, YoutubeSubtitleParser, TxtSubtitleParser
-from videos import metadata_manager, alarms
+from utils import (
+    SrtSubtitleParser, YoutubeSubtitleParser, TxtSubtitleParser, DfxpSubtitleParser
+)
+from videos import metadata_manager, alarms, EffectiveSubtitle
 from videos.feed_parser import FeedParser
 from videos.forms import VideoForm
 from videos.models import (
@@ -62,6 +64,7 @@ from videos.types.youtube import YoutubeVideoType, save_subtitles_for_lang
 from vidscraper.sites import blip
 from widget import video_cache
 from widget.rpc import Rpc
+from widget.srt_subs import DFXPSubtitles
 from widget.tests import (
     create_two_sub_dependent_session, create_two_sub_session, RequestMockup,
     NotAuthenticatedUser
@@ -177,6 +180,34 @@ Here is sub 2.
 And, sub 3.
 '''
 
+DFXP_TEXT = u'''<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns:tts="http://www.w3.org/2006/04/ttaf1#styling" xmlns="http://www.w3.org/2006/04/ttaf1">
+  <head/>
+  <body>
+    <div>
+      <p begin="00:00:00.04" end="00:00:03.18">We started Universal Subtitles because we believe</p>
+      <p begin="00:00:03.18" end="00:00:06.70">every video on the web should be subtitle-able.</p>
+      <p begin="00:00:06.70" end="00:00:11.17">Millions of deaf and hard-of-hearing viewers require subtitles to access video.</p>
+      <p begin="00:00:11.17" end="00:00:15.40">Videomakers and websites should really care about this stuff too.</p>
+      <p begin="00:00:15.40" end="00:00:21.01">Subtitles give them access to a wider audience and they also get better search rankings.</p>
+      <p begin="00:00:21.01" end="00:00:26.93">Universal Subtitles makes it incredibly easy to add subtitles to almost any video.</p>
+      <p begin="00:00:26.93" end="00:00:32.43">Take an existing video on the web, <br/>submit the URL to our website</p>
+      <p begin="00:00:32.43" end="00:00:37.37">and then type along with the dialog to create the subtitles</p>
+      <p begin="00:00:38.75" end="00:00:43.65">After that, tap on your keyboard to sync them with the video.</p>
+      <p begin="00:00:44.71" end="00:00:47.52">Then you're done— we give you an embed code for the video</p>
+      <p begin="00:00:47.52" end="00:00:49.89">that you can put on any website</p>
+      <p begin="00:00:49.89" end="00:00:53.42">at that point, viewers are able to use the subtitles and can also</p>
+      <p begin="00:00:53.42" end="00:00:56.04">contribute to translations.</p>
+      <p begin="00:00:56.04" end="00:01:01.54">We support videos on YouTube, Blip.TV, Ustream, and many more.</p>
+      <p begin="00:01:01.54" end="00:01:05.10">Plus we're adding more services all the time</p>
+      <p begin="00:01:05.10" end="00:01:09.04">Universal Subtitles works with many popular video formats,</p>
+      <p begin="00:01:09.04" end="00:01:14.35">such as MP4, theora, webM and over HTML 5.</p>
+      <p begin="00:01:14.35" end="00:01:19.61">Our goal is for every video on the web to be subtitlable so that anyone who cares about</p>
+      <p begin="00:01:19.61" end="00:01:23.31">the video can help make it more accessible.</p>
+    </div>
+  </body>
+</tt>
+'''
 class GenericTest(TestCase):
     def test_languages(self):
         langs = [l[1] for l in settings.ALL_LANGUAGES]
@@ -368,6 +399,25 @@ class SubtitleParserTest(TestCase):
         self._assert_sub(
             result[2], 16.1, 19.9,
             u'Ils ont eu raison, non seulement \nà cause de la célébrité de Richard')
+
+    def test_dfxp_parser(self):
+        parser = DfxpSubtitleParser(DFXP_TEXT)
+        result = list(parser)
+        self.assertEqual(len(result),19 )
+        line_break_sub  = result[6]
+        line_break_text = line_break_sub['subtitle_text']
+        self.assertTrue(line_break_text.startswith("Take an "))
+        self.assertTrue(line_break_text.find("\n") > -1)
+
+    def test_dfxp_serializer(self):
+        sub = {
+            'text': 'Here we\ngo!',
+            'start':1,
+            'end':2
+        }
+        serializer = DFXPSubtitles([sub])
+        result = unicode(serializer)
+        self.assertTrue(result.find("Here we<br/>go") > -1)
 
 class WebUseTest(TestCase):
     def _make_objects(self):

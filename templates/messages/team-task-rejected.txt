@@ -1,9 +1,9 @@
 Hi {{ user }},
 
 {% if sent_back %}
-{{ reviewer }} from the {{ team.name }} team has reviewed your {{ task_language }} subtitles for the video “{{ title }}”, and has requested additional work:
+{{ reviewer }} from the {{ team.name }} team has reviewed your {{ task_language }} subtitles for the video “{{ title }}”, and has requested additional work.
 {% else %}
-Your {{ task_language }} subtitles for the video “{{ title }}” have been declined by {{ reviewer }} from the {{ team.name }} team.
+Your {{ task_language }} subtitles for the video “{{ title }}” were not accepted by {{ reviewer }} from the {{ team.name }} team.
 {% endif %}
 {% if note %} {{ reviewer}} included the following note:
 {{ note }}

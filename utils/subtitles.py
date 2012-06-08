@@ -377,7 +377,7 @@ class DfxpSubtitleParser(SubtitleParser):
 
     def _get_data(self, node):
         output = {
-            'subtitle_text': unescape_html(strip_tags(node.toxml()))
+            'subtitle_text': unescape_html(strip_tags(node.toxml().replace("<br/>", "\n")))
         }
         output['start_time'] = self._get_time(node.getAttribute('begin'))
         output['end_time'] = self._get_time(node.getAttribute('end'))

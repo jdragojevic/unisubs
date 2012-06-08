@@ -37,11 +37,11 @@
                                 <span class="descriptor">{{ lang.get_language_display }}</span>
                             {% endfor %}
                         </h3>
-                        <p>
                         {% if item.note %}
-                            {{ item.note|urlize }}
+                            <div class="application-note">
+                                {{ item.note|urlize|linebreaksbr }}
+                            </div>
                         {% endif %}
-                        </p>
                         <a href="{{ item.user.get_absolute_url }}" class="thumb"><img src="{{ item.user.avatar }}" alt="{{ item.user }} avatar"></a>
                         {% if team|can_approve_application:user %}
                             <ul class="actions">

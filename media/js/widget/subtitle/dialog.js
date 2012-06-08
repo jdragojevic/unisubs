@@ -53,6 +53,8 @@ unisubs.subtitle.Dialog = function(videoSource, serverModel, subtitles, opt_open
      */
     this.subtitles_ = subtitles;
 
+    this.alreadySaving_ = false;
+
     this.keyEventsSuspended_ = false;
     this.reviewOrApprovalType_ = reviewOrApprovalType;
     // if this is a review approve dialog, we must fetch saved notes for this task if available
@@ -347,6 +349,12 @@ unisubs.subtitle.Dialog.prototype.isWorkSaved = function() {
     return this.saved_ || !this.serverModel_.anySubtitlingWorkDone();
 };
 unisubs.subtitle.Dialog.prototype.saveWorkInternal = function(closeAfterSave, saveForLater) {
+    if(this.alreadySaving_){
+        return;
+    }
+
+    this.alreadySaving_ = true;
+
     var notes = this.getNotesContent_(this.currentSubtitlePanel_);
     if (notes !== '') {
         this.serverModel_.setTaskNotes(notes);
@@ -357,6 +365,7 @@ unisubs.subtitle.Dialog.prototype.saveWorkInternal = function(closeAfterSave, sa
     } else if (goog.array.isEmpty(
         this.serverModel_.captionSet_.nonblankSubtitles())){
         // there are no subs here, close dialog or back to subtitling
+        this.alreadySaving_ = false;
         this.showEmptySubsDialog();
         return;
     } else {

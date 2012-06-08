@@ -28,10 +28,13 @@ unisubs.translate.Dialog = function(opener, serverModel, videoSource, subtitleSt
     this.opener_ = opener;
     this.subtitleState_ = subtitleState;
     this.standardSubState_ = standardSubState;
-
     this.serverModel_ = serverModel;
-
     this.serverModel_.init();
+
+    this.captionManager_ =
+        new unisubs.CaptionManager(
+            this.getVideoPlayerInternal(),
+            new unisubs.subtitle.EditableCaptionSet(this.standardSubState_.SUBTITLES));
 
     this.saved_ = false;
     this.rightPanelListener_ = new goog.events.EventHandler(this);
@@ -44,6 +47,8 @@ unisubs.translate.Dialog = function(opener, serverModel, videoSource, subtitleSt
     if ( !Boolean(this.reviewOrApprovalType_)){
        this.notesFectched_ = true; 
     }
+
+    this.alreadySaving_ = false;
 };
 
 goog.inherits(unisubs.translate.Dialog, unisubs.subtitle.Dialog);
@@ -88,7 +93,10 @@ unisubs.translate.Dialog.prototype.showGuidelines_ = function() {
 };
 unisubs.translate.Dialog.prototype.handleSaveAndExitKeyPress_ = function(e) {
     e.preventDefault();
-    this.saveWork(false, true);
+    var that = this;
+    setTimeout(function(){
+        that.saveWork(false, true);
+    }, 1500);
 };
 unisubs.translate.Dialog.prototype.handleDoneKeyPress_ = function(event) {
     event.preventDefault();
@@ -128,6 +136,12 @@ unisubs.translate.Dialog.prototype.enterDocument = function() {
     unisubs.subtitle.Dialog.superClass_.enterDocument.call(this);
     unisubs.Dialog.translationDialogOpen = true;
 
+    this.getHandler().
+        listen(
+            this.captionManager_,
+            unisubs.CaptionManager.CAPTION,
+            this.captionReached_);
+
     if (this.reviewOrApprovalType_ && !this.notesFectched_){
         var func  = this.serverModel_.fetchReviewData ;
         var that = this;
@@ -147,6 +161,12 @@ unisubs.translate.Dialog.prototype.onNotesFetched_ = function(body) {
     }
 };
 unisubs.translate.Dialog.prototype.saveWorkInternal = function(closeAfterSave, saveForLater) {
+    if(this.alreadySaving_){
+        return;
+    }
+
+    this.alreadySaving_ = true;
+
     var notes = this.getNotesContent_(this.currentSubtitlePanel_);
     if (notes !== '') {
         this.serverModel_.setTaskNotes(notes);
@@ -353,7 +373,26 @@ unisubs.translate.Dialog.prototype.disposeCurrentPanels_ = function() {
         this.timelineSubtitleSet_ = null;
     }
 };
-unisubs.subtitle.Dialog.prototype.captionReached_ = function(event) {
+unisubs.translate.Dialog.prototype.captionReached_ = function(event) {
     var c = event.caption;
-    this.getVideoPlayerInternal().showCaptionText(c ? c.getText() : '');
+    var caption;
+
+    if (c) {
+
+        var captionID = c.getCaptionID();
+
+        var translatedCaptionSet = this.translationPanel_.getTranslationList().captionSet_;
+        var translatedCaption = translatedCaptionSet.captionByID(captionID);
+
+        if (translatedCaption.getText() !== '') {
+            caption = translatedCaption.getText();
+        } else {
+            caption = c.getText();
+        }
+
+    } else {
+        caption = '';
+    }
+
+    this.getVideoPlayerInternal().showCaptionText(caption);
 };

@@ -56,7 +56,7 @@ class TeamVideoLanguagesIndex(SearchIndex):
     title = CharField()
     project_name = CharField(indexed=False)
     project_slug = CharField(indexed=False)
-    description = CharField(indexed=False)
+    description = CharField(indexed=True)
     is_complete = BooleanField()
     video_complete_date = DateTimeField(null=True)
     # list of completed language codes
@@ -104,7 +104,7 @@ class TeamVideoLanguagesIndex(SearchIndex):
         self.prepared_data['absolute_url'] = obj.get_absolute_url()
         self.prepared_data['thumbnail'] = obj.get_thumbnail()
         self.prepared_data['title'] = unicode(obj).strip()
-        self.prepared_data['description'] = obj.description
+        self.prepared_data['description'] = obj.video.description
         self.prepared_data['is_complete'] = obj.video.complete_date is not None
         self.prepared_data['video_complete_date'] = obj.video.complete_date
         self.prepared_data['project_pk'] = obj.project.pk

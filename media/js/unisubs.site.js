@@ -553,6 +553,7 @@ var Site = function(Site) {
         // Teams
         team_applications: function() {
             that.Utils.chosenify();
+            that.Utils.truncateTextBlocks($('div.application-note'), 90);
         },
         team_members_list: function() {
             that.Utils.resetLangFilter();

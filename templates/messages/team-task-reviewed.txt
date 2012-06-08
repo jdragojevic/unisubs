@@ -2,7 +2,7 @@ Hi {{ user }},
 
 Your {{ task_language }} subtitles for the video “{{ title }}” have been reviewed by {{ reviewer }} from the {{ team.name }} team.
 
-{% if sent_back %} The subtitles have been sent back to you for additional work and/or corrections. {% endif %} {% if reviewed_and_pending_approval %}
+{% if sent_back %} The subtitles have been returned to you for additional work and/or corrections. {% endif %} {% if reviewed_and_pending_approval %}
 The subtitles passed review and have been submitted for approval. {% endif %}
 {% if reviewed_and_published %} The subtitles passed review and have been published! {% endif %}
 

@@ -133,6 +133,10 @@ unisubs.subtitle.SyncPanel.prototype.makeKeySpecsInternal = function() {
         new unisubs.RightPanel.KeySpec(
             'unisubs-begin', 'unisubs-down', 'down',
             'Tap when next subtitle should appear', KC.DOWN, 0),
+        // uncomment this to fix instructions for key UP
+        // new unisubs.RightPanel.KeySpec(
+        //     'unisubs-begin', 'unisubs-up', 'up',
+        //     'Tap when next subtitle should finish', KC.UP, 0),
         new unisubs.RightPanel.KeySpec(
             'unisubs-play', 'unisubs-tab', 'tab', 'Play/Pause', KC.TAB, 0),
         new unisubs.RightPanel.KeySpec(
@@ -180,10 +184,24 @@ unisubs.subtitle.SyncPanel.prototype.handleKeyUp_ = function(event) {
         event.preventDefault();
         this.downReleased_();
         this.rightPanel_.setKeyDown(event.keyCode, 0, false);
-    }
-    else if (event.keyCode == goog.events.KeyCodes.SPACE &&
-             !this.currentlyEditingSubtitle_())
+    } else if (event.keyCode == goog.events.KeyCodes.SPACE &&
+             !this.currentlyEditingSubtitle_()){
         this.rightPanel_.setKeyDown(goog.events.KeyCodes.TAB, 0, false);
+    }else if (event.keyCode == goog.events.KeyCodes.UP &&
+             !this.currentlyEditingSubtitle_()){
+        this.rightPanel_.setKeyDown(goog.events.KeyCodes.UP, 0, false);
+        this.upPressed_();
+    }
+
+};
+
+unisubs.subtitle.SyncPanel.prototype.upPressed_ = function() {
+    if (this.videoPlayer_.isPlaying()) {
+        this.captionManager_.disableCaptionEvents(true);
+        var downPlayheadTime_ = this.videoPlayer_.getPlayheadTime();
+        var currentSub = this.subtitles_.findLastForTime(downPlayheadTime_);
+        currentSub.setEndTime(downPlayheadTime_);
+    }
 };
 unisubs.subtitle.SyncPanel.prototype.spacePressed_ = function() {
     this.videoPlayer_.togglePause();

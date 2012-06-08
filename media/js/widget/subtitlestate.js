@@ -29,6 +29,7 @@ unisubs.widget.SubtitleState = function(json, opt_subs) {
     this.LANGUAGE = json['language_code'];
     this.LANGUAGE_PK = json['language_pk'];
     this.LANGUAGE_IS_RTL = json['language_is_rtl'];
+    this.IS_MODERATED = json['is_moderated'];
     this.LANGUAGE_NAME = json['language_name'];
     this.IS_ORIGINAL = json['is_original'];
     this.IS_COMPLETE = json['is_complete'];

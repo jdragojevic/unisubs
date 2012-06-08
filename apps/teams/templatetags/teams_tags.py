@@ -68,6 +68,14 @@ def _get_team_video_from_search_record(search_record):
         try:
             return TeamVideo.objects.get(pk=search_record.team_video_pk)
         except TeamVideo.DoesNotExist:
+            from raven.contrib.django.models import client
+            client.create_from_exception()
+
+        try:
+            return TeamVideo.objects.get(video=search_record.video_pk)
+        except TeamVideo.DoesNotExist:
+            from raven.contrib.django.models import client
+            client.create_from_exception()
             return None
 
 
@@ -246,6 +254,13 @@ def invite_friends_to_team(context, team):
     context['invite_message'] = _(u'Can somebody help me subtitle these videos? %(url)s') % {
             'url': team.get_site_url()
         }
+    return context
+
+@register.inclusion_tag('teams/_task_language_list.html', takes_context=True)
+def languages_to_translate(context, task):
+    video = Video.objects.get(teamvideo=task.team_video_id)
+    context['allowed_languages'] = [(sl.language, sl.language_display()) for sl in video.subtitlelanguage_set.all() if sl.is_complete_and_synced()]
+
     return context
 
 @register.inclusion_tag('teams/_team_video_lang_list.html', takes_context=True)

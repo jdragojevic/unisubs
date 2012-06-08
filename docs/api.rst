@@ -349,6 +349,48 @@ Creating new subtitles for a language:
 
 This will create a new subtitle version with the new subtitles.
 
+Example response:
+
+.. http:get:: /api2/partners/videos/TRUFD3IyncAt/languages/en/subtitles/
+
+.. code-block:: json
+
+    {
+        "description": "Centipede - Knife Party www.knifeparty.com\nFireworks - Pyro Spectaculars by Souza www.pyrospectaculars.com/\n\n( Sittin' On ) The Dock of the Bay - Otis Redding\nLights - Journey\nFrisco Blues - John Lee Hooker\nSan Francisco ( Be Sure to Wear Flowers in Your Hair ) - Scott McKenzie  \nI Left My Heart in San Francisco - Tony Bennett\n\nIf you didn't understand what was happening, you should probably watch it again.\nThis has been a Seventh Movement effort.",
+        "note": "",
+        "resource_uri": "",
+        "site_url": "http://example-host/api2/partners/videos/TRUFD3IyncAt/en/1/",
+        "sub_format": "srt",
+        "subtitles": [
+            {
+                "end": 4,
+                "id": 1,
+                "start": 3,
+                "start_of_paragraph": false,
+                "text": "This is a cool bridge"
+            },
+            {
+                "end": 5,
+                "id": 2,
+                "start": 4,
+                "start_of_paragraph": false,
+                "text": "Really cool"
+            },
+            {
+                "end": 6,
+                "id": 3,
+                "start": 5,
+                "start_of_paragraph": false,
+                "text": "I love it"
+            }
+        ],
+        "title": "The Golden Gate Way",
+        "version_no": 0,
+        "video": "The Golden Gate Way",
+        "video_description": "Centipede - Knife Party www.knifeparty.com\nFireworks - Pyro Spectaculars by Souza www.pyrospectaculars.com/\n\n( Sittin' On ) The Dock of the Bay - Otis Redding\nLights - Journey\nFrisco Blues - John Lee Hooker\nSan Francisco ( Be Sure to Wear Flowers in Your Hair ) - Scott McKenzie  \nI Left My Heart in San Francisco - Tony Bennett\n\nIf you didn't understand what was happening, you should probably watch it again.\nThis has been a Seventh Movement effort.",
+        "video_title": "The Golden Gate Way"
+    }
+
 
 Language Resource
 ~~~~~~~~~~~~~~~~~
@@ -519,6 +561,25 @@ Example response
         "workflow_enabled": false
     }
 
+Team Member Resource
+~~~~~~~~~~~~~~~~~~~~
+
+You can list existing members of a team:
+
+.. http:get:: /api2/partners/teams/[team-slug]/members/
+
+Updating a team member (e.g. changing their role):
+
+.. http:put:: /api2/partners/teams/[team-slug]/members/[username]/
+
+Roles
++++++
+
+* ``owner``
+* ``admin``
+* ``manager``
+* ``contributor``
+
 Project Resource
 ~~~~~~~~~~~~~~~~
 
@@ -570,17 +631,35 @@ List all tasks for a given team:
 
 .. http:get:: /api2/partners/teams/[team-slug]/tasks/
 
+    :query assignee: Show only tasks assigned to a user identified by their
+        ``username``.
+    :query priority: Show only tasks with a given priority
+    :query type: Show only tasks of a given type
+    :query video_id: Show only tasks that pertain to a given video
+    :query order_by: Apply sorting to the task list.  Possible values:
+
+        * ``created``   Creation date
+        * ``-created``  Creation date (descending)
+        * ``priority``  Priority
+        * ``-priority`` Priority (descending)
+        * ``type``      Task type (details below)
+        * ``-type``     Task type (descending)
+
 Task detail:
 
 .. http:get:: /api2/partners/teams/[team-slug]/tasks/[task-id]/
 
-Create a new project:
+Create a new task:
 
 .. http:post:: /api2/partners/teams/[team-slug]/tasks/
 
 Update an existing task:
 
 .. http:put:: /api2/partners/teams/[team-slug]/tasks/[task-id]/
+
+Delete an existing task:
+
+.. http:delete:: /api2/partners/teams/[team-slug]/tasks/[task-id]/
 
 Fields
 ++++++

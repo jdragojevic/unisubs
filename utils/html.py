@@ -20,6 +20,9 @@ import htmllib
 
 def unescape(s):
     p = htmllib.HTMLParser(None)
+    # we need to preserve line breaks, nofill makes sure we don't
+    # loose them
+    p.nofill = True
     p.save_bgn()
     p.feed(s)
-    return p.save_end()
+    return p.save_end().strip()

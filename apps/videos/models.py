@@ -38,6 +38,7 @@ from django.utils.http import urlquote_plus
 from django.utils import simplejson as json
 from django.core.urlresolvers import reverse
 
+
 from auth.models import CustomUser as User, Awards
 from videos import EffectiveSubtitle, is_synced, is_synced_value
 from videos.types import video_type_registrar
@@ -384,7 +385,7 @@ class Video(models.Model):
             return self.videourl_set.filter(primary=True).all()[:1].get()
         except models.ObjectDoesNotExist:
             return None
-            
+
     def get_video_url(self):
         """Return the primary video URL for this video if one exists, otherwise None.
 
@@ -780,17 +781,14 @@ def create_video_id(sender, instance, **kwargs):
 
 def video_delete_handler(sender, instance, **kwargs):
     video_cache.invalidate_cache(instance.video_id)
-
-
-def video_post_delete_handler(sender, instance, **kwargs):
-    if sender == Video:
-        Action.delete_video_handler(instance)
+    # avoid circular dependencies, import here
+    from haystack import site
+    search_index = site.get_index(Video)
+    search_index.backend.remove(instance)
 
 
 models.signals.pre_save.connect(create_video_id, sender=Video)
 models.signals.pre_delete.connect(video_delete_handler, sender=Video)
-models.signals.post_delete.connect(video_post_delete_handler, sender=Video,
-        dispatch_uid='action')
 models.signals.m2m_changed.connect(User.video_followers_change_handler, sender=Video.followers.through)
 
 
@@ -1246,13 +1244,28 @@ class SubtitleVersionManager(models.Manager):
             description = video.get_description_display()
 
         forked = not bool(translated_from)
+        original_subs = None
+        forked_from = None
+
+        if isinstance(translated_from, SubtitleVersion):
+            forked_from = translated_from
+            original_subs = list(translated_from.subtitle_set.order_by("subtitle_order"))
+        else:
+            if translated_from and translated_from.version():
+                original_subs = list(translated_from.version().subtitle_set.order_by("subtitle_order"))
+                forked_from = translated_from.version()
+
+        if original_subs and len(parser) > len(original_subs):
+            raise Exception(_(u"Your subtitles don't match the translation"))
 
         version = SubtitleVersion(
                 language=language, version_no=version_no, note=note,
                 is_forked=forked, time_change=1, text_change=1,
                 title=title, description=description)
 
-        version.is_forked = forked
+        if forked:
+            version.forked_from = forked_from
+
         version.datetime_started = timestamp or datetime.now()
         version.user = user
 
@@ -1263,22 +1276,12 @@ class SubtitleVersionManager(models.Manager):
 
         ids = set()
 
-        original_subs = None
-
-        if translated_from and translated_from.version():
-            original_subs = list(translated_from.version().subtitle_set.order_by("subtitle_order"))
-
         for i, item in enumerate(parser):
             original_sub  = None
 
             if translated_from and len(original_subs) > i:
-                original_sub  = original_subs[i]
+               original_sub  = original_subs[i]
 
-                if original_sub.start_time != item['start_time'] or \
-                   original_sub.end_time != item['end_time']:
-                    raise Exception("No apparent match between original: %s and %s" % (original_sub, item))
-
-            if original_sub:
                id = original_sub.subtitle_id
                order = original_sub.subtitle_order
             else:
@@ -1805,7 +1808,7 @@ class ActionRenderer(object):
         self.template_name = template_name
 
     def render(self, item):
-        
+
         if item.action_type == Action.ADD_VIDEO:
             info = self.render_ADD_VIDEO(item)
         elif item.action_type == Action.CHANGE_TITLE:
@@ -1834,6 +1837,8 @@ class ActionRenderer(object):
             info = self.render_ACCEPT_VERSION(item)
         elif item.action_type == Action.DECLINE_VERSION:
             info = self.render_DECLINE_VERSION(item)
+        elif item.action_type == Action.DELETE_VIDEO:
+            info = self.render_DELETE_VIDEO(item)
         else:
             info = ''
 
@@ -1845,11 +1850,11 @@ class ActionRenderer(object):
         return render_to_string(self.template_name, context)
 
     def _base_kwargs(self, item):
-        data = {
-            'video_url': item.video.get_absolute_url(),
-            'video_name': unicode(item.video)
-
-        }
+        data = {}
+        # deleted videos event have no video obj
+        if item.video:
+            data['video_url']= item.video.get_absolute_url(),
+            data['video_name'] = unicode(item.video)
         if item.language:
             data['language'] = item.language.language_display()
             data['language_url'] = item.language.get_absolute_url()
@@ -1881,6 +1886,12 @@ class ActionRenderer(object):
     def render_DECLINE_VERSION(self, item):
         kwargs = self._base_kwargs(item)
         msg = _('  declined <a href="%(language_url)s">%(language)s</a> subtitles for <a href="%(video_url)s">%(video_name)s</a>') % kwargs
+        return msg
+
+    def render_DELETE_VIDEO(self, item):
+        kwargs = self._base_kwargs(item)
+        kwargs['title'] = item.new_video_title
+        msg = _('  deleted video "%(title)s"') % kwargs
         return msg
 
     def render_ADD_VIDEO(self, item):
@@ -1963,16 +1974,31 @@ class ActionRenderer(object):
         return msg
 
 class ActionManager(models.Manager):
-    def for_team(self, team, public_only=True):
-        result = self.select_related(
-            'video', 'user', 'language', 'language__video'
-        ).filter(
+    def for_team(self, team, public_only=True, ids=False):
+        '''Return the actions for the given team.
+
+        If public_only is True, only Actions that should be shown to the general
+        public will be returned.
+
+        If ids is True, instead of returning Action objects it will return
+        a values_list of their IDs.  This can be useful if you need to work
+        around some MySQL brokenness.
+
+        '''
+        result = self.filter(
             Q(team=team) |
             Q(video__teamvideo__team=team)
         )
 
         if public_only:
             result = result.filter(language__has_version=True)
+
+        if ids:
+            result = result.values_list('id', flat=True)
+        else:
+            result = result.select_related(
+                'video', 'user', 'language', 'language__video'
+            )
 
         return result
 
@@ -2041,6 +2067,7 @@ class Action(models.Model):
     member = models.ForeignKey("teams.TeamMember", blank=True, null=True)
     comment = models.ForeignKey(Comment, blank=True, null=True)
     action_type = models.IntegerField(choices=TYPES)
+    # we also store the video's title for deleted videos
     new_video_title = models.CharField(max_length=2048, blank=True)
     created = models.DateTimeField()
 
@@ -2162,8 +2189,9 @@ class Action(models.Model):
         obj.save()
 
     @classmethod
-    def delete_video_handler(cls, video, user=None):
-        action = cls(video=video)
+    def delete_video_handler(cls, video, team, user=None):
+        action = cls(team=team)
+        action.new_video_title = video.get_title_display()
         action.action_type = cls.DELETE_VIDEO
         action.user = user
         action.created = datetime.now()

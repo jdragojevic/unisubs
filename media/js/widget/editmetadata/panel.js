@@ -109,33 +109,6 @@ unisubs.editmetadata.Panel.prototype.createDom = function() {
         }
     }
 };
-unisubs.editmetadata.Panel.prototype.enterDocument = function() {
-    unisubs.editmetadata.Panel.superClass_.enterDocument.call(this);
-    var handler = this.getHandler();
-
-    // This is a complete duplication from translationlist.js
-    if (!this.inSubtitlingDialog_){
-        var videoPlayerType = this.dialog_.getVideoPlayerInternal().videoPlayerType_;
-
-        var that = this;
-        var captionSet = this.dialog_.translationPanel_.translationList_.captionSet_;
-
-        // Setup listening for video + subtitles.
-        handler.listen(this.captionManager_,
-                       unisubs.CaptionManager.CAPTION,
-                       this.dialog_.translationPanel_.translationList_.captionReached_);
-
-        // Update the captionSet that the video is listening to
-        // to match the proper mix of translated / original subtitles.
-        goog.array.forEach(captionSet.captions_, function(c) {
-            if (c.getText() !== '') {
-                var subOrder = c.getSubOrder();
-                var captionToUpdate = that.baseLanguageCaptionSet_.findSubIndex_(subOrder);
-                that.baseLanguageCaptionSet_.caption(captionToUpdate).setText(c.getText());
-            }
-        });
-    }
-};
 unisubs.editmetadata.Panel.prototype.getRightPanel = function() {
    if (!this.rightPanel_) {
         this.rightPanel_ = this.createRightPanel_();

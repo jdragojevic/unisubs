@@ -21,15 +21,15 @@
 
         <form method='post' action="." enctype="multipart/form-data" class="add-video">
             <h3>{% trans 'Add video' %}</h3>
-                <fieldset>
-                    {% include "_form_field.html" with field=form.video_url %}
-                    {% if team.has_projects %}
-                        {% include "_form_field.html" with field=form.project %}
-                    {% else %}
-                        <input type="hidden" name="project" value="{{ team.default_project.id }}" />
-                    {% endif %}
-                    {% include "_form_field.html" with field=form.thumbnail %}
-            </div>
+            <fieldset>
+                {% include "_form_field.html" with field=form.video_url %}
+                {% if team.has_projects %}
+                    {% include "_form_field.html" with field=form.project %}
+                {% else %}
+                    <input type="hidden" name="project" value="{{ team.default_project.id }}" />
+                {% endif %}
+                {% include "_form_field.html" with field=form.thumbnail %}
+            </fieldset>
 
             <div class="submit">
                 <button>{% trans 'Save' %}</button>

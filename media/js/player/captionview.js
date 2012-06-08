@@ -94,6 +94,53 @@ unisubs.player.CaptionView.prototype.setUpPositioning =
 };
 
 
+/**
+ * Split the given text into the given characters per line and maximumlines.
+ *
+ * @text The text to split in 32x4
+ * @ opt_charsPerLine The max number of characters to allow per line
+ * @ opt_maxLines The max number of lines to allow
+ * @ opt_linebreakStr Which string to use when joining lines, i.e. \n or <bt/>
+ * @return An array with lines of a maximum 32 chars
+**/
+unisubs.player.CaptionView.breakLines = function (text, opt_charsPerLine, opt_maxLines, opt_linebreakStr){
+    var charsPerLine = opt_charsPerLine || 32;
+    var maxLines = opt_maxLines || 4;
+    var linebreakStr = opt_linebreakStr || "<br/>";
+    // short circuit most common case
+    if (!text){
+        return "";
+    }else if(text.length<=charsPerLine){
+        return text;
+    }
+    var lines = [];
+    var currentLine  = [],
+        charsOnCurrentLine = 0,
+        nextWord;
+    var words = text.split(" ");
+    while (words.length){
+         nextWord =  words.shift();
+         // keep one char for the space between currentLine and nextWord
+         charsOnCurrentLine = currentLine.join(" ").length;
+         if (charsOnCurrentLine + nextWord.length < charsPerLine){
+             currentLine.push(nextWord);
+         }else{
+             lines.push(currentLine);
+             if (lines.length >= maxLines){
+                 currentLine = [];
+                 break;
+             }
+             currentLine = [nextWord];
+         }
+    }
+    if (currentLine.length){
+        lines.push(currentLine);
+    }
+    var lines = goog.array.map(lines, function(line){
+        return line.join(" ");
+    });
+    return lines.join(linebreakStr);
+}
 /*
  * @param The html text to show, or null for blank caption
  */
@@ -102,8 +149,8 @@ unisubs.player.CaptionView.prototype.setCaptionText = function(text) {
         this.setVisibility(false);
     }
     else{
-        this.getElement().innerHTML = 
-            goog.string.newLineToBr(goog.string.htmlEscape(text));
+        var text = unisubs.player.CaptionView.breakLines(text);
+        this.getElement().innerHTML = text;
         this.redrawInternal();
         this.setVisibility(true);
     }

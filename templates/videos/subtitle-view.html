@@ -205,7 +205,7 @@
                         </a>.
                     </p>
 
-                    <ol class="subtitles">
+                    <ol class="subtitles {% if last_version.language.is_rtl %}is_rtl{% endif %}">
                         <li class="title">
                             <div class="field">{% trans "Title:" %}</div>
                             {{ last_version.title }}
@@ -234,7 +234,9 @@
                                 {% trans 'Not Synced' %}
                             </div>
                             {% endif %}
-                            {{ item.text|linebreaksbr }}{% if item.start_of_paragraph %}<p class='quiet'>¶</p>{% endif %} 
+                            <div class="translation-text">
+                                {{ item.text|linebreaksbr }}{% if item.start_of_paragraph %}<p class='quiet'>¶</p>{% endif %} 
+                            </div>
                         </li>
                         {% endfor %}
                     </ol>

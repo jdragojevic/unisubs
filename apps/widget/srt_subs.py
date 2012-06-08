@@ -260,6 +260,7 @@ class SSASubtitles(BaseSubtitles):
 GenerateSubtitlesHandler.register(SSASubtitles)
 
 from lxml import etree
+import lxml.html
 import re
 
 class TTMLSubtitles(BaseSubtitles):
@@ -284,8 +285,13 @@ class TTMLSubtitles(BaseSubtitles):
         for item in self.subtitles:
             if item['text'] and self.isnumber(item['start']) and self.isnumber(item['end']):
                 attrib = self._get_attributes(item)
-                p = etree.SubElement(div, 'p', attrib=attrib)
-                p.text = self.remove_re.sub('', item['text'].strip())
+                # as we're replacing new lines with <br>s we need to create
+                # the element from a fragment
+                p = lxml.html.fragment_fromstring(self.remove_re.sub(
+                    '', u"<p>%s</p>" %item['text'].replace('\n', '<br/>').strip()
+                ))
+                p.attrib.update(attrib)
+                div.append(p)
         return tt
 
     def format_time(self, time):

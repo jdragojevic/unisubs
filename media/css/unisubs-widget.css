@@ -427,6 +427,7 @@ span.unisubs-widget {
     text-decoration: none !important;
 }
 .unisubs-help-heading ul li a {
+    cursor: default;
     -moz-border-radius: 3px !important;
     -webkit-border-radius: 3px !important;
     background: #eee url("../images/gradient_light.png") 8px -113px repeat-x !important;
@@ -971,7 +972,6 @@ ul.isRTL textarea.unisubs-translateField {
 ul.unisubs-titlesList li.active {
     background: #caf3ff !important
 }
-
 ul.unisubs-titlesList li {
     border-bottom: 1px solid #ccc !important;
     font-weight: bold !important;
@@ -1018,14 +1018,12 @@ ul.unisubs-titlesList li:hover .unisubs-timestamp {
     position: absolute !important;
     top: 0px !important;
 }
-
 div.skip-guidelines {
     text-align: center;
 }
 div.skip-guidelines span {
     margin-right: 8px !important;
 }
-
 .unisubs-sub-paragraph {
     background: url("../images/paragraph-marker.png") 0 0 no-repeat !important;
     height: 28px !important;
@@ -1033,11 +1031,9 @@ div.skip-guidelines span {
     top: -5px !important;
     width: 30px !important;
 }
-
 .unisubs-sub-paragraph.selected{
     background: url("../images/paragraph-marker.png") 0 -57px no-repeat !important ;
 }
-
 .unisubs-sub-insert:active {
     background: url("../images/add-title.png") 0 0 no-repeat !important
 }

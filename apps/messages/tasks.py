@@ -487,10 +487,9 @@ def approved_notification(task_pk, published=False):
         template_txt = "messages/team-task-approved-published.txt"
         template_html ="messages/email/team-task-approved-published.html"
     else:
-
         template_txt = "messages/team-task-approved-sentback.txt"
         template_html ="messages/email/team-task-approved-sentback.html"
-        subject = ugettext(u"Your subtitles have been declined")
+        subject = ugettext(u"Your subtitles have been returned for further editing")
     user = task.subtitle_version.user
     task_language = get_language_label(task.language)
     reviewer = task.assignee
@@ -544,7 +543,7 @@ def send_reject_notification(task_pk, sent_back):
     except Task.DoesNotExist:
         return False
 
-    subject = ugettext(u"Your subtitles have been declined")
+    subject = ugettext(u"Your subtitles were not accepted")
     user = task.subtitle_version.user
     task_language = get_language_label(task.language)
     reviewer = task.assignee

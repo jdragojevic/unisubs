@@ -686,7 +686,7 @@ class TeamsTest(TestCase):
 
         self.assertFalse(team.is_member(user2))
 
-        url = reverse("teams:videos_actions", kwargs={"slug": team.slug})
+        url = reverse("teams:activity", kwargs={"slug": team.slug})
         response = self.client.post(url)
         self.failUnlessEqual(response.status_code, 200)
 
@@ -779,19 +779,19 @@ class TestJqueryRpc(TestCase):
             self.fail('Undefined team')
 
     def test_create_application(self):
-        response = self.rpc.create_application(self.team.pk, '', AnonymousUser())
+        response = self.rpc.create_application(self.team.pk, 'Note', AnonymousUser())
         if not isinstance(response, Error):
             self.fail('User should be authenticated')
         #---------------------------------------
 
-        response = self.rpc.create_application(None, '', self.user)
+        response = self.rpc.create_application(None, 'Note', self.user)
         if not isinstance(response, Error):
             self.fail('Undefined team')
         #---------------------------------------
         self.team.membership_policy = Team.INVITATION_BY_MANAGER
         self.team.save()
 
-        response = self.rpc.create_application(self.team.pk, '', self.user)
+        response = self.rpc.create_application(self.team.pk, 'Note', self.user)
         if not isinstance(response, Error):
             self.fail('Team is not opened')
         #---------------------------------------
@@ -800,7 +800,7 @@ class TestJqueryRpc(TestCase):
 
         self.assertFalse(self.team.is_member(self.user))
 
-        response = self.rpc.create_application(self.team.pk, '', self.user)
+        response = self.rpc.create_application(self.team.pk, 'Note', self.user)
 
         if isinstance(response, Error):
             self.fail(response)
@@ -813,7 +813,7 @@ class TestJqueryRpc(TestCase):
         self.team.save()
 
         self.assertFalse(Application.objects.filter(user=self.user, team=self.team).exists())
-        response = self.rpc.create_application(self.team.pk, '', self.user)
+        response = self.rpc.create_application(self.team.pk, 'Note', self.user)
 
         if isinstance(response, Error):
             self.fail(response)

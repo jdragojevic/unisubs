@@ -175,6 +175,7 @@ class SubtitlesUploadBaseForm(forms.Form):
     def clean(self):
         video = self.cleaned_data['video']
         language = self.cleaned_data['language']
+        video_language = self.cleaned_data['video_language']
 
         subtitle_language = video.subtitle_language(language)
 
@@ -222,7 +223,7 @@ class SubtitlesUploadBaseForm(forms.Form):
 
             # There are no tasks for this video that should block the upload.
             # The last thing to check is that the team's transcription policy doesn't block this.
-            if subtitle_language and subtitle_language.is_original:
+            if video_language and (not subtitle_language or subtitle_language.is_original):
                 if not can_create_and_edit_subtitles(self.user, team_video, language):
                     raise forms.ValidationError(_(u"Sorry, we can't upload your subtitles because this language is moderated and you don't have sufficient permission."))
             else:
