@@ -36,7 +36,6 @@ urlpatterns = patterns(
     url(r'^feedback/$', 'feedback', name='feedback'),
     url(r'^feedback/error/$', 'feedback', {'hide_captcha': True}, 'feedback_error'),
     url(r'^upload_subtitles/$', 'upload_subtitles', name='upload_subtitles'),
-    url(r'^paste_transcription/$', 'paste_transcription', name='paste_transcription'),
     url(r'^upload_transcription_file/$', 'upload_transcription_file', name='upload_transcription_file'),
     url(r'^create/$', 'create', name='create'),
     url(r'^create/feed/$', 'create_from_feed', name='create_from_feed'),

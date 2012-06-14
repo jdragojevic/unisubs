@@ -366,7 +366,7 @@ class YouTubeApiBridge(gdata.youtube.client.YouTubeClient):
         handler = GenerateSubtitlesHandler.get('srt')
         subs = [x.for_generator() for x in subtitle_version.ordered_subtitles()]
         content = unicode(handler(subs, subtitle_version.language.video )).encode('utf-8')
-        title = subtitle_version.language.get_title()
+        title = ""
 
         if hasattr(self, "captions") is False:
             self._get_captions_info()

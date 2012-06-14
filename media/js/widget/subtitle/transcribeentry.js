@@ -39,8 +39,6 @@ goog.inherits(unisubs.subtitle.TranscribeEntry, goog.ui.Component);
 unisubs.subtitle.TranscribeEntry.P = 4;
 unisubs.subtitle.TranscribeEntry.R = 3;
 unisubs.subtitle.TranscribeEntry.S = 1;
-// in pixels, js resizes the widget dinamically
-unisubs.subtitle.TranscribeEntry.LINE_HEIGHT = 31;
 // caption standard says 4 lines with max 32 chars in each
 unisubs.subtitle.TranscribeEntry.CHAR_LIMIT = 128;
 unisubs.subtitle.TranscribeEntry.prototype.createDom = function() {
@@ -49,6 +47,9 @@ unisubs.subtitle.TranscribeEntry.prototype.createDom = function() {
     this.addChild(this.labelInput_ = new goog.ui.Textarea(), true);
     this.labelInput_.getElement().placeholder= 'Type subtitle and press enter';
     this.labelInput_.LABEL_CLASS_NAME = 'unisubs-label-input-label';
+    goog.ui.Textarea.NEEDS_HELP_SHRINKING_ = false;
+    this.labelInput_.setMinHeight(17);
+    this.labelInput_.setMaxHeight(70);
     goog.dom.classes.add(this.labelInput_.getElement(), 'trans');
 };
 unisubs.subtitle.TranscribeEntry.prototype.enterDocument = function() {
@@ -73,6 +74,7 @@ unisubs.subtitle.TranscribeEntry.prototype.enterDocument = function() {
         listen(this.videoPlayer_,
                unisubs.player.AbstractVideoPlayer.EventType.PLAY,
               this.startPlaying_);
+    this.labelInput_.enterDocument();
 };
 unisubs.subtitle.TranscribeEntry.prototype.startPlaying_ = function() {
     if (this.playMode_ == unisubs.subtitle.TranscribePanel.PlayMode.PLAY_STOP) {
@@ -100,15 +102,6 @@ unisubs.subtitle.TranscribeEntry.prototype.handleKey_ = function(event) {
             this.continuouslyTyping_ = true;
         }
     }
-    // resize the text area according to the number of lines
-    var value = this.labelInput_.getValue();
-    var numLines = value.split("\n").length  || value.split("\r").length ;
-    if (numLines > 2){
-        numLines -= 1;
-    }
-    var height = unisubs.subtitle.TranscribeEntry.LINE_HEIGHT * numLines;
-    unisubs.style.setProperty(this.labelInput_.getElement(), "height",  height + "px");
-
 };
 
 unisubs.subtitle.TranscribeEntry.prototype.continuousTypingTimerTick_ = function() {
@@ -156,7 +149,7 @@ unisubs.subtitle.TranscribeEntry.prototype.addNewTitle_ = function() {
     var value = this.labelInput_.getValue();
     // FIXME: accessing private member of goog.ui.LabelInput
     this.labelInput_.label_ = '';
-    this.labelInput_.setValue('');
+    this.labelInput_.setContent('');
     this.labelInput_.setFocused();
     this.dispatchEvent(new unisubs.subtitle.TranscribeEntry
                        .NewTitleEvent(value));

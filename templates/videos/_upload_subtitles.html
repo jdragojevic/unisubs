@@ -9,11 +9,8 @@
             <p>
               {% blocktrans %}
               Our site accepts SRT, SSA, SBV, DFXP and TTML format. Only files ending in .srt, .ssa, .sbv, .dfxp
-              or .xml (for TTML) are accepted. Or you can
+              or .xml (for TTML) are accepted.
               {% endblocktrans %}
-              <a href="#" data-modal="upload-transcript" class="upload-transcript-button">
-                  {% trans 'paste in a transcript' %}
-              </a>
             </p>
                 <div id="upload-subtitles-div">
                     <form method="post" id="upload-subtitles-form" action="{% url videos:upload_subtitles %}" enctype="multipart/form-data">

@@ -3,5 +3,11 @@
 {{ object.video.description }}
 {{ object.video.title }}
 {{ object.description }}
+
+{% for sl in object.video.subtitlelanguage_set.all %}
+{{ sl.get_title }}
+{{ sl.get_description }}
+{% endfor %}
+
 {% for lp in object.searchable_language_pairs %}{{lp}} {% endfor %}
 {% for l in object.searchable_languages %}{{l}} {% endfor %}

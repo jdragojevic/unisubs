@@ -6,19 +6,14 @@
     {{ team }} | Amara
 {% endblock %}
 
-
 {% block scripts %}
     {{ block.super }}
-
-
-
 {% endblock %}
 
 
 {% block view_content %}
-
     <div class="grid_8 view omega">
-        {% with "videos" as current %}
+        {% with "settings" as current %}
             {% if not project %}
                 {% include 'teams/_tabs.html' %}
             {% else %}
@@ -26,12 +21,26 @@
             {% endif %}
         {% endwith %}
 
-    </div>
+        <div class="tools">
+            <a href="{{new_youtube_url}}" class="button">Add an Account</a>
+        </div>
 
-    active accounts
-    <ul>
-      {% for account in linked_accounts %}
-      {{account.type}}@{{account.username}}  {%if account.oauth_access_token%}linked!{% endif %}
-      {% endfor %}
-      <a href="{{new_youtube_url}}">Link new Youtube Account</a>
+        <p class="view-notice">Add accounts below to sync subtitles for videos belonging to that account. New subtitles will be synced automatically. To sync <em>existing</em> subtitles, use the "Sync now" link.</p>
+
+        <ul class="accounts listing">
+            {% for account in linked_accounts %}
+                <li>
+                    <h3>{{account.username}}</h3>
+                    {% if account.oauth_access_token %}
+                        <ul class="actions">
+                            <li><a href="" title="Unlink this account">Remove</a></li>
+                            <li><a href="" title="Sync existing subtitles ">Sync now</a></li> 
+                        </ul>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <p class="empty">{% trans "You haven't linked any accounts yet." %} <a href="{{new_youtube_url}}">Add one now!</a></p>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

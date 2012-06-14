@@ -441,7 +441,13 @@ class Video(models.Model):
                     defaults['videoid'] = vt.video_id
                 video_url_obj, created = VideoUrl.objects.get_or_create(url=vt.convert_to_video_url(),
                                                                         defaults=defaults)
-                assert video_url_obj.video == obj
+                try:
+                    assert video_url_obj.video == obj
+                except AssertionError, e:
+                    logger.error(
+                        "Data integrity error with video_url_obj with "
+                        "pk %d and video pk %d" % (video_url_obj.pk, obj.pk))
+                    raise e
                 obj.update_search_index()
                 video, created = obj, True
 
@@ -903,7 +909,15 @@ class SubtitleLanguage(models.Model):
 
         """
         v = self.latest_version(public_only=public_only)
-        return v.title if v else self.video.title
+
+        if v:
+            title = v.title
+        elif self.standard_language:
+            title = self.standard_language.get_title()
+        else:
+            title = self.video.title
+
+        return title
 
     def get_title_display(self):
         """Return a suitable title to display to a user for this language.
@@ -925,7 +939,15 @@ class SubtitleLanguage(models.Model):
 
         """
         v = self.latest_version(public_only=public_only)
-        return v.description if v else self.video.description
+
+        if v:
+            description = v.description
+        elif self.standard_language:
+            description = self.standard_language.get_description()
+        else:
+            description = self.video.description
+
+        return description
 
     def get_description_display(self):
         """Return a suitable description to display to a user for this language.
@@ -1255,9 +1277,6 @@ class SubtitleVersionManager(models.Manager):
                 original_subs = list(translated_from.version().subtitle_set.order_by("subtitle_order"))
                 forked_from = translated_from.version()
 
-        if original_subs and len(parser) > len(original_subs):
-            raise Exception(_(u"Your subtitles don't match the translation"))
-
         version = SubtitleVersion(
                 language=language, version_no=version_no, note=note,
                 is_forked=forked, time_change=1, text_change=1,
@@ -1284,12 +1303,15 @@ class SubtitleVersionManager(models.Manager):
 
                id = original_sub.subtitle_id
                order = original_sub.subtitle_order
+               paragraph = original_sub.start_of_paragraph
             else:
                 id = int(random.random()*10e12)
                 order = i +1
 
                 while id in ids:
                     id = int(random.random()*10e12)
+
+                paragraph = item.get('start_of_paragraph', False)
 
             ids.add(id)
 
@@ -1301,7 +1323,7 @@ class SubtitleVersionManager(models.Manager):
             caption.subtitle_text = item['subtitle_text']
             caption.start_time = item['start_time']
             caption.end_time = item['end_time']
-            caption.start_of_paragraph = item.get('start_of_paragraph', False)
+            caption.start_of_paragraph = paragraph
             caption.save()
 
             if metadata:
@@ -1853,7 +1875,7 @@ class ActionRenderer(object):
         data = {}
         # deleted videos event have no video obj
         if item.video:
-            data['video_url']= item.video.get_absolute_url(),
+            data['video_url']= item.video.get_absolute_url()
             data['video_name'] = unicode(item.video)
         if item.language:
             data['language'] = item.language.language_display()

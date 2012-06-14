@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from haystack import site
 
 from utils import send_templated_email
-from utils.metrics import Gauge
+from utils.metrics import Gauge, Meter
 from widget.video_cache import (
     invalidate_cache as invalidate_video_cache,
     invalidate_video_moderation
@@ -87,6 +87,7 @@ def add_videos_notification(*args, **kwargs):
                 "STATIC_URL": settings.STATIC_URL,
             }
 
+            Meter('templated-emails-sent-by-type.team.new-videos-ready').inc()
             send_templated_email(user, subject,
                                  'teams/email_new_videos.html',
                                  context, fail_silently=not settings.DEBUG)

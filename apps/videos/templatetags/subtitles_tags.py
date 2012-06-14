@@ -20,7 +20,7 @@ from django import template
 from django.utils.translation import ugettext_lazy as _, ungettext
 from django.utils import translation
 
-from videos.forms import SubtitlesUploadForm, PasteTranscriptionForm, CreateVideoUrlForm
+from videos.forms import SubtitlesUploadForm, CreateVideoUrlForm
 from icanhaz.models import VideoVisibilityPolicy
 
 register = template.Library()
@@ -39,22 +39,6 @@ def upload_subtitles(context, video):
         initial['video_language'] = original_language.language
 
     context['form'] = SubtitlesUploadForm(context['user'], initial=initial)
-    return context
-
-@register.inclusion_tag('videos/_paste_transcription.html', takes_context=True)
-def paste_transcription(context):
-    #It is just template of pop-up, you should add link with 'upload-transcript-button' class
-    initial = {}
-    if context.get('language') and context['language'].language:
-        initial['language'] = context['language'].language
-    else:
-        initial['language'] = translation.get_language()
-
-    original_language = context['video'].subtitle_language()
-    if original_language and original_language.language:
-        initial['video_language'] = original_language.language
-
-    context['form'] = PasteTranscriptionForm(context['user'], initial=initial)
     return context
 
 @register.simple_tag

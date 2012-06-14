@@ -24,7 +24,7 @@ from django.views.generic.list_detail import object_list
 from videos.models import Video, Action, SubtitleLanguage, SubtitleVersion,  \
     VideoUrl, AlreadyEditingException, restrict_versions
 from videos.forms import VideoForm, FeedbackForm, EmailFriendForm, UserTestResultForm, \
-    SubtitlesUploadForm, PasteTranscriptionForm, CreateVideoUrlForm, TranscriptionFileForm, \
+    SubtitlesUploadForm, CreateVideoUrlForm, TranscriptionFileForm, \
     AddFromFeedForm
 import widget
 from django.contrib.sites.models import Site
@@ -51,6 +51,7 @@ from django.core.cache import cache
 from videos.rpc import VideosApiClass
 from utils.rpc import RpcRouter
 from utils.decorators import never_in_prod
+from utils.metrics import Meter
 from utils.translation import get_user_languages_from_request
 from django.utils.http import urlquote_plus
 from videos.tasks import video_changed_tasks
@@ -293,18 +294,6 @@ def upload_subtitles(request):
         transaction.rollback()
 
     return HttpResponse(u'<textarea>%s</textarea>'  % json.dumps(output))
-
-@login_required
-def paste_transcription(request):
-    output = dict(success=False)
-    form = PasteTranscriptionForm(request.user, request.POST)
-    if form.is_valid():
-        language = form.save()
-        output['success'] = True
-        output['next'] = language.get_absolute_url()
-    else:
-        output['errors'] = form.get_errors()
-    return HttpResponse(json.dumps(output), "text/javascript")
 
 @login_required
 def upload_transcription_file(request):
@@ -685,6 +674,7 @@ def video_url_create(request):
                 'domain': Site.objects.get_current().domain,
                 'hash': user.hash_for_video(video.video_id)
             }
+            Meter('templated-emails-sent-by-type.videos.video-url-added').inc()
             send_templated_email(user, subject,
                                  'videos/email_video_url_add.html',
                                  context, fail_silently=not settings.DEBUG)

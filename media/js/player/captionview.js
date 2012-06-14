@@ -104,43 +104,60 @@ unisubs.player.CaptionView.prototype.setUpPositioning =
  * @return An array with lines of a maximum 32 chars
 **/
 unisubs.player.CaptionView.breakLines = function (text, opt_charsPerLine, opt_maxLines, opt_linebreakStr){
+
     var charsPerLine = opt_charsPerLine || 32;
     var maxLines = opt_maxLines || 4;
     var linebreakStr = opt_linebreakStr || "<br/>";
     // short circuit most common case
     if (!text){
         return "";
-    }else if(text.length<=charsPerLine){
-        return text;
     }
+    // the user might have forced line breaks, we should respect that
+    
     var lines = [];
-    var currentLine  = [],
+    var currentLine  = [];
         charsOnCurrentLine = 0,
-        nextWord;
-    var words = text.split(" ");
-    while (words.length){
-         nextWord =  words.shift();
-         // keep one char for the space between currentLine and nextWord
-         charsOnCurrentLine = currentLine.join(" ").length;
-         if (charsOnCurrentLine + nextWord.length < charsPerLine){
-             currentLine.push(nextWord);
-         }else{
-             lines.push(currentLine);
-             if (lines.length >= maxLines){
-                 currentLine = [];
-                 break;
-             }
-             currentLine = [nextWord];
-         }
+        words = text.split(" "),
+        word = null;
+    while(words.length){
+        word = words.shift();
+        // if there is a line break, push to a new line and put
+        // the remaining substring back on the words stack
+        var newLineIndex = word.indexOf('\n');
+        if (newLineIndex > -1){
+            var leftOver = word.substring(newLineIndex + 1, word.length);
+            if (leftOver){
+                words.unshift(leftOver);
+            }
+            word = word.substring(0, newLineIndex);
+        }
+        
+        charsOnCurrentLine =  currentLine.join(" ").length + word.length + 1;
+        if (  charsOnCurrentLine <= charsPerLine  ){
+            // next word will fit within a line
+            currentLine.push(word);
+            if (newLineIndex > -1){
+                // terminate this line early
+                lines.push(currentLine);
+                currentLine = [];
+            }
+            continue;
+        }else{
+            // overflow, add to the final lines
+            lines.push(currentLine);
+            currentLine = [word];
+        }
     }
     if (currentLine.length){
         lines.push(currentLine);
     }
+    // now join each line with a space, then all lines with a line break char
     var lines = goog.array.map(lines, function(line){
         return line.join(" ");
-    });
+    }).slice(0, maxLines);
     return lines.join(linebreakStr);
 }
+
 /*
  * @param The html text to show, or null for blank caption
  */

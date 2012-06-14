@@ -1588,30 +1588,32 @@ class Task(models.Model):
         NOTE: This function does not modify the *current* task in any way.
 
         """
-        if self.review_base_version:
-            # Hopefully we have a valid base version saved and can send it back
-            # to the author of that version.
-            assignee = self.review_base_version.user
-        else:
-            # Otherwise we'll guess based on the last sub/trans task.
-            previous_task = Task.objects.complete().filter(
-                team_video=self.team_video, language=self.language, team=self.team,
-                type__in=(Task.TYPE_IDS['Subtitle'], Task.TYPE_IDS['Translate'])
-            ).order_by('-completed')[:1]
-
-            if previous_task:
-                assignee = previous_task[0].assignee
+        # when sending back, instead of always sending back
+        # to the first step (translate/subtitle) go to the 
+        # step before this one:
+        # Translate/Subtitle -> Review -> Approve
+        if self.type == Task.TYPE_IDS['Review']:
+            if self.subtitle_version.language.is_original:
+                type = Task.TYPE_IDS['Subtitle']
             else:
-                assignee = None
+                type = Task.TYPE_IDS['Translate']
+        elif self.type == Task.TYPE_IDS['Approve']:
+            type = Task.TYPE_IDS['Review']
+
+        # let's guess which assignee should we use
+        # by finding the last user that did this task type
+        previous_task = Task.objects.complete().filter(
+            team_video=self.team_video, language=self.language, team=self.team, type=type
+        ).order_by('-completed')[:1]
+
+        if previous_task:
+            assignee = previous_task[0].assignee
+        else:
+            assignee = None
 
         # The target assignee may have left the team in the mean time.
         if not self.team.members.filter(user=assignee).exists():
             assignee = None
-
-        if self.subtitle_version.language.is_original:
-            type = Task.TYPE_IDS['Subtitle']
-        else:
-            type = Task.TYPE_IDS['Translate']
 
         # TODO: Shouldn't this be WAITING_MODERATION?
         self.subtitle_version.moderation_status = UNMODERATED

@@ -22,6 +22,7 @@ from urllib import urlencode
 from django.utils.translation import ugettext_lazy as _
 
 from utils import send_templated_email
+from utils.metrics import Meter
 from libs.unilangs import LanguageCode
 from videos.models import Video
 
@@ -144,6 +145,7 @@ class BaseNotification(object):
         return None, None
 
     def send_email(self, email_to):
+        Meter('templated-emails-sent-by-type.teams.team-video-activity').inc()
         send_templated_email(email_to,
                 _("New activity on your team video"),
                 "teams/emails/new-activity.html",

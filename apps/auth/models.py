@@ -36,6 +36,7 @@ from utils.amazon import S3EnabledImageField
 from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.utils.hashcompat import sha_constructor
+from utils.metrics import Meter
 from random import random
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -481,6 +482,7 @@ class EmailConfirmationManager(models.Manager):
             "confirmation_key": confirmation_key,
         }
         subject = u'Please confirm your email address for %s' % current_site.name
+        Meter('templated-emails-sent-by-type.email-address-confirmation').inc()
         send_templated_email_async(user, subject, "messages/email/email-confirmation.html", context)
         return self.create(
             user=user,

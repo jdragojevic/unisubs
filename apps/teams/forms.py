@@ -726,7 +726,7 @@ class UploadDraftForm(forms.Form):
         video = task.team_video.video
         language_to_translate = self.cleaned_data['translate_from']
 
-        if not task.assignee and can_assign_task(task, self.user):
+        if (task.assignee and task.assignee != self.user) or (not task.assignee and not can_assign_task(task, self.user)):
             task.assignee = self.user
 
         if task.language:
@@ -754,10 +754,17 @@ class UploadDraftForm(forms.Form):
                 if not language:
                     language = self._save_new_language(video, video_language, translated_from)
 
-        # if there isn't a version we don't need to check this
-        # since it's the first upload for this version
-        if version and version.subtitle_set.count() < len(self._parser):
-            raise Exception(_(u"Sorry, the subtitles don't match the lines, so we can't upload them."))
+        # if the language has dependents, check if the transcript is smaller so we don't lose subtitles
+        if language.is_original or language.is_forked:
+            if version and SubtitleLanguage.objects.filter(standard_language=language).exists():
+                if len(self._parser) < version.subtitle_set.count():
+                    raise Exception(_(u"Sorry, we couldn't upload your file because it has fewer lines ({0}) than the previous version ({1}).".format(len(self._parser), version.subtitle_set.count())))
+        # if we are translating from another version, always check if we don't have
+        # more subtitles than we need
+        elif translated_from and translated_from.version():
+            original_subs_count = translated_from.version().subtitle_set.count()
+            if len(self._parser) > original_subs_count:
+                raise Exception(_(u"Sorry, we couldn't upload your file because the number of lines in your translation ({0}) doesn't match the original ({1}).".format(len(self._parser), original_subs_count)))
 
         # we need to set the moderation_status to WAITING_MODERATION
         # so the version is not public. At the same time, we cannot

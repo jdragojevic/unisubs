@@ -1095,16 +1095,20 @@ def _tasks_list(request, team, project, filters, user):
 
 def _order_tasks(request, tasks):
     sort = request.GET.get('sort', '-created')
-
+    # Most teams won't use priorities. For those who do, that should be
+    # the default sorting.
+    order_clause = ["-priority"]
     if sort == 'created':
-        tasks = tasks.order_by('created')
+        order_clause.append('created')
     elif sort == '-created':
-        tasks = tasks.order_by('-created')
+        order_clause.append('-created')
     elif sort == 'expires':
-        tasks = tasks.exclude(expiration_date=None).order_by('expiration_date')
+        tasks = tasks.exclude(expiration_date=None)
+        order_clause.append('expiration_date')
     elif sort == '-expires':
-        tasks = tasks.exclude(expiration_date=None).order_by('-expiration_date')
-
+        tasks = tasks.exclude(expiration_date=None)
+        order_clause.append('-expiration_date')
+    tasks = tasks.order_by(*order_clause)
     return tasks
 
 def _get_task_filters(request):

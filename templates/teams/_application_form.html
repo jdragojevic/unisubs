@@ -52,7 +52,7 @@
     $('#apply-modal button').click(function(){
         var $t = $('#apply-modal textarea');
 
-        if ($t.val() !== '') {
+        if ($.trim($t.val()) !== '') {
             TeamsApi.create_application($(this).attr('team_id'), $t.val(), function(response){
                 if (response.error){
                     $.jGrowl.error(response.error);

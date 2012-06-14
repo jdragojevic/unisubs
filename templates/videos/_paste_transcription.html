@@ -139,25 +139,6 @@
                 <input class="ajax-file-upload-field" type="file"  name="txtfile" id="id_txtfile"/>
             </p>
         </form>
-        <form method="post" action="{% url videos:paste_transcription %}" id="upload-transcript-form">
-            {% csrf_token %}
-            <p>
-                <input type="hidden" name="video" value="{{ video.id }}" />
-                <label>{% trans 'Language' %}</label>{{ form.language }}
-            </p>
-            {% if not video.has_original_language %}
-            <p>
-                <label>{% trans 'Video Language' %}</label>{{ form.video_language }}
-            </p>
-            {% endif %}
-            <p>           
-                <textarea rows="8" style="width: 355px" name="subtitles" class="upload-transcript-textarea"></textarea>
-            </p> 
-            <p>  
-                <button class="green_button big floatright">{% trans 'Submit Transcript' %}</button>
-                <span class="save-indicator" style="display: none">{% trans 'Saving...' %}</span>
-            </p> 
-        </form>
         {% else %}
             <a href="{% url auth:login %}?next={{ request.path_info }}">
                 {% trans 'Login to upload subtitles' %}

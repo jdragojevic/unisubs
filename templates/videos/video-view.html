@@ -164,7 +164,6 @@
                             {% endif %}
                             {% if can_create_subs or can_create_trans %}
                                 {% upload_subtitles video %}
-                                {% paste_transcription %}
                             {% else %}
                                 {% trans 'Subtitles for this video are moderated. If it belongs to a team, try joining the team to contribute.' %}
                             {% endif %}

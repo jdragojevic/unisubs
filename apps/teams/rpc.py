@@ -50,7 +50,7 @@ class TeamsApiClass(object):
             return Msg(_(u'You are now a member of this team.'))
         elif team.is_by_application():
 
-            if msg == '':
+            if msg.strip() == '':
                 return Error(_(u'The "About you" field is required in order to apply.'))
 
             application, created = Application.objects.get_or_create(team=team, user=user)

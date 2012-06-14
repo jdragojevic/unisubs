@@ -479,25 +479,6 @@ class SubtitlesUploadForm(SubtitlesUploadBaseForm):
 
         return sl
 
-class PasteTranscriptionForm(SubtitlesUploadBaseForm):
-    subtitles = forms.CharField()
-
-    def save(self):
-        subtitles = self.cleaned_data['subtitles']
-        parser = TxtSubtitleParser(subtitles)
-        language = self.save_subtitles(parser, update_video=False, is_complete=False)
-
-        self.verify_tasks(is_complete=False)
-
-        latest_version = language.latest_version()
-
-        if latest_version:
-            video_changed_tasks.delay(language.video_id, language.latest_version().id)
-        else:
-            video_changed_tasks.delay(language.video_id)
-
-        return language
-
 class UserTestResultForm(forms.ModelForm):
 
     class Meta:

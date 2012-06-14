@@ -920,7 +920,6 @@ class ViewsTest(WebUseTest):
         # with blank language codes.
         self.assertEqual(response.status_code, 302)
 
-
     def test_bliptv_twice(self):
         VIDEO_FILE = 'http://blip.tv/file/get/Kipkay-AirDusterOfficeWeaponry223.m4v'
         old_video_file_url = blip.video_file_url
@@ -941,49 +940,6 @@ class ViewsTest(WebUseTest):
     def test_subscribe_to_updates(self):
         # TODO: write test
         pass
-
-    def test_paste_transcription(self):
-        user1 = User.objects.get(username='admin1')
-        self.client.login(username='admin1', password='admin')
-
-        self.assertFalse(self.video.followers.filter(pk=user1.pk).exists())
-
-        mail.outbox = []
-
-        language_code = u"el"
-
-        data = {
-            "video": u"1",
-            "subtitles": u"""#1
-
-#2""",
-            "language": language_code,
-            "video_language": u"en"
-        }
-        language = self.video.subtitle_language(language_code)
-        self.assertEquals(language, None)
-        response = self.client.post(reverse("videos:paste_transcription"), data)
-        self.failUnlessEqual(response.status_code, 200)
-
-        language = self.video.subtitle_language(language_code)
-        version = language.latest_version(public_only=False)
-        self.assertEqual(len(version.subtitles()), 2)
-
-    def test_paste_transcription_windows(self):
-        self._login()
-
-        language_code = u"el"
-
-        data = {
-            "video": u"1",
-            "subtitles": u"#1\r\n\r\n#2",
-            "language": language_code,
-            "video_language": u"en"
-        }
-        self.client.post(reverse("videos:paste_transcription"), data)
-        language = self.video.subtitle_language(language_code)
-        version = language.latest_version(public_only=True)
-        self.assertEqual(len(version.subtitles()), 2)
 
     def test_email_friend(self):
         self._simple_test('videos:email_friend')
@@ -1087,7 +1043,6 @@ class ViewsTest(WebUseTest):
         final_num_subs = len(last_v.subtitles())
         self.assertEqual(final_num_subs, num_subs)
 
-
     def test_diffing(self):
         version = self.video.version(version_no=0)
         last_version = self.video.version()
@@ -1110,7 +1065,6 @@ class ViewsTest(WebUseTest):
             UserTestResult.objects.get(**data)
         except UserTestResult.DoesNotExist:
             self.fail()
-
 
     def test_search(self):
         self._simple_test('search:index')

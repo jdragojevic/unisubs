@@ -97,6 +97,10 @@ def video_url(parser, token, node_cls=VideoURLNode):
         asvar=node_instance.asvar)
 video_url = register.tag(video_url)
 
+@register.filter
+def in_progress(language):
+    return not language.last_version and language.latest_version(False)
+
 
 @register.inclusion_tag("videos/_visibility_control_button.html")
 def render_visibility_button(video, user):

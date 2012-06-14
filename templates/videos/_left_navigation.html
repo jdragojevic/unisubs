@@ -1,30 +1,34 @@
-{% load i18n subtitles_tags doorman %}
+{% load i18n subtitles_tags doorman videos_tags %}
 
-{% if video.subtitle_language %}
-    <li class="{% complete_color video.subtitle_language %}{% if language.is_original %} active{% endif %}">
-        <a href="{% language_url request video.subtitle_language %}">
-            <span class="done_indicator"></span>
-            {{ video.subtitle_language.language_display }}
-            {% if video.subtitle_language.has_version %}
-                <span class="done_percentage">({% complete_indicator video.subtitle_language %})</span>
-            {% else %}
-                <span class="done_percentage">(in progress)</span>
-            {% endif %}
-        </a>
-    </li>
-{% endif %}
+{% with lang=video.subtitle_language %}
+    {% if lang %}
+        {% if lang.has_version or lang|in_progress %}
+            <li class="{% complete_color video.subtitle_language %}{% if language.is_original %} active{% endif %}">
+                <a href="{% language_url request video.subtitle_language %}">
+                    <span class="done_indicator"></span>
+                    {{ video.subtitle_language.language_display }}
+                    <span class="done_percentage">({% complete_indicator video.subtitle_language %})</span>
+                    {% if lang|in_progress %}
+                        <span class="done_percentage">(in progress)</span>
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
+    {% endif %}
+{% endwith %}
 {% if translations %}
     {% for item in translations %}
-        <li class="{% complete_color item %}{% if language == item %} active{% endif %} {% if forloop.counter > 14 %}hidden{% endif %}">
-            <a href="{% language_url request item %}">
-                <span class="done_indicator"></span>
-                {{ item.get_language_display }}
-                {% if item.has_version %}
+        {% if item.has_version or item|in_progress %}
+            <li class="{% complete_color item %}{% if language == item %} active{% endif %} {% if forloop.counter > 14 %}hidden{% endif %}">
+                <a href="{% language_url request item %}">
+                    <span class="done_indicator"></span>
+                    {{ item.get_language_display }}
                     <span class="done_percentage">({% complete_indicator item %})</span>
-                {% else %}
-                    <span class="done_percentage">(in progress)</span>
-                {% endif %}
-            </a>
-        </li>
+                    {% if item|in_progress %}
+                        <span class="done_percentage">(in progress)</span>
+                    {% endif %}
+                </a>
+            </li>
+        {% endif %}
     {% endfor %}
 {% endif %}
