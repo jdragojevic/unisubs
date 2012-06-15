@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Universal Subtitles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-14 01:31-0500\n"
+"POT-Creation-Date: 2012-06-15 01:30-0500\n"
 "PO-Revision-Date: 2012-06-13 06:49+0000\n"
 "Last-Translator: unisubsapi <universalsubtitles-dev@pculture.org>\n"
 "Language-Team: Italian (http://www.transifex.net/projects/p/"
@@ -943,7 +943,7 @@ msgid "You do not have permission to delete this team."
 msgstr "Non hai l'autorizzazione per cancellare questa squadra."
 
 #: apps/teams/views.py:206 apps/teams/views.py:242 apps/teams/views.py:270
-#: apps/teams/views.py:303 apps/teams/views.py:358 apps/teams/views.py:1529
+#: apps/teams/views.py:303 apps/teams/views.py:358 apps/teams/views.py:1533
 msgid "You do not have permission to edit this team."
 msgstr "Non hai l'autorizzazione per modificare questa squadra."
 
@@ -1046,77 +1046,77 @@ msgstr "Sei uscit* da questo team."
 msgid "Member saved."
 msgstr "Membri salvati."
 
-#: apps/teams/views.py:1114
+#: apps/teams/views.py:1118
 msgid "You cannot view this team's tasks."
 msgstr "Non è possibile visualizzare il progetto di questo gruppo."
 
-#: apps/teams/views.py:1257 apps/teams/views.py:1260
+#: apps/teams/views.py:1261 apps/teams/views.py:1264
 msgid "You are not allowed to perform this task."
 msgstr "Non è autorizzat* a eseguire questo compito,"
 
-#: apps/teams/views.py:1315
+#: apps/teams/views.py:1319
 msgid "Task deleted."
 msgstr "Attività cancellata."
 
-#: apps/teams/views.py:1317
+#: apps/teams/views.py:1321
 msgid "You cannot delete this task."
 msgstr "Non è possibile cancellare questo progetto."
 
-#: apps/teams/views.py:1342
+#: apps/teams/views.py:1346
 msgid "Task declined."
 msgstr "Attività rifiutata."
 
-#: apps/teams/views.py:1344
+#: apps/teams/views.py:1348
 msgid "Task assigned."
 msgstr "Attività assegnata."
 
-#: apps/teams/views.py:1346
+#: apps/teams/views.py:1350
 msgid "You cannot assign this task."
 msgstr "Non puoi assegnare questa attività."
 
-#: apps/teams/views.py:1368
+#: apps/teams/views.py:1372
 msgid "Invalid assignment attempt."
 msgstr "Tentativo di assegnazione non valido."
 
-#: apps/teams/views.py:1384
+#: apps/teams/views.py:1388
 msgid "Draft uploaded successfully."
 msgstr ""
 
-#: apps/teams/views.py:1388
+#: apps/teams/views.py:1392
 msgid "/n"
 msgstr ""
 
-#: apps/teams/views.py:1406
+#: apps/teams/views.py:1410
 msgid "You are not allowed to download this transcript."
 msgstr ""
 
-#: apps/teams/views.py:1456
+#: apps/teams/views.py:1460
 msgid "There's already a project with this name"
 msgstr "C'è già un progetto con questo nome"
 
-#: apps/teams/views.py:1468
+#: apps/teams/views.py:1472
 msgid "Project added."
 msgstr "Progetto aggiunto."
 
-#: apps/teams/views.py:1485
+#: apps/teams/views.py:1489
 msgid "You cannot edit that project."
 msgstr "Non è possibile modificare quel progetto."
 
-#: apps/teams/views.py:1496
+#: apps/teams/views.py:1500
 msgid "Project deleted."
 msgstr "Progetto cancellato."
 
-#: apps/teams/views.py:1514
+#: apps/teams/views.py:1518
 msgid "Project saved."
 msgstr "Progetto salvato."
 
-#: apps/teams/views.py:1640
+#: apps/teams/views.py:1644
 msgid ""
 "Invalid unpublishing request.\n"
 "Errors:\n"
 msgstr ""
 
-#: apps/teams/views.py:1674
+#: apps/teams/views.py:1678
 msgid "Successfully unpublished subtitles."
 msgstr "Sottotitoli non pubblicati con successo."
 
@@ -1705,7 +1705,7 @@ msgstr ""
 msgid "Sorry, these subtitles are privately moderated."
 msgstr ""
 
-#: apps/widget/rpc.py:906 apps/widget/rpc.py:947
+#: apps/widget/rpc.py:907 apps/widget/rpc.py:948
 msgid "\n"
 msgstr "\n"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-14 01:33-0500\n"
+"POT-Creation-Date: 2012-06-15 01:32-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -905,7 +905,7 @@ msgid "You do not have permission to delete this team."
 msgstr ""
 
 #: apps/teams/views.py:206 apps/teams/views.py:242 apps/teams/views.py:270
-#: apps/teams/views.py:303 apps/teams/views.py:358 apps/teams/views.py:1529
+#: apps/teams/views.py:303 apps/teams/views.py:358 apps/teams/views.py:1533
 msgid "You do not have permission to edit this team."
 msgstr ""
 
@@ -1005,77 +1005,77 @@ msgstr ""
 msgid "Member saved."
 msgstr ""
 
-#: apps/teams/views.py:1114
+#: apps/teams/views.py:1118
 msgid "You cannot view this team's tasks."
 msgstr ""
 
-#: apps/teams/views.py:1257 apps/teams/views.py:1260
+#: apps/teams/views.py:1261 apps/teams/views.py:1264
 msgid "You are not allowed to perform this task."
 msgstr ""
 
-#: apps/teams/views.py:1315
+#: apps/teams/views.py:1319
 msgid "Task deleted."
 msgstr ""
 
-#: apps/teams/views.py:1317
+#: apps/teams/views.py:1321
 msgid "You cannot delete this task."
 msgstr ""
 
-#: apps/teams/views.py:1342
+#: apps/teams/views.py:1346
 msgid "Task declined."
 msgstr ""
 
-#: apps/teams/views.py:1344
+#: apps/teams/views.py:1348
 msgid "Task assigned."
 msgstr ""
 
-#: apps/teams/views.py:1346
+#: apps/teams/views.py:1350
 msgid "You cannot assign this task."
 msgstr ""
 
-#: apps/teams/views.py:1368
+#: apps/teams/views.py:1372
 msgid "Invalid assignment attempt."
 msgstr ""
 
-#: apps/teams/views.py:1384
+#: apps/teams/views.py:1388
 msgid "Draft uploaded successfully."
 msgstr ""
 
-#: apps/teams/views.py:1388
+#: apps/teams/views.py:1392
 msgid "/n"
 msgstr ""
 
-#: apps/teams/views.py:1406
+#: apps/teams/views.py:1410
 msgid "You are not allowed to download this transcript."
 msgstr ""
 
-#: apps/teams/views.py:1456
+#: apps/teams/views.py:1460
 msgid "There's already a project with this name"
 msgstr ""
 
-#: apps/teams/views.py:1468
+#: apps/teams/views.py:1472
 msgid "Project added."
 msgstr ""
 
-#: apps/teams/views.py:1485
+#: apps/teams/views.py:1489
 msgid "You cannot edit that project."
 msgstr ""
 
-#: apps/teams/views.py:1496
+#: apps/teams/views.py:1500
 msgid "Project deleted."
 msgstr ""
 
-#: apps/teams/views.py:1514
+#: apps/teams/views.py:1518
 msgid "Project saved."
 msgstr ""
 
-#: apps/teams/views.py:1640
+#: apps/teams/views.py:1644
 msgid ""
 "Invalid unpublishing request.\n"
 "Errors:\n"
 msgstr ""
 
-#: apps/teams/views.py:1674
+#: apps/teams/views.py:1678
 msgid "Successfully unpublished subtitles."
 msgstr ""
 
@@ -1607,7 +1607,7 @@ msgstr ""
 msgid "Sorry, these subtitles are privately moderated."
 msgstr ""
 
-#: apps/widget/rpc.py:906 apps/widget/rpc.py:947
+#: apps/widget/rpc.py:907 apps/widget/rpc.py:948
 msgid "\n"
 msgstr ""
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Universal Subtitles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-14 01:43-0500\n"
+"POT-Creation-Date: 2012-06-15 01:41-0500\n"
 "PO-Revision-Date: 2012-06-13 06:48+0000\n"
 "Last-Translator: unisubsapi <universalsubtitles-dev@pculture.org>\n"
 "Language-Team: Albanian (http://www.transifex.net/projects/p/"
@@ -950,7 +950,7 @@ msgid "You do not have permission to delete this team."
 msgstr "Nuk keni leje ta fshini këtë ekip."
 
 #: apps/teams/views.py:206 apps/teams/views.py:242 apps/teams/views.py:270
-#: apps/teams/views.py:303 apps/teams/views.py:358 apps/teams/views.py:1529
+#: apps/teams/views.py:303 apps/teams/views.py:358 apps/teams/views.py:1533
 msgid "You do not have permission to edit this team."
 msgstr "Nuk keni leje të përpunoni këtë ekip."
 
@@ -1051,71 +1051,71 @@ msgstr "E braktisët këtë ekip."
 msgid "Member saved."
 msgstr "Anëtari u ruajt."
 
-#: apps/teams/views.py:1114
+#: apps/teams/views.py:1118
 msgid "You cannot view this team's tasks."
 msgstr "Nuk mund të shihni punët e caktuara në këtë ekip."
 
-#: apps/teams/views.py:1257 apps/teams/views.py:1260
+#: apps/teams/views.py:1261 apps/teams/views.py:1264
 msgid "You are not allowed to perform this task."
 msgstr "Nuk ju është lejuar kryerja e këtij veprimi."
 
-#: apps/teams/views.py:1315
+#: apps/teams/views.py:1319
 msgid "Task deleted."
 msgstr "Puna u fshi."
 
-#: apps/teams/views.py:1317
+#: apps/teams/views.py:1321
 msgid "You cannot delete this task."
 msgstr "Nuk mund ta fshini këtë punë."
 
-#: apps/teams/views.py:1342
+#: apps/teams/views.py:1346
 msgid "Task declined."
 msgstr "Puna u hodh poshtë."
 
-#: apps/teams/views.py:1344
+#: apps/teams/views.py:1348
 msgid "Task assigned."
 msgstr "Puna u caktua."
 
-#: apps/teams/views.py:1346
+#: apps/teams/views.py:1350
 msgid "You cannot assign this task."
 msgstr "Nuk mund ta caktoni këtë punë."
 
-#: apps/teams/views.py:1368
+#: apps/teams/views.py:1372
 msgid "Invalid assignment attempt."
 msgstr "Përpjekje e pavlefshme caktimi."
 
-#: apps/teams/views.py:1384
+#: apps/teams/views.py:1388
 msgid "Draft uploaded successfully."
 msgstr "Skica u ngarkua me sukses."
 
-#: apps/teams/views.py:1388
+#: apps/teams/views.py:1392
 msgid "/n"
 msgstr ""
 
-#: apps/teams/views.py:1406
+#: apps/teams/views.py:1410
 msgid "You are not allowed to download this transcript."
 msgstr "Nuk ju lejohet ta shkarkoni këtë transkript."
 
-#: apps/teams/views.py:1456
+#: apps/teams/views.py:1460
 msgid "There's already a project with this name"
 msgstr "Ka tashmë një projekt me këtë emër"
 
-#: apps/teams/views.py:1468
+#: apps/teams/views.py:1472
 msgid "Project added."
 msgstr "Projekti u shtua."
 
-#: apps/teams/views.py:1485
+#: apps/teams/views.py:1489
 msgid "You cannot edit that project."
 msgstr "Nuk mund ta përpunoni këtë projekt."
 
-#: apps/teams/views.py:1496
+#: apps/teams/views.py:1500
 msgid "Project deleted."
 msgstr "Projekti u fshi."
 
-#: apps/teams/views.py:1514
+#: apps/teams/views.py:1518
 msgid "Project saved."
 msgstr "Projekti u ruajt."
 
-#: apps/teams/views.py:1640
+#: apps/teams/views.py:1644
 msgid ""
 "Invalid unpublishing request.\n"
 "Errors:\n"
@@ -1123,7 +1123,7 @@ msgstr ""
 "Kërkesë e pavlefshme çbotimi.\n"
 "Gabime:\n"
 
-#: apps/teams/views.py:1674
+#: apps/teams/views.py:1678
 msgid "Successfully unpublished subtitles."
 msgstr "Titrat u çbotuan me sukses."
 
@@ -1727,7 +1727,7 @@ msgstr ""
 msgid "Sorry, these subtitles are privately moderated."
 msgstr "Na ndjeni, këta titra moderohen privatisht."
 
-#: apps/widget/rpc.py:906 apps/widget/rpc.py:947
+#: apps/widget/rpc.py:907 apps/widget/rpc.py:948
 msgid "\n"
 msgstr "\n"
 

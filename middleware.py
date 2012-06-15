@@ -42,7 +42,7 @@ class ResponseTimeMiddleware(object):
     Writes the time this request took to process, as a cookie in the response.
     In order for it to work, it must be the very first middleware in settings.py
 
-    Also records the response time and sends it along to Riemann.
+    Also records the response type and time and sends them along to Riemann.
 
     If the request was for a section of the site we want to track, sends that
     information to Riemann as well.
@@ -77,6 +77,12 @@ class ResponseTimeMiddleware(object):
             ms = delta * 1000
 
             Meter('requests.completed').inc()
+
+            try:
+                response_type = response.status_code / 100 * 100
+            except:
+                response_type = 'unknown'
+            Meter('requests.response-types.%s' % response_type).inc()
 
             response.set_cookie('response_time', str(ms))
 

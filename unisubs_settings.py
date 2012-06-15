@@ -63,24 +63,11 @@ elif INSTALLATION == PRODUCTION:
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     
 if INSTALLATION == STAGING or INSTALLATION == PRODUCTION:
-    uslogging_db = {
-        'uslogging': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': SENTRY_DATABASE_NAME,
-            'USER': SENTRY_DATABASE_USER,
-            'PASSWORD': SENTRY_DATABASE_PASSWORD,
-            'HOST': SENTRY_DATABASE_HOST,
-            'PORT': '3306'
-            }
-        }
-    USLOGGING_DATABASE = 'uslogging'
     DATABASE_ROUTERS = ['routers.UnisubsRouter']
     AWS_STORAGE_BUCKET_NAME = DEFAULT_BUCKET
     COMPRESS_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
     COMPRESS_URL = STATIC_URL
     SOLR_ROOT = '/usr/share/'
-else:
-    uslogging_db = {}
 
 CELERYD_LOG_LEVEL = 'INFO'
 CELERY_REDIRECT_STDOUTS = True
