@@ -17,7 +17,7 @@
 # http://www.gnu.org/licenses/agpl-3.0.html.
 
 
-from context_processors import current_site
+from utils.context_processors import current_site
 from videos.search_indexes import VideoIndex
 from search.forms import SearchForm
 from search.rpc import SearchApiClass
