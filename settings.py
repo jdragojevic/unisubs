@@ -376,7 +376,6 @@ INSTALLED_APPS = (
     # our apps
     'accountlinker',
     'comments',
-    'doorman',
     'icanhaz',
     'messages',
     'profiles',
@@ -524,10 +523,6 @@ ROSETTA_EXCLUDED_APPLICATIONS = (
     'rosetta'
 )
 
-
-# this is used in our feature swither app, doorman, empty for now
-FEATURE_FLAGS  = {
-}
 
 INTEGRATION_PATH = os.path.join(PROJECT_ROOT, 'unisubs-integration')
 USE_INTEGRATION = os.path.exists(INTEGRATION_PATH)

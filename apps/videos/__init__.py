@@ -52,7 +52,7 @@ class EffectiveSubtitle:
         self.pk = pk
         self.start_of_paragraph = start_of_paragraph
 
-    def for_json(self):
+    def as_dict(self):
         return {
             'subtitle_id': self.subtitle_id,
             'text': self.text,
@@ -91,15 +91,19 @@ class EffectiveSubtitle:
         )
 
     @classmethod
-    def for_dependent_translation(cls, subtitle, translation):
+    def for_dependent_translation(cls, original, translation):
+        """
+        Return a EffectiveSubtitle from a pair of
+        videos.Subtitle instance with the id borrowed from the original
+        """
         return EffectiveSubtitle(
-            subtitle.subtitle_id,
+            original.subtitle_id,
             translation.subtitle_text,
-            subtitle.start_time,
-            subtitle.end_time,
-            subtitle.subtitle_order,
-            subtitle.pk,
-            subtitle.start_of_paragraph,
+            original.start_time,
+            original.end_time,
+            original.subtitle_order,
+            original.pk,
+            original.start_of_paragraph,
         )
 
     def duplicate_for(self):
@@ -113,10 +117,10 @@ class EffectiveSubtitle:
             start_of_paragraph = self.start_of_paragraph,
         )
 
-    def display_time(self):
-        t = self.start_time
-        return '' if t < 0 else format_time(t)
+    @property
+    def has_start_time(self):
+        return self.start_time != UNSYNCED_MARKER
 
-    def display_end_time(self):
-        t = self.end_time
-        return '' if t < 0 else format_time(t)
+    @property
+    def has_end_time(self):
+        return self.end_time != UNSYNCED_MARKER

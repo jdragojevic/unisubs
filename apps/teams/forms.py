@@ -37,12 +37,12 @@ from utils.translation import get_language_choices
 from utils.validators import MaxFileSizeValidator
 from videos.forms import AddFromFeedForm
 from videos.models import (
-        VideoMetadata, VIDEO_META_TYPE_IDS, SubtitleVersion, 
+        VideoMetadata, VIDEO_META_TYPE_IDS, SubtitleVersion,
         Video, SubtitleLanguage
 )
 from videos.search_indexes import VideoIndex
 
-from utils import (
+from utils.subtitles import (
     SrtSubtitleParser, SsaSubtitleParser, TtmlSubtitleParser,
     SubtitleParserError, SbvSubtitleParser, DfxpSubtitleParser
 )
@@ -670,21 +670,21 @@ class UploadDraftForm(forms.Form):
         try:
             text = subtitles.read()
             encoding = chardet.detect(text)['encoding']
-        
+
             if not encoding:
                 raise forms.ValidationError(_(u'Can not detect file encoding'))
 
             self._parser = self._get_parser(subtitles.name)(force_unicode(text, encoding))
-        
+
             if not self._parser:
                 raise forms.ValidationError(_(u'Incorrect subtitles format'))
         except SubtitleParserError, e:
             raise forms.ValidationError(e)
 
         subtitles.seek(0)
-        
+
         return subtitles
-    
+
     def _get_parser(self, filename):
         end = filename.split('.')[-1].lower()
         if end == 'srt':
@@ -726,14 +726,14 @@ class UploadDraftForm(forms.Form):
         video = task.team_video.video
         language_to_translate = self.cleaned_data['translate_from']
 
-        if (task.assignee and task.assignee != self.user) or (not task.assignee and not can_assign_task(task, self.user)):
+        if not task.assignee:
             task.assignee = self.user
 
         if task.language:
             video_language = task.language
         else:
             video_language = self.cleaned_data['language']
-        
+
         translated_from = None
 
         if task.get_subtitle_version():
@@ -768,13 +768,13 @@ class UploadDraftForm(forms.Form):
 
         # we need to set the moderation_status to WAITING_MODERATION
         # so the version is not public. At the same time, we cannot
-        # set task.subtitle_version if it's review/approve, otherwise 
+        # set task.subtitle_version if it's review/approve, otherwise
         # the task will get blocked. :(
-        version = SubtitleVersion.objects.new_version(self._parser, language, self.user, 
+        version = SubtitleVersion.objects.new_version(self._parser, language, self.user,
                                                       moderation_status=WAITING_MODERATION,
                                                       translated_from=translated_from,
                                                       note="Uploaded")
-        
+
         if task.type in (Task.TYPE_IDS['Review'], Task.TYPE_IDS['Approve']):
             task.subtitle_version = version
 

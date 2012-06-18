@@ -44,7 +44,7 @@ def sitemap_view(request, sitemaps, section=None):
     page = request.GET.get("p", 1)
     cache_key = 'sitemap_%s_%s' % (section, page)
     xml = cache.get(cache_key)
-    
+
     if not xml:
         for site in maps:
             try:
@@ -58,7 +58,7 @@ def sitemap_view(request, sitemaps, section=None):
                 raise Http404("No page '%s'" % page)
         xml = smart_str(loader.render_to_string('sitemap.xml', {'urlset': urls}))
         cache.set(cache_key, xml, 60*60*24)
-        
+
     return HttpResponse(xml, mimetype='application/xml')
 
 class AbstractSitemap(object):
@@ -113,15 +113,15 @@ class VideoSitemap(Sitemap):
 
     def items(self):
         return Video.objects.values('video_id', 'edited')
-    
-    @permalink   
+
+    @permalink
     def location(self, obj):
         return ('videos:video', [obj['video_id']], {'locale': ''})
 
     def lastmod(self, obj):
         edited = obj['edited']
         return edited
-    
+
 sitemaps = {
             'video':VideoSitemap,
             'static':StaticSitemap,

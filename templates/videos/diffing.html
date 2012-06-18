@@ -3,7 +3,7 @@
 {% block body_attrs %}id="video"{% endblock %}
 {% block html_attrs %}id="diffing"{% endblock %}
 
-{% load widget i18n media_compressor doorman %}
+{% load widget i18n media_compressor subtitles_tags%}
 
 
 
@@ -138,16 +138,16 @@
           {% for item in captions %}
             <tr {% cycle 'class="even"' '' %}>
                   <td>
-                    {% if item.1.display_time %}
+                    {% if item.1.has_start_time %}
                     <span class="time-span time_link">
-                        <span class="data">{{item.1.start_time}}</span>
+                        <span class="data">{{item.1.start_time|format_sub_time}}</span>
                         <span class="badgy start">
-                            <span class="stamp_text">{{ item.1.display_time }}</span>
+                            <span class="stamp_text">{{item.1.start_time|format_sub_time}}</span>
                         </span>
-                        {% if item.1.display_end_time %}
+                        {% if item.1.has_end_time %}
                           <span class="connector"></span>
                           <span class="badgy end">
-                              <span class="stamp_text">{{ item.1.display_end_time }}</span>
+                              <span class="stamp_text">{{ item.1.end_time|format_sub_time }}</span>
                           </span>
                         {% endif %}
                     </span>
@@ -206,16 +206,16 @@
             <tr {% cycle 'class="even"' '' %}>
                   <td>
 
-                {% if item.0.display_time %}
+                {% if item.0.has_start_time %}
                     <span class="time-span time_link">
-                        <span class="data">{{item.0.start_time}}</span>
+                        <span class="data">{{item.0.start_time|format_sub_time}}</span>
                         <span class="badgy start">
-                           <span class="stamp_text">{{ item.0.display_time }}</span>
+                           <span class="stamp_text">{{ item.0.start_time|format_sub_time }}</span>
                         </span>
-                        {% if item.0.display_end_time %}
+                        {% if item.0.has_end_time %}
                           <span class="connector"></span>
                           <span class="badgy end">
-                              <span class="stamp_text">{{ item.0.display_end_time }}</span>
+                              <span class="stamp_text">{{ item.0.end_time|format_sub_time }}</span>
                           </span>
                         {% endif %}
                     </span>

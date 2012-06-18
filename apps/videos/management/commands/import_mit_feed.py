@@ -2,7 +2,7 @@ import sys
 from django.core.management.base import BaseCommand
 from videos.models import Video, VideoUrl, Action, SubtitleLanguage
 from django.core.exceptions import ObjectDoesNotExist
-from utils import SrtSubtitleParser
+from utils.subtitles import SrtSubtitleParser
 import httplib2
 import chardet
 from videos.forms import SubtitlesUploadForm

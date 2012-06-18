@@ -20,6 +20,7 @@ from django import template
 from django.utils.translation import ugettext_lazy as _, ungettext
 from django.utils import translation
 
+from videos import format_time
 from videos.forms import SubtitlesUploadForm, CreateVideoUrlForm
 from icanhaz.models import VideoVisibilityPolicy
 
@@ -97,3 +98,7 @@ def language_url(request, lang):
     vid = VideoVisibilityPolicy.objects.id_for_video(lang.video)
     lc = lang.language or 'unknown'
     return reverse('videos:translation_history', args=[vid, lc, lang.pk])
+
+@register.filter
+def format_sub_time(t):
+    return '' if t < 0 else format_time(t)

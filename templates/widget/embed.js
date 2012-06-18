@@ -1,4 +1,4 @@
-{% load escapejs media_compressor %}
+{% load media_compressor %}
 
 // Amara, universalsubtitles.org
 // 
@@ -50,7 +50,7 @@
  */
 
 (function() {
-    var innerStyle = '{% escapejs %}{% include "widget/widget.css" %}{% endescapejs %}';
+    var innerStyle = '{% filter escapejs %}{% include "widget/widget.css" %}{% endfilter %}';
 
     var scriptsToLoad = ["{{js_file}}"];
 

@@ -45,7 +45,6 @@ from teams.moderation_const import REVIEWED_AND_PUBLISHED, \
 
 from messages.models import Message
 from utils import send_templated_email
-from utils import get_object_or_none
 from utils.metrics import Meter
 from utils.translation import get_language_label
 

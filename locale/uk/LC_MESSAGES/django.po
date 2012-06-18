@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Universal Subtitles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-15 01:40-0500\n"
+"POT-Creation-Date: 2012-06-18 01:43-0500\n"
 "PO-Revision-Date: 2010-11-30 05:45+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -214,80 +214,80 @@ msgstr ""
 msgid "Message does not exist."
 msgstr ""
 
-#: apps/messages/tasks.py:72
+#: apps/messages/tasks.py:71
 #, python-format
 msgid "New message from %(author)s on Amara: %(subject)s"
 msgstr ""
 
-#: apps/messages/tasks.py:74
+#: apps/messages/tasks.py:73
 #, python-format
 msgid "New message on Amara: %(subject)s"
 msgstr ""
 
-#: apps/messages/tasks.py:118
+#: apps/messages/tasks.py:117
 #, python-format
 msgid "You've been invited to team %s on Amara"
 msgstr ""
 
-#: apps/messages/tasks.py:153
+#: apps/messages/tasks.py:152
 #, python-format
 msgid "%(user)s is applying for team %(team)s"
 msgstr ""
 
-#: apps/messages/tasks.py:184
+#: apps/messages/tasks.py:183
 #, python-format
 msgid "Your application to join the %s team has been declined"
 msgstr ""
 
-#: apps/messages/tasks.py:218
+#: apps/messages/tasks.py:217
 #, python-format
 msgid "%s team has a new member"
 msgstr ""
 
-#: apps/messages/tasks.py:242
+#: apps/messages/tasks.py:241
 #, python-format
 msgid "You've joined the %s team!"
 msgstr ""
 
-#: apps/messages/tasks.py:267
+#: apps/messages/tasks.py:266
 #, python-format
 msgid "%(user)s has left the %(team)s team"
 msgstr ""
 
-#: apps/messages/tasks.py:292
+#: apps/messages/tasks.py:291
 #, python-format
 msgid "You've left the %s team!"
 msgstr ""
 
-#: apps/messages/tasks.py:328
+#: apps/messages/tasks.py:327
 msgid "Your videos were imported!"
 msgstr ""
 
-#: apps/messages/tasks.py:355
+#: apps/messages/tasks.py:354
 msgid "You have a new task assignment on Amara!"
 msgstr ""
 
-#: apps/messages/tasks.py:396
+#: apps/messages/tasks.py:395
 msgid "Your subtitles have been reviewed"
 msgstr ""
 
-#: apps/messages/tasks.py:398
+#: apps/messages/tasks.py:397
 msgid " and published"
 msgstr ""
 
-#: apps/messages/tasks.py:499
+#: apps/messages/tasks.py:498
 msgid "Your subtitles have been approved and published!"
 msgstr ""
 
-#: apps/messages/tasks.py:505
+#: apps/messages/tasks.py:504
 msgid "Your subtitles have been returned for further editing"
 msgstr ""
 
-#: apps/messages/tasks.py:560
+#: apps/messages/tasks.py:559
 msgid "Your subtitles were not accepted"
 msgstr ""
 
-#: apps/messages/tasks.py:604
+#: apps/messages/tasks.py:603
 #, python-format
 msgid "%(user)s left a comment on the video %(title)s"
 msgstr ""
@@ -1566,7 +1566,7 @@ msgstr ""
 msgid "Feed is unavailable now."
 msgstr ""
 
-#: apps/videos/templatetags/subtitles_tags.py:56
+#: apps/videos/templatetags/subtitles_tags.py:57
 #, python-format
 msgid "%(count)s Line"
 msgid_plural "%(count)s Lines"

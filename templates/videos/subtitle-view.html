@@ -3,7 +3,7 @@
 {% block body_attrs %}id="video" class="v1 video_view"{% endblock %}
 {% block html_attrs %}id="subtitle_view"{% endblock %}
 
-{% load escapejs paginator widget comments i18n subtitles_tags teams_tags media_compressor videos_tags doorman utils_tags %}
+{% load paginator widget comments i18n subtitles_tags teams_tags media_compressor videos_tags utils_tags %}
 
 {% block css %}
     {{ block.super }}
@@ -188,14 +188,14 @@
                         </li>
                         {% for item in last_version.ordered_subtitles %}
                         <li {%if item.start_of_paragraph %}class="start-of-paragraph"{% endif %}>
-                            {% if item.display_time %}
+                            {% if item.has_start_time %}
                             <div class="timing">
                                 <a class="time_link" href="#" title="Play video here">
                                     <span class="data">{{ item.start_time }}</span>
-                                    {{ item.display_time }}
-                                    {% if item.display_end_time %}
+                                    {{ item.start_time|format_sub_time }}
+                                    {% if item.has_end_time %}
                                     –
-                                    {{ item.display_end_time }}
+                                    {{ item.end_time|format_sub_time }}
                                     {% endif %}
                                 </a>
                             </div>

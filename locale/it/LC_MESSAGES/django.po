@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Universal Subtitles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-15 01:30-0500\n"
+"POT-Creation-Date: 2012-06-18 01:30-0500\n"
 "PO-Revision-Date: 2012-06-13 06:49+0000\n"
 "Last-Translator: unisubsapi <universalsubtitles-dev@pculture.org>\n"
 "Language-Team: Italian (http://www.transifex.net/projects/p/"
@@ -226,80 +226,80 @@ msgstr "Devi accedere."
 msgid "Message does not exist."
 msgstr "Il messaggio non esiste."
 
-#: apps/messages/tasks.py:72
+#: apps/messages/tasks.py:71
 #, python-format
 msgid "New message from %(author)s on Amara: %(subject)s"
 msgstr "Nuovo messaggio da %(author)s su Amara: %(subject)s"
 
-#: apps/messages/tasks.py:74
+#: apps/messages/tasks.py:73
 #, python-format
 msgid "New message on Amara: %(subject)s"
 msgstr "Nuovo messaggio su Amara: %(subject)s"
 
-#: apps/messages/tasks.py:118
+#: apps/messages/tasks.py:117
 #, python-format
 msgid "You've been invited to team %s on Amara"
 msgstr "Sei stato invitato nel team %s su Amara"
 
-#: apps/messages/tasks.py:153
+#: apps/messages/tasks.py:152
 #, python-format
 msgid "%(user)s is applying for team %(team)s"
 msgstr "%(user)s ha chiesto di partecipare alla squadra %(team)s"
 
-#: apps/messages/tasks.py:184
+#: apps/messages/tasks.py:183
 #, python-format
 msgid "Your application to join the %s team has been declined"
 msgstr "La sua richiesta di partecipare alla squadta %s team è stata rifiutata"
 
-#: apps/messages/tasks.py:218
+#: apps/messages/tasks.py:217
 #, python-format
 msgid "%s team has a new member"
 msgstr "La squadra %s ha un nuovo membro"
 
-#: apps/messages/tasks.py:242
+#: apps/messages/tasks.py:241
 #, python-format
 msgid "You've joined the %s team!"
 msgstr "Sei entrato a far parte della squadra %s!"
 
-#: apps/messages/tasks.py:267
+#: apps/messages/tasks.py:266
 #, python-format
 msgid "%(user)s has left the %(team)s team"
 msgstr "%(user)s ha lasciato la squadra %(team)s"
 
-#: apps/messages/tasks.py:292
+#: apps/messages/tasks.py:291
 #, python-format
 msgid "You've left the %s team!"
 msgstr "Hai lasciato la squadra %s !"
 
-#: apps/messages/tasks.py:328
+#: apps/messages/tasks.py:327
 msgid "Your videos were imported!"
 msgstr ""
 
-#: apps/messages/tasks.py:355
+#: apps/messages/tasks.py:354
 msgid "You have a new task assignment on Amara!"
 msgstr "Hai una nuova attività assegnata su Amara!"
 
-#: apps/messages/tasks.py:396
+#: apps/messages/tasks.py:395
 msgid "Your subtitles have been reviewed"
 msgstr "I tuoi sottotitoli sono stati rivisti"
 
-#: apps/messages/tasks.py:398
+#: apps/messages/tasks.py:397
 msgid " and published"
 msgstr "e pubblicati"
 
-#: apps/messages/tasks.py:499
+#: apps/messages/tasks.py:498
 msgid "Your subtitles have been approved and published!"
 msgstr "I tuoi sottotitoli sono stati rivisti e pubblicati!"
 
-#: apps/messages/tasks.py:505
+#: apps/messages/tasks.py:504
 msgid "Your subtitles have been returned for further editing"
 msgstr ""
 
-#: apps/messages/tasks.py:560
+#: apps/messages/tasks.py:559
 msgid "Your subtitles were not accepted"
 msgstr ""
 
-#: apps/messages/tasks.py:604
+#: apps/messages/tasks.py:603
 #, python-format
 msgid "%(user)s left a comment on the video %(title)s"
 msgstr ""
@@ -1660,7 +1660,7 @@ msgstr "Non puoi togliere l'URL originale"
 msgid "Feed is unavailable now."
 msgstr "Il feed non è disponibile attualmente."
 
-#: apps/videos/templatetags/subtitles_tags.py:56
+#: apps/videos/templatetags/subtitles_tags.py:57
 #, python-format
 msgid "%(count)s Line"
 msgid_plural "%(count)s Lines"

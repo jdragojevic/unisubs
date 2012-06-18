@@ -2,7 +2,6 @@ from kombu.transport import virtual
 from boto.sqs.connection import SQSConnection
 from django.conf import settings
 from boto import exception as boto_exceptions
-from utils import LogExceptionsMetaclass
 
 LOG_AMAZON_BROKER = getattr(settings, 'LOG_AMAZON_BROKER', False)
 
@@ -11,13 +10,13 @@ try:
 except ImportError:
     def cprint(s, c):
         print s
-    
+
 from kombu.utils import cached_property
 from Queue import Empty
 from anyjson import serialize, deserialize
 
 def pr(s):
-    cprint(s, 'green')        
+    cprint(s, 'green')
 
 DEBUG = False
 EVENT_QUEUE_NAME = 'celeryev'
@@ -28,8 +27,8 @@ from statistic.log_methods import LogNativeMethodsMetaclass, RedisLogBackend
 
 class SQSLoggingConnection(SQSConnection):
     __metaclass__ = LogNativeMethodsMetaclass
-    
-    logger_backend = RedisLogBackend(default_connection)    
+
+    logger_backend = RedisLogBackend(default_connection)
 
 if LOG_AMAZON_BROKER:
     DEFAULT_CONNECTION = SQSLoggingConnection
@@ -37,24 +36,10 @@ else:
     DEFAULT_CONNECTION = SQSConnection
 
 class Channel(virtual.Channel):
-    #set logging these exceptions in any method of class by LogExceptionsMetaclass
-    __log_exceptions_logger_name = 'celery'
-    __log_exceptions = (
-        boto_exceptions.BotoClientError, 
-        boto_exceptions.SDBPersistenceError,
-        boto_exceptions.BotoServerError,
-        AttributeError,
-        LookupError,
-        EnvironmentError,
-        RuntimeError,
-        SystemError,
-        ValueError
-    )
-    __metaclass__ = LogExceptionsMetaclass
-    
-    
+
+
     Client = DEFAULT_CONNECTION
-    
+
     DOT_REPLECEMENT = '___'
     supports_fanout = False
 
@@ -71,7 +56,7 @@ class Channel(virtual.Channel):
         """
         DEBUG and pr('_lookup: %s, %s' % (exchange, routing_key))
         queues = []
-        
+
         #this is a hack for event sending
         #I just send it to all queues  with celeryev
         #In redis backend it looks like same way, but all queues are saved in set
@@ -81,12 +66,12 @@ class Channel(virtual.Channel):
                 parts = q.name.split(self.DOT_REPLECEMENT)
                 if parts[0] == self.queue_prefix and parts[1] == EVENT_QUEUE_NAME:
                     queues.append(self.DOT_REPLECEMENT.join(parts[1:]))
-        
+
         if queues:
             return queues
-        
+
         return super(Channel, self)._lookup(exchange, routing_key, default)
-    
+
     def _get(self, queue, timeout=None):
         """Get next message from `queue`."""
         DEBUG and pr('>>> Channel._get: %s' % queue)
@@ -130,7 +115,7 @@ class Channel(virtual.Channel):
             del self.queue_cache[queue]
         except KeyError:
             pass
-                
+
     def _new_queue(self, queue, **kwargs):
         """Create new queue.
 
@@ -151,7 +136,7 @@ class Channel(virtual.Channel):
         """
         DEBUG and pr('>>> Channel._has_queue: %s' % queue)
         return True
-    
+
     def _get_queue(self, queue):
         # "." is not valid symbol in queue name for SQS. Maybe this should be more pretty.
 
@@ -162,12 +147,12 @@ class Channel(virtual.Channel):
             else:
                 queue_name = queue
             queue_name = self.queue_prefix+'.'+queue_name
-            
+
             q = self.client.create_queue(queue_name.replace('.', self.DOT_REPLECEMENT))
             self.queue_cache[queue] = q
 
         return self.queue_cache[queue]
-    
+
     def _poll(self, cycle, timeout=None):
         """Poll a list of queues for available messages."""
         DEBUG and pr('>>> Channel._poll: %s' % cycle)
@@ -176,7 +161,7 @@ class Channel(virtual.Channel):
     def _create_client(self):
         DEBUG and pr('>>> Channel._create_client')
         access_key = self.connection.client.userid
-        secret_key = self.connection.client.password           
+        secret_key = self.connection.client.password
         return self.Client(access_key, secret_key)
 
     @cached_property
@@ -186,7 +171,7 @@ class Channel(virtual.Channel):
     @client.deleter
     def client(self, client):
         client.connection.disconnect()
-        
+
 class Transport(virtual.Transport):
     Channel = Channel
 
@@ -194,11 +179,11 @@ class Transport(virtual.Transport):
         super(Transport, self).__init__(*args, **kwargs)
         self.connection_errors = (
             boto_exceptions.BotoServerError,
-        ) 
+        )
         self.channel_errors = (
             boto_exceptions.BotoClientError,
             boto_exceptions.BotoServerError,
         )
-            
+
     def establish_connection(self):
         return self

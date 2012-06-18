@@ -37,7 +37,7 @@ from apps.auth.models import CustomUser as User
 from messages.models import Message
 from teams.models import Team, TeamVideo, Workflow, TeamMember
 from testhelpers.views import _create_videos
-from utils import (
+from utils.subtitles import (
     SrtSubtitleParser, YoutubeSubtitleParser, TxtSubtitleParser, DfxpSubtitleParser
 )
 from videos import metadata_manager, alarms, EffectiveSubtitle

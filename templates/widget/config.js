@@ -1,5 +1,3 @@
-{% load escapejs %}
-
 // Amara, universalsubtitles.org
 // 
 // Copyright (C) 2012 Participatory Culture Foundation
@@ -25,4 +23,4 @@ unisubs.Config.siteConfig = {
     'staticURL': '{{STATIC_URL}}'
 };
 
-unisubs.Config.innerStyle = '{% escapejs %}{% include "widget/widget.css" %}{% endescapejs %}';
+unisubs.Config.innerStyle = '{% filter escapejs %}{% include "widget/widget.css" %}{% endfilter %}';

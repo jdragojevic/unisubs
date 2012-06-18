@@ -36,7 +36,7 @@ from teams.permissions import (
         can_create_and_edit_translations, can_approve,
         can_publish_edits_immediately
 )
-from utils import (
+from utils.subtitles import (
     SrtSubtitleParser, SsaSubtitleParser, TtmlSubtitleParser,
     SubtitleParserError, SbvSubtitleParser, TxtSubtitleParser,
     DfxpSubtitleParser

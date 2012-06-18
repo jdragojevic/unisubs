@@ -1616,12 +1616,15 @@ class Task(models.Model):
             assignee = None
 
         # TODO: Shouldn't this be WAITING_MODERATION?
-        self.subtitle_version.moderation_status = UNMODERATED
+        self.subtitle_version.moderation_status = WAITING_MODERATION
         self.subtitle_version.save()
 
         task = Task(team=self.team, team_video=self.team_video,
-                    subtitle_version=self.subtitle_version,
                     language=self.language, type=type, assignee=assignee)
+
+        if type == Task.TYPE_IDS['Review']:
+            task.subtitle_version = self.subtitle_version
+
         task.save()
 
         if sends_notification:

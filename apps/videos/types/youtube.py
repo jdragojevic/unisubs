@@ -33,7 +33,7 @@ from lxml import etree
 
 from auth.models import CustomUser as User
 from base import VideoType, VideoTypeError
-from utils import YoutubeXMLParser
+from utils.subtitles import YoutubeXMLParser
 from utils.translation import SUPPORTED_LANGUAGE_CODES
 
 from libs.unilangs.unilangs import LanguageCode

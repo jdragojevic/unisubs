@@ -14,7 +14,6 @@ Contents:
    running-amara
    static-files
    deployment-guide
-   feature-flags
    permissions
    i18n
    api

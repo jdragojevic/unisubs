@@ -1,13 +1,13 @@
-import os
 import random
 import time
 
 import debug_toolbar
+import django.db.backends.mysql.base
 from debug_toolbar.middleware import DebugToolbarMiddleware
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_ipv4_address
-from django.db import connection
+from django.db.backends.mysql.base import CursorWrapper as _CursorWrapper
 from django.utils.cache import patch_vary_headers
 from django.utils.hashcompat import sha_constructor
 from django.utils.http import cookie_date
@@ -24,7 +24,6 @@ SECTIONS = {
 
 
 class SaveUserIp(object):
-
     def process_request(self, request):
         if request.user.is_authenticated():
             ip = request.META.get('REMOTE_ADDR', '')
@@ -117,7 +116,6 @@ def _get_new_csrf_key():
                 % (randrange(0, _MAX_CSRF_KEY), settings.SECRET_KEY)).hexdigest()
 
 class UserUUIDMiddleware(object):
-
     def process_request(self, request):
         try:
             request.browser_id = request.COOKIES[UUID_COOKIE_NAME]
@@ -142,83 +140,8 @@ class UserUUIDMiddleware(object):
         patch_vary_headers(response, ('Cookie',))
         return response
 
-def _terminal_width():
-    """
-    Function to compute the terminal width.
-    WARNING: This is not my code, but I've been using it forever and
-    I don't remember where it came from.
-    """
-    width = 0
-    try:
-        import struct, fcntl, termios
-        s = struct.pack('HHHH', 0, 0, 0, 0)
-        x = fcntl.ioctl(1, termios.TIOCGWINSZ, s)
-        width = struct.unpack('HHHH', x)[1]
-    except:
-        pass
-    if width <= 0:
-        try:
-            width = int(os.environ['COLUMNS'])
-        except:
-            pass
-    if width <= 0:
-        width = 80
-    return width
-
-DISABLE_SQL_PRINTING = getattr(settings, 'DISABLE_SQL_PRINTING', False)
-
-class SqlPrintingMiddleware(object):
-    """
-    Middleware which prints out a list of all SQL queries done
-    for each view that is processed.  This is only useful for debugging.
-    """
-    def process_response(self, request, response):
-        indentation = 2
-        if len(connection.queries) > 0 and settings.DEBUG and not DISABLE_SQL_PRINTING:
-            width = _terminal_width()
-            total_time = 0.0
-            for query in connection.queries:
-                if 'stacktrace' in query:
-                    print '\033[22;31m[ERROR]\033[0m'
-                    print query['raw_sql']
-                else:
-                    nice_sql = query['sql'].replace('"', '').replace(',',', ')
-                    sql = "\033[1;31m[%s]\033[0m %s" % (query['time'], nice_sql)
-                    total_time = total_time + float(query['time'])
-                    while len(sql) > width-indentation:
-                        print "%s%s" % (" "*indentation, sql[:width-indentation])
-                        sql = sql[width-indentation:]
-                    print "%s%s\n" % (" "*indentation, sql)
-            replace_tuple = (" "*indentation, str(total_time))
-            print "%s\033[1;32m[TOTAL TIME: %s seconds]\033[0m" % replace_tuple
-        return response
-
-class ExceptionLoggingMiddleware(object):
-    def process_exception(self, request, exception):
-        import traceback
-        print traceback.format_exc()
-
-
-class SupeuserDebugToolbarMiddleware(DebugToolbarMiddleware):
-
-    def _show_toolbar(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', None)
-        if x_forwarded_for:
-            remote_addr = x_forwarded_for.split(',')[0].strip()
-        else:
-            remote_addr = request.META.get('REMOTE_ADDR', None)
-        if (not remote_addr in settings.INTERNAL_IPS and not request.user.is_superuser) \
-            or (request.is_ajax() and \
-                not debug_toolbar.urls._PREFIX in request.path) \
-                    or not settings.DEBUG:
-            return False
-        return True
-
 
 # I'm so sorry about this.
-import django.db.backends.mysql.base
-from django.db.backends.mysql.base import CursorWrapper as _CursorWrapper
-
 class MetricsCursorWrapper(_CursorWrapper):
     def _query_type(self, query):
         if not query:

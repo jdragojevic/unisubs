@@ -3,9 +3,6 @@ from inspect import ismethod
 from django.conf import settings
 from django.utils.functional import update_wrapper
 from redis import Redis
-from redis.exceptions import RedisError
-
-from utils import LogExceptionsMetaclass
 
 
 REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
@@ -13,14 +10,7 @@ REDIS_PORT = getattr(settings, 'REDIS_PORT', 6379)
 REDIS_DB = getattr(settings, 'REDIS_DB', 0)
 IGNORE_REDIS = getattr(settings, 'IGNORE_REDIS', False) and settings.DEBUG
 
-class LogConnection(Redis):
-    __metaclass__ = LogExceptionsMetaclass
-
-    __log_exceptions = RedisError
-    __log_exceptions_logger_name = 'redis'
-    __log_exceptions_ignore = True
-
-default_connection = LogConnection(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, socket_timeout=5)
+default_connection = Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, socket_timeout=5)
 
 class RedisCounterField(Exception):
     pass

@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Universal Subtitles\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-15 01:33-0500\n"
+"POT-Creation-Date: 2012-06-18 01:35-0500\n"
 "PO-Revision-Date: 2012-06-13 06:48+0000\n"
 "Last-Translator: unisubsapi <universalsubtitles-dev@pculture.org>\n"
 "Language-Team: French (http://www.transifex.net/projects/p/"
@@ -227,80 +227,80 @@ msgstr "Vous devez être authentifié."
 msgid "Message does not exist."
 msgstr "Le message n'existe pas."
 
-#: apps/messages/tasks.py:72
+#: apps/messages/tasks.py:71
 #, python-format
 msgid "New message from %(author)s on Amara: %(subject)s"
 msgstr "Nouveau message de %(author)s sur Amara: %(subject)s"
 
-#: apps/messages/tasks.py:74
+#: apps/messages/tasks.py:73
 #, python-format
 msgid "New message on Amara: %(subject)s"
 msgstr "Nouveau message sur Amara: %(subject)s"
 
-#: apps/messages/tasks.py:118
+#: apps/messages/tasks.py:117
 #, python-format
 msgid "You've been invited to team %s on Amara"
 msgstr "L'équipe %s vous a invité sur Amara"
 
-#: apps/messages/tasks.py:153
+#: apps/messages/tasks.py:152
 #, python-format
 msgid "%(user)s is applying for team %(team)s"
 msgstr ""
 
-#: apps/messages/tasks.py:184
+#: apps/messages/tasks.py:183
 #, python-format
 msgid "Your application to join the %s team has been declined"
 msgstr ""
 
-#: apps/messages/tasks.py:218
+#: apps/messages/tasks.py:217
 #, python-format
 msgid "%s team has a new member"
 msgstr "L'équipe %s a un nouveau membre"
 
-#: apps/messages/tasks.py:242
+#: apps/messages/tasks.py:241
 #, python-format
 msgid "You've joined the %s team!"
 msgstr "Vous avez rejoins l'équipe %s!"
 
-#: apps/messages/tasks.py:267
+#: apps/messages/tasks.py:266
 #, python-format
 msgid "%(user)s has left the %(team)s team"
 msgstr "%(user)s a quitté l'équipe %(team)s"
 
-#: apps/messages/tasks.py:292
+#: apps/messages/tasks.py:291
 #, python-format
 msgid "You've left the %s team!"
 msgstr "Vous avez quitté l'équipe %s!"
 
-#: apps/messages/tasks.py:328
+#: apps/messages/tasks.py:327
 msgid "Your videos were imported!"
 msgstr "Vos vidéos ont été importés!"
 
-#: apps/messages/tasks.py:355
+#: apps/messages/tasks.py:354
 msgid "You have a new task assignment on Amara!"
 msgstr ""
 
-#: apps/messages/tasks.py:396
+#: apps/messages/tasks.py:395
 msgid "Your subtitles have been reviewed"
 msgstr ""
 
-#: apps/messages/tasks.py:398
+#: apps/messages/tasks.py:397
 msgid " and published"
 msgstr " et publiés"
 
-#: apps/messages/tasks.py:499
+#: apps/messages/tasks.py:498
 msgid "Your subtitles have been approved and published!"
 msgstr "Vos sous-titres ont été approuvés et publiés!"
 
-#: apps/messages/tasks.py:505
+#: apps/messages/tasks.py:504
 msgid "Your subtitles have been returned for further editing"
 msgstr ""
 
-#: apps/messages/tasks.py:560
+#: apps/messages/tasks.py:559
 msgid "Your subtitles were not accepted"
 msgstr ""
 
-#: apps/messages/tasks.py:604
+#: apps/messages/tasks.py:603
 #, python-format
 msgid "%(user)s left a comment on the video %(title)s"
 msgstr ""
@@ -1651,7 +1651,7 @@ msgstr "Vous ne pouvez pas effacer l'URL originale"
 msgid "Feed is unavailable now."
 msgstr "Le fil est indisponible maintenant."
 
-#: apps/videos/templatetags/subtitles_tags.py:56
+#: apps/videos/templatetags/subtitles_tags.py:57
 #, python-format
 msgid "%(count)s Line"
 msgid_plural "%(count)s Lines"
