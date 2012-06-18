@@ -76,23 +76,11 @@
                 {% endif %}
             </div>
         {% endwith %}
-        <ul class="metrics">
+        <ul class="metrics halves">
             <li>
                 <div>
                     <p>{{ video.widget_views_count|simplify_number }}</p>
                     <h4>{% trans "View" %}{{ video.widget_views_count|pluralize }}</h4>
-                </div>
-            </li>
-            <li>
-                <div>
-                    <p>{{ video.followers.count }}</p>
-                    <h4>{% trans "Follower" %}{{ video.followers.count|pluralize }}</h4>
-                </div>
-            </li>
-            <li>
-                <div>
-                    <p>{{ video|get_comment_count }}</p>
-                    <h4>{% trans "Comment" %}{{ video|get_comment_count|pluralize }}</h4>
                 </div>
             </li>
             <li>
@@ -107,34 +95,6 @@
                 {% include '_sharing_widget.html' %}
             {% endif %}
         </div>
-        <h3>
-            {% trans "View Subtitles" %}
-            {% if video.languages_count > 0 %}
-                ({{ video.languages_count }})
-            {% endif %}
-        </h3>
-        {% if video.subtitle_language or translations %}
-            <div>
-                <div>
-                    <ul id="subtitles-menu" {% if video.languages_count > 14 %} class="list-collapsible"{% endif %}>
-                        {% include 'videos/_left_navigation.html' %}
-                        {% if video.languages_count > 14 %}
-                            <li class="expand">
-                                <a href="#"><span class="all">{% trans 'Show all' %} ↓</span><span class="less">{% trans 'Show less' %} ↑</span></a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        {% else %}
-            {% if request.user|can_create_subtitles_for:video or request.user|can_create_translations_for:video %}
-                <p>{% trans "Be the first to " %}<a href="#" class="add_subtitles">{% trans 'create subtitles' %}</a>!</p>
-            {% else %}
-                <p>
-                    {% trans "This video doesn't have any subtitles yet" %}
-                </p>
-            {% endif %}
-        {% endif %}
     </div>
     <div class="grid_8 view omega">
         {% if user.is_authenticated %}
@@ -149,7 +109,24 @@
         <div class="tab" id="video-tab">
             {% widget widget_params %}
             <div class="clearboth">
-                <div class="video-tools grid_4 alpha">
+                <h2>
+                    {{ video.languages_count }}
+                    {% trans "Languages" %}
+                </h2>
+                {% if video.subtitle_language or translations %}
+                        <ul class="listing languages">
+                            {% include 'videos/_left_navigation.html' %}
+                        </ul>
+                {% else %}
+                    {% if request.user|can_create_subtitles_for:video or request.user|can_create_translations_for:video %}
+                        <p>{% trans "Be the first to " %}<a href="#" class="add_subtitles">{% trans 'create subtitles' %}</a>!</p>
+                    {% else %}
+                        <p>
+                            {% trans "This video doesn't have any subtitles yet" %}
+                        </p>
+                    {% endif %}
+                {% endif %}
+                {% comment %}<div class="video-tools grid_4 alpha">
                     <h3>{% trans "Contribute" %}</h3>
                     <p>
                         {% with can_create_subs=request.user|can_create_subtitles_for:video can_create_trans=request.user|can_create_translations_for:video %}
@@ -182,6 +159,7 @@
                         {% endif %}
                     {% endif %}
                 {% endwith %}
+                {% endcomment %}
             </div>
         </div>
         <div class="tab" id="comments-tab" style="display:none;">

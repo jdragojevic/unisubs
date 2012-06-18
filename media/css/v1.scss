@@ -901,6 +901,13 @@ div.fix-chosen div.chzn-container {
 .v1 .listing.teams > li {
     padding-right: 150px;
 }
+.v1 .listing.languages > li {
+    padding: 1em;
+
+    a {
+        text-decoration: none;
+    }
+}
 .v1 .view #comments-tab .listing.comments > li {
     padding: 1em 48px 2em;
     position: relative;
@@ -1513,6 +1520,9 @@ div#language_picker {
             color: #B6464D;
         }
     }
+}
+#subtitle_view #transcripts-tab {
+    padding-top: 10px;
 }
 .v1 .context {
     border-left: none;

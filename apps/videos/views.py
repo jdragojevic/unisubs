@@ -434,7 +434,7 @@ def history(request, video, lang=None, lang_id=None, version_id=None):
     context['video'] = video
     context['translations'] = _get_translations(video)
     context['user_can_moderate'] = False
-    context['widget_params'] = _widget_params(request, video, version_no=None, language=language, size=(289,173))
+    context['widget_params'] = _widget_params(request, video, version_no=None, language=language, size=(620,370))
     context['language'] = language
     context['edit_url'] = language.get_widget_url()
     context['shows_widget_sharing'] = VideoVisibilityPolicy.objects.can_show_widget(video, request.META.get('HTTP_REFERER', ''))

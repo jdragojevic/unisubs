@@ -78,7 +78,6 @@
                 {{ language.get_title_display }}
             </a>
         </h2>
-        {% widget widget_params %}
         {% if language.get_description %}
             <div id="description"{% if language.get_description|length > 300 %} class="abbr collapsed"{% endif %}>
                 <div>
@@ -89,23 +88,11 @@
                 {% endif %}
             </div>
         {% endif %}
-        <ul class="metrics">
+        <ul class="metrics halves">
             <li>
                 <div>
                     <p>{{ language.subtitles_fetched_count|simplify_number }}</p>
                     <h4>{% trans "View" %}{{ language.subtitles_fetched_count|pluralize }}</h4>
-                </div>
-            </li>
-            <li>
-                <div>
-                    <p>{{ language.followers.count }}</p>
-                    <h4>{% trans "Follower" %}{{ language.followers.count|pluralize }}</h4>
-                </div>
-            </li>
-            <li>
-                <div>
-                    <p>{{ language|get_comment_count }}</p>
-                    <h4>{% trans 'Comment' %}{{ language|get_comment_count|pluralize }}</h4>
                 </div>
             </li>
             <li>
@@ -120,24 +107,6 @@
                 {% include '_sharing_widget.html' %}
             {% endif %}
         </div>
-        <h3>
-            {% trans "View Subtitles" %}
-            {% if video.languages_count > 0 %}
-                ({{ video.languages_count }})
-            {% endif %}
-        </h3>
-        <div>
-            <div>
-                <ul id="subtitles-menu" {% if video.languages_count > 14 %} class="list-collapsible"{% endif %}>
-                    {% include 'videos/_left_navigation.html' %}
-                    {% if video.languages_count > 14 %}
-                        <li class="expand">
-                            <a href="#"><span class="all">{% trans 'Show all' %} ↓</span><span class="less">{% trans 'Show less' %} ↑</span></a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
     </div>
     <div class="grid_8 view omega">
         {% if user.is_authenticated %}
@@ -149,12 +118,13 @@
             <li class="hascount"><a href="#revisions-tab">{% trans "Revisions" %}<span>{{ revision_list|length }}</span></a></li>
         </ul>
         <div class="tab" id="transcripts-tab">
+            {% widget widget_params %}
             <div class="tools">
                 {% if request.user|can_unpublish:video and last_version.is_public %}
                     <a href="#unpublish-modal" class="button open-modal">{% trans 'Unpublish' %}</a>
                 {% endif %}
                 {% if language.is_original and request.user|can_create_subtitles_for:video or not language.is_original and request.user|can_create_translations_for:video %}
-                    <a id="edit_subtitles_button" class="button{% if not last_version.is_public and not can_edit %} disabled" title="Editing drafts is not permitted"{% else %}" href="{{edit_url}}"{% endif %}>{% trans 'Edit Subtitles' %}</a>
+                    <a id="edit_subtitles_button" class="button{% if not last_version.is_public and not can_edit %} disabled" title="Editing drafts is not permitted"{% else %}" href="{{edit_url}}"{% endif %}>{% trans 'Edit' %}</a>
                 {% endif %}
                 {% if last_version.subtitles %}
                     <div class="sort_button action">

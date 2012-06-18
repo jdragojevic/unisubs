@@ -879,6 +879,13 @@ div.fix-chosen div.chzn-container {
   padding-right: 150px;
 }
 
+.v1 .listing.languages > li {
+  padding: 1em;
+}
+.v1 .listing.languages > li a {
+  text-decoration: none;
+}
+
 .v1 .view #comments-tab .listing.comments > li {
   padding: 1em 48px 2em;
   position: relative;
@@ -1488,6 +1495,10 @@ div#language_picker select {
 }
 .video_view button.follow-button.unfollow:hover, .video_view button.follow-button:hover.unfollow:hover {
   color: #B6464D;
+}
+
+#subtitle_view #transcripts-tab {
+  padding-top: 10px;
 }
 
 .v1 .context {

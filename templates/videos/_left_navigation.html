@@ -3,15 +3,11 @@
 {% with lang=video.subtitle_language %}
     {% if lang %}
         {% if lang.has_version or lang|in_progress %}
-            <li class="{% complete_color video.subtitle_language %}{% if language.is_original %} active{% endif %}">
-                <a href="{% language_url request video.subtitle_language %}">
-                    <span class="done_indicator"></span>
+            <li>
+                <a href="{% language_url request video.subtitle_language %}" title="View {{ video.subtitle_language.language_display }} subtitles">
                     {{ video.subtitle_language.language_display }}
-                    <span class="done_percentage">({% complete_indicator video.subtitle_language %})</span>
-                    {% if lang|in_progress %}
-                        <span class="done_percentage">(in progress)</span>
-                    {% endif %}
                 </a>
+
             </li>
         {% endif %}
     {% endif %}
@@ -19,14 +15,9 @@
 {% if translations %}
     {% for item in translations %}
         {% if item.has_version or item|in_progress %}
-            <li class="{% complete_color item %}{% if language == item %} active{% endif %} {% if forloop.counter > 14 %}hidden{% endif %}">
-                <a href="{% language_url request item %}">
-                    <span class="done_indicator"></span>
+            <li>
+                <a href="{% language_url request item %}" title="View {{ video.subtitle_language.language_display }} subtitles">
                     {{ item.get_language_display }}
-                    <span class="done_percentage">({% complete_indicator item %})</span>
-                    {% if item|in_progress %}
-                        <span class="done_percentage">(in progress)</span>
-                    {% endif %}
                 </a>
             </li>
         {% endif %}
