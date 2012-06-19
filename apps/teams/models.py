@@ -1660,7 +1660,8 @@ class Task(models.Model):
             # if there's a previous version, it's a post-publish edit.
             # and according to #1039 we don't wanna auto-assign
             # the assignee
-            if self.subtitle_version and self.subtitle_version.prev_version():
+            if self.subtitle_version and self.subtitle_version.prev_version() and \
+                    self.subtitle_version.language.is_complete_and_synced():
                 return None
 
             type = Task.TYPE_IDS['Approve']
