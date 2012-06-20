@@ -143,6 +143,30 @@ def save_subtitle(video, language, parser, user=None, update_video=True,
 class SubtitleParserError(Exception):
     pass
 
+
+class ParserListClass(dict):
+    def register(self, parser, file_type):
+        if not isinstance(file_type, (basestring, list)):
+            raise Exception("File_type must be a string or a list")
+
+        if isinstance(file_type, list):
+            for ft in file_type:
+                self[ft] = parser
+        else:
+            self[file_type] = parser
+
+    def __getitem__(self, item):
+        return self.get(item, None)
+
+    def extensions(self):
+        keys = sorted(ParserList.keys())
+        extensions = ['.'+k for k in keys[:-1]]
+        last = "."+keys[-1]
+
+        return ", ".join(extensions) + " or %s" % last
+
+ParserList = ParserListClass()
+
 class SubtitleParser(object):
 
     def __init__(self, subtitles, pattern, flags=[]):
@@ -181,6 +205,7 @@ class SubtitleParser(object):
 
 
 class TxtSubtitleParser(SubtitleParser):
+
     _linebreak_re = re.compile(r"\n\n|\r\n\r\n|\r\r")
 
     def __init__(self, subtitles, linebreak_re=_linebreak_re):
@@ -199,7 +224,6 @@ class TxtSubtitleParser(SubtitleParser):
             output['end_time'] = -1
             output['subtitle_text'] = item
             yield output
-
 
 class YoutubeXMLParser(SubtitleParser):
 
@@ -441,3 +465,10 @@ class SsaSubtitleParser(SrtSubtitleParser):
         super(SrtSubtitleParser, self).__init__(file, pattern, [re.DOTALL])
         #replace \r\n to \n and fix end of last subtitle
         self.subtitles = self.subtitles.replace('\r\n', '\n')+u'\n'
+
+ParserList.register(SrtSubtitleParser, 'srt')
+ParserList.register(SsaSubtitleParser, ['ssa', 'ass'])
+ParserList.register(TtmlSubtitleParser, 'xml')
+ParserList.register(SbvSubtitleParser, 'sbv')
+ParserList.register(DfxpSubtitleParser, 'dfxp')
+ParserList.register(TxtSubtitleParser, 'txt')

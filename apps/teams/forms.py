@@ -38,14 +38,11 @@ from utils.validators import MaxFileSizeValidator
 from videos.forms import AddFromFeedForm
 from videos.models import (
         VideoMetadata, VIDEO_META_TYPE_IDS, SubtitleVersion,
-        Video, SubtitleLanguage
+        Video, SubtitleLanguage, record_workflow_origin
 )
 from videos.search_indexes import VideoIndex
 
-from utils.subtitles import (
-    SrtSubtitleParser, SsaSubtitleParser, TtmlSubtitleParser,
-    SubtitleParserError, SbvSubtitleParser, DfxpSubtitleParser
-)
+from utils.subtitles import ParserList, SubtitleParserError
 
 from apps.teams.moderation_const import WAITING_MODERATION
 
@@ -664,8 +661,8 @@ class UploadDraftForm(forms.Form):
 
         parts = subtitles.name.split('.')
 
-        if len(parts) < 1 or not parts[-1].lower() in ['srt', 'ass', 'ssa', 'xml', 'sbv', 'dfxp']:
-            raise forms.ValidationError(_(u'Incorrect format. Upload .srt, .ssa, .sbv, .dfxp or .xml (TTML  format)'))
+        if len(parts) < 1 or not parts[-1].lower() in ParserList:
+            raise forms.ValidationError(_(u'Incorrect format. Upload %s' % ParserList.extensions()))
 
         try:
             text = subtitles.read()
@@ -687,16 +684,7 @@ class UploadDraftForm(forms.Form):
 
     def _get_parser(self, filename):
         end = filename.split('.')[-1].lower()
-        if end == 'srt':
-            return SrtSubtitleParser
-        if end in ['ass', 'ssa']:
-            return SsaSubtitleParser
-        if end == 'xml':
-            return TtmlSubtitleParser
-        if end == 'sbv':
-            return SbvSubtitleParser
-        if end == 'dfxp':
-            return DfxpSubtitleParser
+        return ParserList[end]
 
     def _save_new_language(self, video, lang_code, translate_from):
         language = SubtitleLanguage()
@@ -774,6 +762,10 @@ class UploadDraftForm(forms.Form):
                                                       moderation_status=WAITING_MODERATION,
                                                       translated_from=translated_from,
                                                       note="Uploaded")
+
+        # TODO: Can we please refactor the subtitle pipeline?  This is the third
+        # place we need to do this :(
+        record_workflow_origin(version, task.team_video)
 
         if task.type in (Task.TYPE_IDS['Review'], Task.TYPE_IDS['Approve']):
             task.subtitle_version = version

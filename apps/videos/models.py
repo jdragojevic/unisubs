@@ -1574,6 +1574,7 @@ class SubtitleVersion(SubtitleCollection):
     def is_transcription(self):
         return not self.is_dependent()
 
+
     # Metadata
     def _get_metadata(self, key):
         """Return the metadata for this version for the given key, or None."""
@@ -1583,6 +1584,7 @@ class SubtitleVersion(SubtitleCollection):
         except SubtitleVersionMetadata.DoesNotExist:
             return None
 
+
     def get_reviewed_by(self):
         """Return the User that reviewed this version, or None.  Hits the DB."""
         return self._get_metadata('reviewed_by')
@@ -1591,6 +1593,16 @@ class SubtitleVersion(SubtitleCollection):
         """Return the User that approved this version, or None.  Hits the DB."""
         return self._get_metadata('approved_by')
 
+    def get_workflow_origin(self):
+        """Return the step of the workflow where this versio originated, or None.
+
+        Hits the DB.
+
+        May be None if this version didn't come from any workflow step.
+
+        """
+        return self._get_metadata('workflow_origin')
+
 
     def _set_metadata(self, key, value):
         v, created = SubtitleVersionMetadata.objects.get_or_create(
@@ -1598,6 +1610,7 @@ class SubtitleVersion(SubtitleCollection):
                         key=SubtitleVersionMetadata.KEY_IDS[key])
         v.data = value
         v.save()
+
 
     def set_reviewed_by(self, user):
         """Set the User that reviewed this version."""
@@ -1608,6 +1621,40 @@ class SubtitleVersion(SubtitleCollection):
         """Set the User that approved this version."""
         self._set_metadata('approved_by', user.pk)
 
+    def set_workflow_origin(self, origin):
+        """Set the step of the workflow that this version originated in."""
+        self._set_metadata('workflow_origin', origin)
+
+
+def record_workflow_origin(version, team_video):
+    """Figure out and record where the given version started out.
+
+    Should be used right after creation.
+
+    This is a giant ugly hack until we get around to refactoring the subtitle
+    adding into a pipeline.  I'm sorry.
+
+    In the future this should go away when we refactor the subtitle pipeline
+    out, but until then I couldn't stomach copy/pasting this in three or more
+    places.
+
+    """
+    if version and not version.get_workflow_origin():
+        tasks = team_video.task_set.incomplete()
+        tasks = list(tasks.filter(language=version.language.language)[:1])
+
+        if tasks:
+            open_task_type = tasks[0].get_type_display()
+
+            workflow_origin = {
+                'Subtitle': 'transcribe',
+                'Translate': 'translate',
+                'Review': 'review',
+                'Approve': 'approve'
+            }.get(open_task_type)
+
+            if workflow_origin:
+                version.set_workflow_origin(workflow_origin)
 
 def update_followers(sender, instance, created, **kwargs):
     user = instance.user
@@ -1695,9 +1742,12 @@ class SubtitleVersionMetadata(models.Model):
     KEY_CHOICES = (
         (100, 'reviewed_by'),
         (101, 'approved_by'),
+        (200, 'workflow_origin'),
     )
     KEY_NAMES = dict(KEY_CHOICES)
     KEY_IDS = dict([choice[::-1] for choice in KEY_CHOICES])
+
+    WORKFLOW_ORIGINS = ('transcribe', 'translate', 'review', 'approve')
 
     key = models.PositiveIntegerField(choices=KEY_CHOICES)
     data = models.TextField(blank=True)

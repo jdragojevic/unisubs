@@ -17,6 +17,7 @@
 // http://www.gnu.org/licenses/agpl-3.0.html.
 
 goog.provide('unisubs.player.CaptionView');
+goog.require('goog.i18n.bidi');
 
 /**
  * * @constructor
@@ -168,6 +169,10 @@ unisubs.player.CaptionView.prototype.setCaptionText = function(text) {
     else{
         var text = unisubs.player.CaptionView.breakLines(text);
         this.getElement().innerHTML = text;
+
+        goog.i18n.bidi.setElementDirAndAlign(this.getElement(),
+                goog.i18n.bidi.estimateDirection(text));
+
         this.redrawInternal();
         this.setVisibility(true);
     }

@@ -124,10 +124,11 @@ class SubtitleVersionAdmin(admin.ModelAdmin):
     # 2. It's only 20 extra queries, so it's not the end of the world.
     list_display = ['video', 'language_title', 'version_no', 'note',
                     'timeline_changes', 'text_changes', 'datetime_started',
-                    'moderation_status']
+                    'moderation_status', 'origin']
     list_filter = []
     raw_id_fields = ['language', 'user', 'forked_from']
-    search_fields = ['language__video__title', 'language__video__video_id', 'language__language']
+    search_fields = ['language__video__title', 'language__video__video_id',
+                     'language__language']
     list_per_page = 20
 
     def has_delete_permission(self, request, obj=None):
@@ -153,6 +154,9 @@ class SubtitleVersionAdmin(admin.ModelAdmin):
         if obj.text_change:
             return '%s %%' % int(obj.text_change * 100)
         return "0 %"
+
+    def origin(self, obj):
+        return obj.get_workflow_origin()
 
 class SubtitleVersionMetadataAdmin(admin.ModelAdmin):
     list_display = ['video', 'subtitle_version', 'key']

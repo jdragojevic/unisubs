@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>The new Amara Embedder.</title>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" type="text/css" />
+
+    <script type="text/javascript">
+        (function (window, document) {
+            var loader = function () {
+                var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+                script.src = "/site_media/js/embedder/embedder.min.js";
+                tag.parentNode.insertBefore(script, tag);
+            };
+            window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+        })(window, document);
+
+        window.Popcorn = 'bob';
+    </script>
+
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="/embedder/">
+                        Amara Embedder
+                    </a>
+                    <ul class="nav pull-right">
+                        <li><a href="http://universalsubtitles.org">Amara (Universal Subtitles)</a></li>
+                        <li><a href="http://popcornjs.org">Popcorn.js</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <section class="main">
+            <hr />
+            Vimeo:<br /><br />
+            <script type="text/javascript">
+                var _amara = _amara || [];
+                _amara.push(['embedVideo', {url: 'http://vimeo.com/43119058'}]);
+                document.write('<div class="amara-embed"></div>');
+            </script>
+            <hr />
+            YouTube:<br /><br />
+            <script type="text/javascript">
+                var _amara = _amara || [];
+                _amara.push(['embedVideo', {url: 'http://www.youtube.com/watch?v=lJBJyQl8Xtw'}]);
+                document.write('<div class="amara-embed"></div>');
+            </script>
+            <hr />
+            HTML5:<br /><br />
+            <script type="text/javascript">
+                var _amara = _amara || [];
+                _amara.push(['embedVideo', {url: 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.webm'}]);
+                document.write('<div class="amara-embed"></div>');
+            </script>
+        </section>
+    </div>
+</body>
+</html>

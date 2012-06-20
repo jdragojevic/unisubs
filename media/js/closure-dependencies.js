@@ -47,3 +47,4 @@ goog.require('goog.events.InputHandler');
 goog.require('goog.testing.events');
 goog.require("goog.net.Cookies");
 goog.require("goog.dom.annotate");
+goog.require("goog.i18n.bidi");

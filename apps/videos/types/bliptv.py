@@ -31,7 +31,7 @@ class BlipTvVideoType(VideoType):
     name = 'Blip.tv'  
     site = 'blip.tv'
 
-    pattern = re.compile(r"^https?://blip.tv/(?P<subsite>[a-zA-Z0-9]+)/(?P<file_id>[a-zA-Z0-9-]+)/?$")
+    pattern = re.compile(r"^https?://blip.tv/(?P<subsite>[a-zA-Z0-9-]+)/(?P<file_id>[a-zA-Z0-9-]+)/?$")
     
     def __init__(self, url):
         self.url = url

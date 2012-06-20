@@ -1592,13 +1592,14 @@ class Task(models.Model):
         # to the first step (translate/subtitle) go to the 
         # step before this one:
         # Translate/Subtitle -> Review -> Approve
-        if self.type == Task.TYPE_IDS['Review']:
+        # also, you can just send back approve and review tasks.
+        if self.type == Task.TYPE_IDS['Approve'] and self.workflow.review_enabled:
+            type = Task.TYPE_IDS['Review']
+        else:
             if self.subtitle_version.language.is_original:
                 type = Task.TYPE_IDS['Subtitle']
             else:
                 type = Task.TYPE_IDS['Translate']
-        elif self.type == Task.TYPE_IDS['Approve']:
-            type = Task.TYPE_IDS['Review']
 
         # let's guess which assignee should we use
         # by finding the last user that did this task type
@@ -1624,6 +1625,8 @@ class Task(models.Model):
 
         if type == Task.TYPE_IDS['Review']:
             task.subtitle_version = self.subtitle_version
+
+        task.set_expiration()
 
         task.save()
 
@@ -1692,6 +1695,7 @@ class Task(models.Model):
                         review_base_version=subtitle_version,
                         language=self.language, type=Task.TYPE_IDS['Review'],
                         assignee=self._find_previous_assignee('Review'))
+            task.set_expiration()
             task.save()
         elif self.workflow.approve_enabled:
             task = Task(team=self.team, team_video=self.team_video,
@@ -1699,6 +1703,7 @@ class Task(models.Model):
                         review_base_version=subtitle_version,
                         language=self.language, type=Task.TYPE_IDS['Approve'],
                         assignee=self._find_previous_assignee('Approve'))
+            task.set_expiration()
             task.save()
         else:
             # Subtitle task is done, and there is no approval or review
@@ -1727,6 +1732,7 @@ class Task(models.Model):
                         review_base_version=subtitle_version,
                         language=self.language, type=Task.TYPE_IDS['Review'],
                         assignee=self._find_previous_assignee('Review'))
+            task.set_expiration()
             task.save()
         elif self.workflow.approve_enabled:
             # The review step may be disabled.  If so, we check the approve step.
@@ -1735,6 +1741,7 @@ class Task(models.Model):
                         review_base_version=subtitle_version,
                         language=self.language, type=Task.TYPE_IDS['Approve'],
                         assignee=self._find_previous_assignee('Approve'))
+            task.set_expiration()
             task.save()
         else:
             # Translation task is done, and there is no approval or review
@@ -1767,6 +1774,7 @@ class Task(models.Model):
                             review_base_version=self.subtitle_version,
                             language=self.language, type=Task.TYPE_IDS['Approve'],
                             assignee=self._find_previous_assignee('Approve'))
+                task.set_expiration()
                 task.save()
                 # approval review
                 notifier.reviewed_and_pending_approval.delay(self.pk)
@@ -1868,7 +1876,7 @@ class Task(models.Model):
         Requires that self.team and self.assignee be set correctly.
 
         """
-        if not self.team.task_expiration or not self.assignee:
+        if not self.assignee or not self.team.task_expiration:
             self.expiration_date = None
         else:
             limit = datetime.timedelta(days=self.team.task_expiration)
