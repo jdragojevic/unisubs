@@ -18,7 +18,7 @@
 {% if projects|length > 1 %}
     <div id="projects-list">
         <div>
-            <h4>{% trans 'Projects' %} ({{ projects|length }})</h4>
+            <h4>{% trans 'Groups' %} ({{ projects|length }})</h4>
             <ul {% if projects|length > 6 %} class="list-collapsible"{% endif %}>
                 {% for project in projects %}
                     <li {% if forloop.counter > 6 %} class="hidden"{% endif %}>

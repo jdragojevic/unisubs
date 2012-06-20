@@ -36,7 +36,10 @@
         {% endwith %}
 
         {% if user_tasks %}
-            <h3>You're working on {{ user_tasks.count }} videos...</h3>
+            <h3>
+                <a href="#">View history</a>
+                Your Projects ({{ user_tasks.count }})
+            </h3>
             <ul class="listing tasks yours">
                 {% for task in user_tasks %}
                     <li>
@@ -55,18 +58,15 @@
                             {% endif %}
                         {% endif %}
                         <a class="perform-task button reduced">
-                            {% if task.get_subtitle_version %}
-                                {% trans 'Resume' %}
-                            {% else %}
-                                {% trans 'Start now' %}
-                            {% endif %}
+                            {% trans 'Continue' %}
                         </a>
                     </li>
                 {% endfor %}
             </ul>
         {% endif %}
         {% if videos %}
-            <h3>There are {{ videos.items|length }} more videos you can help with...</h3>
+            <h3>Videos that need your help ({{ videos.items|length }})</h3>
+            {# View notice about langs . if not logged in or whatever, show like ten most recent. #}
             <ul class="listing videos">
                 {% for id, video in videos.items %}
                     <li>
@@ -84,6 +84,7 @@
                                 </li>
                             {% endfor %}
                         </ul>
+                        {# buttony get started #}
                     </li>
                 {% endfor %}
             </ul>
