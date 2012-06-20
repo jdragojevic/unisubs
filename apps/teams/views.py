@@ -1132,11 +1132,14 @@ def dashboard(request, slug):
     if user and user.get_languages():
         filters['language'] = 'mine,none'
 
+    filters['assignee'] = 'none'
+
     # TODO: Filter by permissions
     #
     # Don't show approve tasks if cannot approve
     # Don't show review tasks if cannot review
     # If has language/project narrowings, filter those out
+    # - transcriptions at bottom
 
     videos = {}
     video_pks = set()
