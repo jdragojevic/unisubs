@@ -2318,14 +2318,69 @@ a.truncated-expand {
             }
 
             .languages {
+                position: relative;
                 clear: both;
                 margin: 0 10px;
-                padding: 1em 0 0;
 
-                li {
+                > a {
+                    display: block;
                     margin: 0;
-                    padding: .75em;
-                    border-bottom: 1px solid #eee;
+                    padding: .75em .75em .75em 2em;
+                    background: $faintest url('../images/arrows.png') no-repeat 10px 14px;
+                    border: 1px solid $fainter;
+                    @include border-radius(2px);
+                    font-weight: bold;
+                    color: $darkest;
+                }
+
+                > div {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+
+                    span {
+                        display: block;
+                        padding: .75em 2em .75em .75em;
+                        border-left: 1px solid $fainter;
+                        border-top: 1px solid transparent;
+                        color: $light;
+                        cursor: pointer;
+                        background: transparent url('../images/arrows.png') no-repeat 85% -61px;
+                        @include multi-border-radius(0, 2px, 0, 0);
+                    }
+
+                    ul {
+                        display: none;
+                        position: absolute;
+                        width: 290px;
+                        padding: 0;
+                        top: 2.75em;
+                        right: 0;
+                        background: $fainter;
+                        z-index: 50;
+                        @include multi-border-radius(0, 0, 2px, 2px);
+
+                        li {
+                            padding: 0;
+                        }
+
+                        a {
+                            display: block;
+                            padding: .75em .75em .75em 2em;
+                            background: transparent url('../images/arrows.png') no-repeat 10px 14px;
+                            color: $darkest;
+                        }
+                    }
+
+                    &:hover {
+                        span {
+                            background-color: $fainter;
+                        }
+
+                        ul {
+                            display: block;
+                        }
+                    }
                 }
 
 

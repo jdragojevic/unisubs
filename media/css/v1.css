@@ -2267,12 +2267,85 @@ a.truncated-expand.expanded {
   background: rgba(0, 0, 0, 0.75);
 }
 .team_dashboard .view .listing.videos li .languages {
+  position: relative;
   clear: both;
   margin: 0 10px;
-  padding: 1em 0 0;
 }
-.team_dashboard .view .listing.videos li .languages li {
+.team_dashboard .view .listing.videos li .languages > a {
+  display: block;
   margin: 0;
-  padding: .75em;
-  border-bottom: 1px solid #eee;
+  padding: .75em .75em .75em 2em;
+  background: #f3f6f8 url("../images/arrows.png") no-repeat 10px 14px;
+  border: 1px solid #dce2e5;
+  -moz-background-clip: padding-box;
+  -moz-border-radius: 2px;
+  -webkit-background-clip: padding-box;
+  -webkit-border-radius: 2px;
+  background-clip: padding-box;
+  border-radius: 2px;
+  font-weight: bold;
+  color: #2f3c45;
+}
+.team_dashboard .view .listing.videos li .languages > div {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.team_dashboard .view .listing.videos li .languages > div span {
+  display: block;
+  padding: .75em 2em .75em .75em;
+  border-left: 1px solid #dce2e5;
+  border-top: 1px solid transparent;
+  color: #7692a3;
+  cursor: pointer;
+  background: transparent url("../images/arrows.png") no-repeat 85% -61px;
+  -moz-border-radius-bottomleft: 0;
+  -moz-border-radius-bottomright: 0;
+  -moz-border-radius-topleft: 0;
+  -moz-border-radius-topright: 2px;
+  -webkit-border-bottom-left-radius: 0;
+  -webkit-border-bottom-right-radius: 0;
+  -webkit-border-top-left-radius: 0;
+  -webkit-border-top-right-radius: 2px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 2px;
+}
+.team_dashboard .view .listing.videos li .languages > div ul {
+  display: none;
+  position: absolute;
+  width: 290px;
+  padding: 0;
+  top: 2.75em;
+  right: 0;
+  background: #dce2e5;
+  z-index: 50;
+  -moz-border-radius-bottomleft: 2px;
+  -moz-border-radius-bottomright: 2px;
+  -moz-border-radius-topleft: 0;
+  -moz-border-radius-topright: 0;
+  -webkit-border-bottom-left-radius: 2px;
+  -webkit-border-bottom-right-radius: 2px;
+  -webkit-border-top-left-radius: 0;
+  -webkit-border-top-right-radius: 0;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.team_dashboard .view .listing.videos li .languages > div ul li {
+  padding: 0;
+}
+.team_dashboard .view .listing.videos li .languages > div ul a {
+  display: block;
+  padding: .75em .75em .75em 2em;
+  background: transparent url("../images/arrows.png") no-repeat 10px 14px;
+  color: #2f3c45;
+}
+.team_dashboard .view .listing.videos li .languages > div:hover span {
+  background-color: #dce2e5;
+}
+.team_dashboard .view .listing.videos li .languages > div:hover ul {
+  display: block;
 }
