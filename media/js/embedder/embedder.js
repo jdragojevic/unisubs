@@ -26,12 +26,12 @@
 
                 // Make sure we have a URL to work with.
                 if (__.has(options, 'url')) {
-                    var url = options['url'];
+                    var url = options.url;
                     var div;
 
                     // If a div has been specified, simply use that element for embedding.
                     if (__.has(options, 'div')) {
-                        div = document.getElementById(options['div'].replace('#', ''));
+                        div = document.getElementById(options.div.replace('#', ''));
                     } else {
 
                         // If a div hasn't been specified, figure out which div we should be

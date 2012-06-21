@@ -1639,7 +1639,7 @@ def record_workflow_origin(version, team_video):
     places.
 
     """
-    if version and not version.get_workflow_origin():
+    if team_video and version and not version.get_workflow_origin():
         tasks = team_video.task_set.incomplete()
         tasks = list(tasks.filter(language=version.language.language)[:1])
 
