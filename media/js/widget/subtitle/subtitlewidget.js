@@ -65,7 +65,7 @@ unisubs.subtitle.SubtitleWidget.prototype.createDom = function() {
             $d('li', null,
             this.contentElement_,
             this.titleElem_ =
-            $d('span', {'className':'unisubs-title'},
+            $d('span', {'className':'unisubs-title' + (this.subtitleSet_.languageIsRTL ? ' is-rtl' : '')},
                 this.titleElemInner_ =
                 $d('span')),
             this.deleteButton_,

@@ -25,26 +25,9 @@
             embedVideo: function(options) {
 
                 // Make sure we have a URL to work with.
-                if (__.has(options, 'url')) {
-                    var url = options.url;
-                    var div;
-
-                    // If a div has been specified, simply use that element for embedding.
-                    if (__.has(options, 'div')) {
-                        div = document.getElementById(options.div.replace('#', ''));
-                    } else {
-
-                        // If a div hasn't been specified, figure out which div we should be
-                        // using for embedding based on the index of the item.
-                        var queueItem = __.find(toPush, function(item) {
-                            return item[1].url === url;
-                        });
-                        var index = __.indexOf(toPush, queueItem);
-                        var divs = document.getElementsByClassName('amara-embed');
-                        div = divs[index];
-                    }
-
-                    var pop = Popcorn.smart(div, url);
+                if (__.has(options, 'url') && __.has(options, 'div')) {
+                    // Init the Popcorn video.
+                    var pop = Popcorn.smart(options.div, options.url);
                 }
             }
 
@@ -90,6 +73,24 @@
                 }
                 toPush = [];
             }
+
+            // Check to see if we have any amara-embed's to initilize.
+            var amaraEmbeds = _$('div.amara-embed');
+
+            if (amaraEmbeds.length) {
+                amaraEmbeds.each(function() {
+
+                    // This is a patch until Popcorn.js supports passing a DOM elem to
+                    // its smart() method. See: http://bit.ly/L0Lb7t
+                    var id = 'amara-embed-' + Math.floor(Math.random() * 100000000);
+                    var $div = $(this);
+                    $div.attr('id', id);
+
+                    // Call embedVideo with this div and URL.
+                    that.push(['embedVideo', {'div': id, 'url': $div.data('url') }]);
+                });
+            }
+
         };
 
     };

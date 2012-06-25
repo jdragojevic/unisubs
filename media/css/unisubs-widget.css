@@ -1282,6 +1282,9 @@ ul.unisubs-titlesList.unisubs-beginTab .unisubs-beginTabLi {
     margin-right: 65px !important;
     padding: 10px !important;
 }
+.unisubs-title.is-rtl {
+    direction: rtl;
+}
 .unisubs-title span.meta, .unisubs-description span.meta {
     color: #C0C0C0;
     display: block;

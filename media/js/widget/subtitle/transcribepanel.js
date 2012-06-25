@@ -71,7 +71,7 @@ unisubs.subtitle.TranscribePanel.prototype.addElems_ = function(el) {
     var $d = goog.bind(this.getDomHelper().createDom, this.getDomHelper());
     this.getElement().appendChild(this.contentElem_ = $d('div'));
     this.addChild(this.lineEntry_ = new unisubs.subtitle.TranscribeEntry(
-        this.videoPlayer_), true);
+        this.videoPlayer_, this.captionSet_.languageIsRTL), true);
     this.addChild(this.subtitleList_ = new unisubs.subtitle.SubtitleList(
         this.videoPlayer_, this.captionSet_, false, true, false), true);
     this.setPlayMode(unisubs.UserSettings.getStringValue(
