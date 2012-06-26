@@ -168,6 +168,10 @@ unisubs.player.CaptionView.prototype.setCaptionText = function(text) {
     }
     else{
         var text = unisubs.player.CaptionView.breakLines(text);
+        // convert to markdown after text layout has been done
+        // as to not inflate char count:
+
+        text = unisubs.html.markdownToHtml(text);
         this.getElement().innerHTML = text;
 
         goog.i18n.bidi.setElementDirAndAlign(this.getElement(),

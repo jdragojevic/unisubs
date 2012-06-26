@@ -156,7 +156,7 @@
                 <span class="time-span"><span class="badgy no-sync">{% trans 'Not Synced' %}</span></span>
                 {% endif %}
                   <span {% if item.2.text %}class="time_change"{% endif %}>
-                    {{ item.1.text }}
+                    {{ item.1.text|display_subtitle|safe }}
                   </span>
                   </td>
             </tr>
@@ -223,7 +223,7 @@
                 <span class="time-span"><span class="badgy no-sync">{% trans 'Not Synced' %}</span></span>
                 {% endif %}
                   <span {% if item.2.text %}class="time_change"{% endif %}>
-                    {{ item.0.text }}
+                    {{ item.0.text|display_subtitle|safe }}
                   </span>
                   </td>
             </tr>

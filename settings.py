@@ -104,6 +104,7 @@ JS_CORE = \
      'js/loadingdom.js',
      'js/tracker.js',
      'js/style.js',
+     'js/html/markdown.js',
      'js/messaging/simplemessage.js',
      'js/player/video.js',
      'js/player/captionview.js',

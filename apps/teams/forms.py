@@ -716,6 +716,7 @@ class UploadDraftForm(forms.Form):
 
         if not task.assignee:
             task.assignee = self.user
+            task.set_expiration()
 
         if task.language:
             video_language = task.language

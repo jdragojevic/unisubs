@@ -21,10 +21,10 @@ from datetime import datetime
 from uuid import uuid4
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
+import bleach
 
 from django.db.models import ObjectDoesNotExist
 from django.utils import simplejson as json
-from django.utils.html import strip_tags
 from lxml import etree
 
 from utils.html import unescape as unescape_html
@@ -32,7 +32,7 @@ from utils.html import unescape as unescape_html
 
 # see video.models.Subtitle..start_time
 MAX_SUB_TIME = (60 * 60 * 100) - 1
-
+DEFAULT_ALLOWED_TAGS = ['i', 'b', 'u']
 def is_version_same(version, parser):
     if not version:
         return False
@@ -50,10 +50,22 @@ def is_version_same(version, parser):
 
     return True
 
+def strip_tags(text, tags=None):
+    """
+    Returns text with the tags stripped.
+    By default we allow the standard formatting tags
+    to pass (i,b,u).
+    Any other tag's content will be present, but with tags removed.
+    """
+    if tags is None:
+        tags = DEFAULT_ALLOWED_TAGS
+    return bleach.clean(text, tags=tags, strip=True)
+    
 def save_subtitle(video, language, parser, user=None, update_video=True,
                   forks=True, as_forked=True, translated_from=None):
     from videos.models import SubtitleVersion, Subtitle, SubtitleMetadata
     from videos.tasks import video_changed_tasks
+    from videos import html_to_markdown
 
     key = str(uuid4()).replace('-', '')
 
@@ -101,7 +113,9 @@ def save_subtitle(video, language, parser, user=None, update_video=True,
 
             metadata = item.pop('metadata', None)
 
-            caption = Subtitle(**item)
+            data = item.copy()
+            data['subtitle_text'] = html_to_markdown(data['subtitle_text'])
+            caption = Subtitle(**data)
             caption.version = version
             caption.datetime_started = datetime.now()
             caption.subtitle_id = str(id)
@@ -222,7 +236,7 @@ class TxtSubtitleParser(SubtitleParser):
             output = {}
             output['start_time'] = -1
             output['end_time'] = -1
-            output['subtitle_text'] = item
+            output['subtitle_text'] = strip_tags(item)
             yield output
 
 class YoutubeXMLParser(SubtitleParser):
@@ -421,7 +435,6 @@ class SrtSubtitleParser(SubtitleParser):
         pattern += r' --> '
         pattern += r'(?P<e_hour>\d{2}):(?P<e_min>\d{2}):(?P<e_sec>\d{2})(,(?P<e_secfr>\d*))?'
         pattern += r'\n(\n|(?P<text>.+?)\n\n)'
-        subtitles = strip_tags(subtitles)
         super(SrtSubtitleParser, self).__init__(subtitles, pattern, [re.DOTALL])
         #replace \r\n to \n and fix end of last subtitle
         self.subtitles = self.subtitles.replace('\r\n', '\n')+u'\n\n'
@@ -432,12 +445,13 @@ class SrtSubtitleParser(SubtitleParser):
         return int(hour)*60*60+int(min)*60+int(sec)+float('.'+secfr)
 
     def _get_data(self, match):
+        from videos import html_to_markdown
         r = match.groupdict()
         output = {}
         output['start_time'] = self._get_time(r['s_hour'], r['s_min'], r['s_sec'], r['s_secfr'])
         output['end_time'] = self._get_time(r['e_hour'], r['e_min'], r['e_sec'], r['e_secfr'])
         output['subtitle_text'] = '' if r['text'] is None else \
-            self._clean_pattern.sub('', r['text'])
+            html_to_markdown(self._clean_pattern.sub('', r['text']))
         return output
 
 class SbvSubtitleParser(SrtSubtitleParser):

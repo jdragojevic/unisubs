@@ -1254,12 +1254,12 @@ class SubtitleVersionManager(models.Manager):
                     translated_from=None, note="", timestamp=None, moderation_status=None):
 
         version_no = 0
-        version = language.version(public_only=False)
+        last_version = language.version(public_only=False)
 
-        if version is not None:
-            version_no = version.version_no + 1
-            title = version.title
-            description = version.description
+        if last_version is not None:
+            version_no = last_version.version_no + 1
+            title = last_version.title
+            description = last_version.description
         else:
             video = language.video
             title = video.get_title_display()
@@ -1279,7 +1279,7 @@ class SubtitleVersionManager(models.Manager):
 
         version = SubtitleVersion(
                 language=language, version_no=version_no, note=note,
-                is_forked=forked, time_change=1, text_change=1,
+                is_forked=forked, time_change=None, text_change=None,
                 title=title, description=description)
 
         if forked:
@@ -1660,8 +1660,16 @@ def update_followers(sender, instance, created, **kwargs):
     user = instance.user
     lang = instance.language
     if created and user and user.notify_by_email:
-        lang.followers.add(instance.user)
-        lang.video.followers.add(instance.user)
+        try:
+            lang.followers.add(user)
+        except IntegrityError:
+            # User already follows the language.
+            pass
+        try:
+            lang.video.followers.add(user)
+        except IntegrityError:
+            # User already follows the video.
+            pass
 
 post_save.connect(Awards.on_subtitle_version_save, SubtitleVersion)
 post_save.connect(update_followers, SubtitleVersion)

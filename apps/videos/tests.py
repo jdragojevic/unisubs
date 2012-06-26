@@ -40,7 +40,7 @@ from testhelpers.views import _create_videos
 from utils.subtitles import (
     SrtSubtitleParser, YoutubeSubtitleParser, TxtSubtitleParser, DfxpSubtitleParser
 )
-from videos import metadata_manager, alarms, EffectiveSubtitle
+from videos import metadata_manager, alarms, EffectiveSubtitle, markdown_to_html, html_to_markdown
 from videos.feed_parser import FeedParser
 from videos.forms import VideoForm
 from videos.models import (
@@ -80,7 +80,7 @@ Don't show this text it may be used to insert hidden data
 2
 00:00:01,500 --> 00:00:04,500
 SubRip subtitles capability tester 1.2p by ale5000
-<b><i>Use Media Player Classic as reference</i></b>
+<b>Use Media Player Classic as reference</b>
 <font color="#0000FF">This text should be blue</font>
 
 3
@@ -319,7 +319,7 @@ class SubtitleParserTest(TestCase):
             u'Don\'t show this text it may be used to insert hidden data')
         self._assert_sub(
             result[1], 1.5, 4.5,
-            u'SubRip subtitles capability tester 1.2p by ale5000\nUse Media Player Classic as reference\nThis text should be blue')
+            u'SubRip subtitles capability tester 1.2p by ale5000\n**Use Media Player Classic as reference**\nThis text should be blue')
         self._assert_sub(
             result[2], 4.5, 4.5,
             u'Hidden')
@@ -328,7 +328,7 @@ class SubtitleParserTest(TestCase):
             u'This should be an E with an accent: \xc8\n\u65e5\u672c\u8a9e')
         self._assert_sub(
             result[4], 55.501, 58.5,
-            u'Hide these tags: ')
+            u'Hide these tags:')
 
     def test_srt_with_blank(self):
         parser = SrtSubtitleParser(SRT_TEXT_WITH_BLANK)
@@ -2497,3 +2497,92 @@ class FollowTest(WebUseTest):
         latest.save()
 
         self.assertEquals(1, sl.followers.count())
+
+class MarkdownHtmlTest(TestCase):
+
+    def test_markdown_to_html(self):
+        t = "there **bold text** there"
+        self.assertEqual(
+            "there <b>bold text</b> there",
+            markdown_to_html(t)
+        )
+
+    def test_html_to_markdown(self):
+        t = "there <b>bold text</b> there"
+        self.assertEqual(
+            "there **bold text** there",
+            html_to_markdown(t)
+        )
+class BaseDownloadTest(object):
+
+    def _download_subs(self, language, format):
+        url = reverse("widget:download_" + format)
+        res = self.client.get(url, {
+            'video_id': language.video.video_id,
+            'lang_pk': language.pk
+        })
+        return res.content
+
+class TestSRT(WebUseTest, BaseDownloadTest):
+    fixtures = ['test.json']
+
+    def setUp(self):
+        self.auth = dict(username='admin', password='admin')
+        self.video = Video.get_or_create_for_url("http://www.example.com/video.mp4")[0]
+        self.language = SubtitleLanguage.objects.get_or_create(
+            video=self.video, is_forked=True, language='en')[0]
+
+    def test_download_markdown(self):
+        subs_data = ['one line',
+                     'line **with** bold',
+                     'line *with* italycs',
+                     'line <script> with dangerous tag',
+        ]
+        add_subs(self.language,subs_data)
+        content = self._download_subs(self.language, 'srt')
+        self.assertIn('<b>with</b>' , content)
+        self.assertIn('<i>with</i>' , content)
+        # don't let evildoes into our precisou home
+        self.assertNotIn('<script>' , content)
+        subs = [x for x in SrtSubtitleParser(content)]
+        # make sure we can parse them back
+        self.assertEqual(len(subs_data), len(subs))
+
+    def test_upload_markdown(self):
+        data = {
+            'language': self.language.language,
+            'video': self.video.pk,
+            'video_language': 'en',
+            'subtitles': open(os.path.join(os.path.dirname(__file__), 'fixtures/with-markdown.srt'))
+        }
+        self._login()
+        response = self.client.post(reverse('videos:upload_subtitles'), data)
+        self.assertEqual(response.status_code, 200)
+        version = self.language.version()
+        subs = version.subtitles()
+        self.assertIn("**bold text in it**", subs[0].text)
+        self.assertIn(" *multiline\nitalics*", subs[1].text)
+        self.assertNotIn("script", subs[2].text)
+
+
+def add_subs(language, subs_texts):
+    version = language.version()
+    version_no = 0
+    if version:
+        version_no = version.version_no + 1
+    new_version = SubtitleVersion.objects.create(
+        language=language,
+        version_no=version_no,
+        datetime_started=datetime.now(),
+        is_forked = language.is_forked
+    )
+    for i, text in enumerate(subs_texts):
+        s= Subtitle.objects.create(
+            version = new_version,
+            subtitle_id=i,
+            subtitle_order=i,
+            subtitle_text=text,
+            start_time = i,
+            end_time = i + 1 - 0.1
+        )
+

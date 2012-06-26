@@ -205,7 +205,7 @@
                             </div>
                             {% endif %}
                             <div class="translation-text">
-                                {{ item.text|linebreaksbr }}{% if item.start_of_paragraph %}<p class='quiet'>¶</p>{% endif %} 
+                                {{ item.text|display_subtitle|safe }}{% if item.start_of_paragraph %}<p class='quiet'>¶</p>{% endif %} 
                             </div>
                         </li>
                         {% endfor %}

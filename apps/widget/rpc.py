@@ -733,6 +733,11 @@ class Rpc(BaseRpc):
         if not team_video:
             return
 
+        workflow = Workflow.get_for_team_video(team_video)
+
+        if not workflow.approve_enabled and not workflow.review_enabled:
+            return UNMODERATED, False
+
         language = subtitle_version.language.language
 
         # if there's any incomplete task, we can't create yet another.

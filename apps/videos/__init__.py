@@ -16,9 +16,40 @@
 # along with this program.  If not, see
 # http://www.gnu.org/licenses/agpl-3.0.html.
 
-from utils.subtitles import MAX_SUB_TIME
+import re
+
+from utils.subtitles import MAX_SUB_TIME, strip_tags, DEFAULT_ALLOWED_TAGS
+import markdown2
 
 UNSYNCED_MARKER = -1
+BOLD_TAG_RE = re.compile("</?s*b\s*>", re.IGNORECASE)
+ITALIC_TAG_RE = re.compile("</?s*i\s*>", re.IGNORECASE)
+
+def markdown_to_html(text):
+    """
+    This is, unfortunately, not as direct as traslating to html.
+    Subs expect B tags (not STRONG) and so forth.
+    This is pretty naive, but we shouldn't be accepting complex
+    or broken input.
+    """
+    html = markdown2.markdown(text)
+    html = html.replace("<strong>", "<b>")
+    html = html.replace("</strong>", "</b>")
+    html = html.replace("<em>", "<i>")
+    html = html.replace("</em>", "</i>")
+    return strip_tags(html)
+
+def html_to_markdown(text):
+    """
+    Very naive html to markdown converter. No parsing just
+    a regex hack, since we don't need actual an actual tree, our
+    content can be 1 depth level only. Should look into a more
+    robust solution in the near future.
+    """
+    safe_html = strip_tags(text)
+    safe_html = BOLD_TAG_RE.sub("**", safe_html)
+    safe_html = ITALIC_TAG_RE.sub("*", safe_html)
+    return safe_html
 
 def is_synced_value(v):
     return v != UNSYNCED_MARKER and v != None and v < MAX_SUB_TIME
@@ -66,8 +97,11 @@ class EffectiveSubtitle:
         return is_synced(self)
 
     def for_generator(self):
+        """
+        This is used in serializers for download (srt, dxfp)
+        """
         return {
-            'text': self.text,
+            'text': markdown_to_html(self.text),
             'start': self.start_time,
             'end': self.end_time,
             'id': self.pk,
