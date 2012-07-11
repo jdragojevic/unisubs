@@ -1,5 +1,190 @@
 {% extends "base.html" %}
-{% block body_attrs %}id="profile" class="{% block body-class %}v1{% endblock %}"{% endblock %}
+
+{% load i18n %}
+
+{% block body_attrs %}class="{% block body-class %}profile v1{% endblock %}"{% endblock %}
 
 {% block main_content %}
+    <div class="header">
+        <img src="{{ user_info.avatar }}" alt="{{ user_info|title }}'s avatar"/>
+        <h2>{{ user_info|title }}</h2>
+        <p class="summary">
+            {% if user_info.username|lower != user_info|title|lower %}
+                {% trans "also known as " %}
+                <strong>{{ user_info.username }}</strong>,
+            {% endif %}
+            {% trans "has been a member since " %}
+            <strong>{{ user_info.date_joined|date:"DATE_FORMAT" }}</strong>
+            {% if user_info.homepage %}
+                {% trans "and can be found at " %}
+                    <a href="{{ user_info.homepage }}">{{ user_info.homepage }}</a>
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="grid_4 context alpha">
+
+        <h3>
+            {% trans "Bio" %}
+            {% if can_edit %}
+                <a class="edit open-modal" href="#edit-bio">edit</a>
+            {% endif %}
+        </h3>
+        <p class="user_bio">
+            {% if user_info.biography %}
+                {{ user_info.biography|urlize|linebreaksbr }}
+            {% else %}
+                <em>
+                    {% if can_edit %}
+                        <a href="#edit-bio" title="Edit bio" class="open-modal">{% trans "Add a bio" %}</a>
+                    {% else %}
+                        {{ user_info|title }} {% trans "hasn't submitted a bio yet." %}
+                    {% endif %}
+                </em>
+            {% endif %}
+        </p>
+
+        {% with user_info.get_languages as langs %}
+            <h3>
+                {% trans "Languages" %}
+                {% if can_edit %}
+                    <a class="edit open-modal" href="#edit-langs">edit</a>
+                {% endif %}
+            </h3>
+            {% if langs %}
+                <ul>
+                    {% for l in langs %}
+                        <li>
+                            {{ l.get_language_display }}
+                            {% if l.language == user_info.preferred_language %}
+                                (Preferred)
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <em>
+                    {% if can_edit %}
+                        <a href="#edit-langs" title="Edit languages" class="open-modal">Tell us what languages you speak</a>
+                    {% else %}
+                        {{ user_info|title }} {% trans "hasn't selected languages yet." %}
+                    {% endif %}
+                </em>
+            {% endif %}
+        {% endwith %}
+        
+        {% with user_info.teams.all as user_teams %}
+            <h3>
+                {% trans "Teams" %}
+                {% if can_edit %}
+                    <a class="edit" href="#">edit</a>
+                {% endif %}
+            </h3>
+            {% if user_teams %}
+                <ul>
+                    {% for t in user_teams %}
+                    <li>
+                        <a href="{% url teams:detail slug=t.slug %}">{{ t }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <a href="{% url teams:index %}">{% trans "Join a volunteer team" %}</a>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% block view_content %}{% endblock %}
+
+    {% if can_edit %}
+        <div class="bootstrap">
+            <form action="{% url profiles:edit %}" method="post" enctype="multipart/form-data">
+
+            {# Edit Bio #}
+            <div class="modal" id="edit-bio" style="display: none">
+                <div class="modal-header">
+                    <a href="#" class="close">x</a>
+                    <h3>{% trans 'Edit your bio' %}</h3>
+                </div>
+                <div class="modal-body">
+                    {% include "_form_field.html" with field=form.biography %}
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <input type="submit" class="btn primary" value="Save" />
+                </div>
+            </div>
+
+            {# Edit languages #}
+            <div class="modal" id="edit-langs" style="display: none">
+                <div class="modal-header">
+                    <a href="#" class="close">x</a>
+                    <h3>{% trans 'Edit your languages' %}</h3>
+                </div>
+                <div class="modal-body">
+                    <fieldset>
+                        <legend>{% trans 'Language Info' %}</legend>
+                        <h4>
+                            {{ form.preferred_language.errors }}
+                            {{ form.preferred_language.label_tag }}
+                        </h4>
+                        <p>
+                            {{ form.preferred_language }}
+                        </p>
+                        {% comment %}
+                        <p>
+                            {{ form.autoplay_preferences.errors }}
+                            {{ form.autoplay_preferences.label_tag }}
+                            {{ form.autoplay_preferences }}                
+                        </p>
+                        {% endcomment %}
+                        
+                        <h4>{% trans 'Languages I Know' %}</h4>
+                        
+                        <div class="empty-form" style="display: none">
+                            <li class="user_language clearfix">
+                                {{ formset.empty_form.id }}
+                                <a href="#" class="small_close remove-language">{% trans 'Remove Language' %}</a>
+                                <div class="entry">
+                                  {{ formset.empty_form.language }}
+                                  {{ formset.empty_form.proficiency }}
+                                    <div style="display: none" class="delete-checkbox">
+                                        {{ form.DELETE }}
+                                    </div>
+                                </div>                
+                            </li>
+                        </div>
+                        <ul class="language_list">
+                            {{ formset.management_form }}
+                            {{ formset.non_field_errors }}
+                            {% for form in formset.forms %}
+                                <li class="user_language clearfix">
+                                    {{ form.non_field_errors }}
+                                    {{ form.id }}
+                                    <a href="#" class="small_close remove-language">{% trans 'Remove Language' %}</a>
+                                    <div class="entry">
+                                        {{ form.language.errors }}
+                                        {{ form.language }}
+                                        {{ form.proficiency.errors }}
+                                        {{ form.proficiency }}
+                                        <div style="display: none" class="delete-checkbox">
+                                            {{ form.DELETE }}
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <button class="button add-language">
+                            {% trans 'Add Language' %}
+                        </button>
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    {% csrf_token %}
+                    <input type="submit" class="btn primary" value="Save" />
+                </div>
+            </div>
+        </form>
+        </div>
+    {% endif %}
 {% endblock %}

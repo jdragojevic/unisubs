@@ -756,7 +756,6 @@ div.fix-chosen div.chzn-container {
 }
 .v1 .listing.members > li, .v1 .listing.messages > li {
     min-height: 4em;
-    padding-left: 65px;
     padding-right: 150px;
 
     .thumb {
@@ -1341,19 +1340,39 @@ div#language_picker {
 }
 
 /* Profile */
-#profile.v1 h2, #dashboard.v1 h2 {
+.profile.v1 .header {
+    float: left;
+    width: 100%;
     line-height: 1.75em;
+    min-height: 0;
+    margin: 1em 0 3em;
 
     img {
         border: 1px solid $fainter;
         float: left;
-        height: 32px;
-        margin-right: .5em;
-        padding: 2px;
-        @include border-radius(3px);
+        height: 75px;
+        margin-right: 1em;
+        padding: 3px;
+        @include border-radius(2px);
+    }
+
+    h2 {
+        clear: none;
+        margin: 0 0 8px;
+    }
+
+    .summary {
+        color: $normal;
+        width: 460px;
     }
 }
-#profile.v1 .view .avatar img {
+.profile.v1 .context h3 .edit {
+    display: block;
+    font-size: .75em;
+    float: right;
+    color: $light;
+}
+.profile.v1 .view .avatar img {
     border: 1px solid $fainter;
     float: right;
     margin-left: 1em;

@@ -79,6 +79,10 @@ class OptimizedQuerySet(LoadRelatedQuerySet):
                 videos[l.video_id].langs_cache.append(l)
 
 @login_required
+def account(request):
+    pass
+
+@login_required
 def dashboard(request):
     user = request.user
 
@@ -98,6 +102,7 @@ def dashboard(request):
 
     context = {
         'user_info': user,
+        'can_edit': True,
         'action_list': Action.objects.for_user(user)[:5],
         'tasks': tasks,
         'widget_settings': widget_settings,
@@ -156,7 +161,6 @@ def edit_profile(request):
 
 @login_required
 def my_profile(request):
-
     return profile(request, user_id = request.user.id)
 
 def profile(request, user_id=None):
@@ -170,11 +174,27 @@ def profile(request, user_id=None):
                 raise Http404
     else:
         user = request.user
-    context = {
+
+    qs = Action.objects.filter(user=user)
+
+    extra_context = {
         'user_info': user,
         'can_edit': user == request.user
     }
-    return direct_to_template(request, 'profiles/view_profile.html', context)
+
+    if user == request.user:
+        form = EditUserForm(instance=user, label_suffix="")
+        formset = UserLanguageFormset(instance=user)
+
+        extra_context['can_edit'] = True
+        extra_context['form'] = form
+        extra_context['formset'] = formset
+
+    return object_list(request, queryset=qs, allow_empty=True,
+                       paginate_by=settings.ACTIVITIES_ONPAGE,
+                       template_name='profiles/view_profile.html',
+                       template_object_name='action',
+                       extra_context=extra_context)
 
 @login_required
 def send_message(request):

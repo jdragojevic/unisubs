@@ -21,6 +21,7 @@ from profiles.views import rpc_router
 
 
 urlpatterns = patterns('profiles.views',
+    url(r'^account/$', 'account', name='account'),
     url(r'^dashboard/$', 'dashboard', name='dashboard'),
     url(r'^mine/$', 'my_profile', name='my_profile'),
     url(r'^dashboard/videos/$', 'my_videos', name='my_videos'),

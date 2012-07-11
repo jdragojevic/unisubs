@@ -1,22 +1,33 @@
 {% load i18n %}
 
 <ul class="tabs">
-    <li{% if current == "profile" %} class="current" {% endif %}>
+    <li{% if current == "activity" %} class="current" {% endif %}>
         <a href="{{ user_info.get_absolute_url }}">
-            {% trans "Profile" %}
+            {% trans "Activity" %}
         </a>
     </li>
 
     {% if user.is_authenticated and user == user_info %}
-        <li{% if current == "messages" %} class="current" {% endif %}>
-            <a href="{% url messages:index %}">
-                {% trans "Messages" %}
-            </a>
-        </li>
-
         <li{% if current == "dashboard" %} class="current" {% endif %}>
             <a href="{% url profiles:dashboard %}">
                 {% trans "Dashboard" %}
+            </a>
+        </li>
+
+        {% with user.unread_messages.count as new_msg_count %}
+            <li{% if new_msg_count %} class="hascount {% if current == 'messages' %} current{% endif %}"{% else %}{% if current == 'messages' %} class="current"{% endif %}{% endif %}>
+                <a href="{% url messages:index %}">
+                    {% trans "Messages" %}
+                    {% if new_msg_count %}
+                        <span>{{ user.unread_messages.count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+        {% endwith %}
+
+        <li{% if current == "account" %} class="current" {% endif %}>
+            <a href="{% url profiles:account %}">
+                {% trans "Account" %}
             </a>
         </li>
     {% endif %}

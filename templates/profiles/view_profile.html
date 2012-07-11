@@ -23,21 +23,14 @@
     <script src="{% url messages:rpc_api %}" type="text/javascript"></script>  
 {% endblock %}
 
-{% block main_content %}
-
-    <h2>
-        <img src="{{ user_info.small_avatar }}" alt="{{ user_info|title }}'s avatar"/>
-        {{ user_info|title }}
-    </h2>
-
-    {% with 'profile' as current %}
-        {% include 'profiles/_tabs.html' %}
-    {% endwith %}
-
+{% block view_content %}
     {% if user_info.is_active %}
-        <div class="view grid_9 alpha">
+        <div class="view grid_8 omega">
+            {% with 'activity' as current %}
+                {% include 'profiles/_tabs.html' %}
+            {% endwith %}
 
-            {% if user.is_authenticated %}
+            {% comment %}{% if user.is_authenticated %}
                 <div class="tools group">
                     {% if can_edit %}
                         <a class="button" href="{% url profiles:edit %}">Edit profile</a>
@@ -46,73 +39,13 @@
                         <a class="button" href="{% url messages:new %}?user={{ user_info.username }}">Send Message</a>
                     {% endif %}
                 </div>
+            {% endif %}{% endcomment %}
+
+            {% if user_info.action_set.exists %}
+                {% recent_activity user_info %}
+            {% else %}
+                <p class="empty">No activity yet</p>
             {% endif %}
-
-            <div class="grid_4 alpha">
-            
-                <h3>{% trans "Username" %}</h3>
-                <p>{{ user_info.username }}</p>
-
-                <h3>{% trans 'Member since' %}</h3>
-                <p>
-                    {{ user_info.date_joined|date:"DATETIME_FORMAT" }}
-                </p>
-                
-                {% if user_info.homepage %}
-                    <h3>{% trans 'Homepage' %}</h3>
-                    <p>
-                        <a href="{{ user_info.homepage }}">{{ user_info.homepage }}</a>
-                    </p>
-                {% endif %}
-
-                <h3>{% trans "About" %}</h3>
-                <p class="user_bio">
-                    {{ user_info.biography|urlize|default:_('<i>User has not submitted a bio.</i>')|linebreaksbr }}
-                </p>
-            </div>
-
-            <div class="grid_4">
-
-                <div class="avatar">
-                    <img src="{{ user_info.avatar }}" alt="{{ user_info|title }}'s avatar"/>
-                </div>
-
-                {% with user_info.get_languages as langs %}
-                    {% if langs %}
-                        <h3>{% trans "Languages" %}</h3>
-                        <ul>
-                            {% for l in langs %}
-                            <li>
-                                {{ l.get_language_display }}
-                                {% if l.language == user_info.preferred_language %}
-                                    (Preferred)
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                {% endwith %}
-                
-                {% with user_info.teams.all as user_teams %}
-                    {% if user_teams %}
-                        <h3>{% trans "Memberships" %}</h3>
-                        <ul>
-                            {% for t in user_teams %}
-                            <li>
-                                <a href="{% url teams:detail slug=t.slug %}">{{ t }}</a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                {% endwith %}
-            </div>
-
-        </div>
-        
-        <div class="controls grid_3 omega">
-            {% with 'profile' as current %}
-                {% include 'profiles/_filters.html' %}
-            {% endwith %}
         </div>
         
         {{ block.super }}

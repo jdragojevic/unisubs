@@ -51,7 +51,8 @@ def index(request, message_pk=None):
     extra_context = {
         'send_message_form': SendMessageForm(request.user, auto_id='message_form_id_%s'),
         'messages_display': True,
-        'user_info': user
+        'user_info': user,
+        'can_edit': True
     }
 
     reply = request.GET.get('reply')
