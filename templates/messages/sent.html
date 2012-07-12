@@ -17,15 +17,19 @@
     </script>
 {% endblock %}
 
-{% block main_content %}
-    <h2>
-        <img src="{{ user.small_avatar }}">
-        {% trans 'Messages' %}
-    </h2>
-    {% with 'messages' as current %}
-        {% include 'profiles/_tabs.html' %}
-    {% endwith %}
-    <div class="view grid_9 alpha">
+{% block view_content %}
+
+    <div class="view grid_8 omega">
+        {% with 'messages' as current %}
+            {% include 'profiles/_tabs.html' %}
+        {% endwith %}
+        <div class="tools subnav">
+            <a class="button" href="{% url messages:new %}">{% trans "Compose" %}</a>
+            <ul>
+                <li><a href="{% url messages:index %}">{% trans "Inbox" %}</a></li>
+                <li class="current"><a href="{% url messages:sent %}">{% trans "Sent" %}</a></li>
+            </ul>
+        </div>
         {% if message_list %}
             {% if is_paginated %}{% paginator %}{% endif %}
             <ul class="listing messages">
@@ -60,11 +64,5 @@
               {% trans 'You have no sent messages.' %}
             </p>
         {% endif %}
-    </div>
-    <div class="controls grid_3 omega">
-        <ul>
-            <li><a href="{% url messages:index %}">{% trans "Inbox" %}</a></li>
-            <li class="current"><a href="{% url messages:sent %}">{% trans "Sent" %}</a></li>
-        </ul>
     </div>
 {% endblock %}

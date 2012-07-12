@@ -18,14 +18,13 @@
     {% email_confirmation_notification 'true' %}
 {% endblock %}
 
-{% block main_content %}
-    <h2>{% trans 'My videos' %}</h2>
+{% block view_content %}
 
-    {% with 'dashboard' as current %}
-        {% include 'profiles/_tabs.html' %}
-    {% endwith %}
 
-    <div class="view grid_9 alpha">
+    <div class="view grid_8 omega">
+        {% with 'videos' as current %}
+            {% include 'profiles/_tabs.html' %}
+        {% endwith %}
         {% if is_paginated %}{% paginator %}{% endif %}
         <ul class="listing videos">
             {% for video in user_video_list %}
@@ -33,12 +32,6 @@
             {% endfor %}
         </ul>
         {% if is_paginated %}{% paginator %}{% endif %}
-    </div>
-
-    <div class="controls grid_3 omega">
-        {% with 'videos' as current %}
-            {% include 'profiles/_filters_dashboard.html' %}
-        {% endwith %}
     </div>
 
 {% endblock %}

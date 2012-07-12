@@ -9,14 +9,17 @@
 {% block body-class %}new-message {{ block.super }}{% endblock %}
 {% block html_attrs %}id="messages_new"{% endblock %}
 
-{% block main_content %}
-    <h2>
-        {% trans 'Messages' %}
-    </h2>
-    {% with 'messages' as current %}
-        {% include 'profiles/_tabs.html' %}
-    {% endwith %}
-    <div class="view grid_9 alpha new-message">
+{% block view_content %}
+    <div class="view grid_8 omega new-message">
+        {% with 'messages' as current %}
+            {% include 'profiles/_tabs.html' %}
+        {% endwith %}
+        <div class="tools subnav">
+            <ul>
+                <li><a href="{% url messages:index %}">{% trans "Inbox" %}</a></li>
+                <li><a href="{% url messages:sent %}">{% trans "Sent" %}</a></li>
+            </ul>
+        </div>
         <form action="" method="post">
             {% csrf_token %}
 
@@ -67,12 +70,5 @@
                 <button>Send</button>
             </div>
         </form>
-    </div>
-
-    <div class="controls grid_3 omega">
-        <ul>
-            <li class="current"><a href="{% url messages:index %}">{% trans "Inbox" %}</a></li>
-            <li><a href="{% url messages:sent %}">{% trans "Sent" %}</a></li>
-        </ul>
     </div>
 {% endblock %}

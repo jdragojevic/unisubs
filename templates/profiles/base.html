@@ -8,18 +8,16 @@
     <div class="header">
         <img src="{{ user_info.avatar }}" alt="{{ user_info|title }}'s avatar"/>
         <h2>{{ user_info|title }}</h2>
-        <p class="summary">
-            {% if user_info.username|lower != user_info|title|lower %}
-                {% trans "also known as " %}
-                <strong>{{ user_info.username }}</strong>,
-            {% endif %}
-            {% trans "has been a member since " %}
-            <strong>{{ user_info.date_joined|date:"DATE_FORMAT" }}</strong>
+        <dl class="summary">
+            <dt>{% trans "Username" %}</dt>
+            <dd>{{ user_info.username }}</dd>
+            <dt>{% trans "Member since" %}</dt>
+            <dd>{{ user_info.date_joined|date:"DATE_FORMAT" }}</dd>
             {% if user_info.homepage %}
-                {% trans "and can be found at " %}
-                    <a href="{{ user_info.homepage }}">{{ user_info.homepage }}</a>
+                <dt>{% trans "Homepage" %}</dt>
+                <dd><a href="{{ user_info.homepage }}">{{ user_info.homepage }}</a></dd>
             {% endif %}
-        </p>
+        </dl>
     </div>
 
     <div class="grid_4 context alpha">
@@ -89,7 +87,13 @@
                     {% endfor %}
                 </ul>
             {% else %}
-                <a href="{% url teams:index %}">{% trans "Join a volunteer team" %}</a>
+                <em>
+                    {% if can_edit %}
+                        <a href="{% url teams:index %}">{% trans "Join a volunteer team" %}</a>
+                    {% else %}
+                        {{ user_info|title }} {% trans "hasn't joined any teams yet." %}
+                    {% endif %}
+                </em>
             {% endif %}
         {% endwith %}
     </div>

@@ -30,8 +30,12 @@
             {% include 'profiles/_tabs.html' %}
         {% endwith %}
 
-        <div class="tools">
+        <div class="tools subnav">
             <a class="button" href="{% url messages:new %}">{% trans "Compose" %}</a>
+            <ul>
+                <li class="current"><a href="{% url messages:index %}">{% trans "Inbox" %}</a></li>
+                <li><a href="{% url messages:sent %}">{% trans "Sent" %}</a></li>
+            </ul>
         </div>
         {% if message_list %}
             {% if is_paginated %}{% paginator %}{% endif %}

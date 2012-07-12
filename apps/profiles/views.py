@@ -80,7 +80,27 @@ class OptimizedQuerySet(LoadRelatedQuerySet):
 
 @login_required
 def account(request):
-    pass
+
+    if request.method == 'POST':
+        form = EditUserForm(request.POST,
+                            instance=request.user,
+                            files=request.FILES, label_suffix="")
+        if form.is_valid():
+            form.save()
+            form_validated = True
+        else:
+            form_validated = False
+
+    else:
+        form = EditUserForm(instance=request.user, label_suffix="")
+    context = {
+        'form': form,
+        'user_info': request.user,
+        'edit_profile_page': True,
+        'can_edit': True
+    }
+
+    return direct_to_template(request, 'profiles/account.html', context)
 
 @login_required
 def dashboard(request):

@@ -907,6 +907,8 @@ div.upload-draft-modal div.modal-body {
       height: 5em; }
   .v1 form p {
     color: inherit; }
+  .v1 form .alpha {
+    margin-left: 0; }
 
 .v1 .view form .preselected {
   background: #dce2e5;
@@ -1107,6 +1109,7 @@ div#language_picker select {
 
 /* Profile */
 .profile.v1 .header {
+  position: relative;
   float: left;
   width: 100%;
   line-height: 1.75em;
@@ -1127,9 +1130,12 @@ div#language_picker select {
   .profile.v1 .header h2 {
     clear: none;
     margin: 0 0 8px; }
-  .profile.v1 .header .summary {
-    color: #678ca3;
-    width: 460px; }
+  .profile.v1 .header .summary dt, .profile.v1 .header .summary dd {
+    display: inline; }
+  .profile.v1 .header .summary dt {
+    font-weight: bold; }
+  .profile.v1 .header .summary dd {
+    margin: 0 1.5em 0 .5em; }
 
 .profile.v1 .context h3 .edit {
   display: block;
@@ -1681,17 +1687,17 @@ a.truncated-expand {
   #teams .view .tools p span {
     color: #486f87; }
 
-#teams .view .subnav {
+#teams .view .subnav, .profile .view .subnav {
   padding: 1em 0;
   text-align: left; }
-  #teams .view .subnav ul li {
+  #teams .view .subnav ul li, .profile .view .subnav ul li {
     display: inline; }
-    #teams .view .subnav ul li a {
+    #teams .view .subnav ul li a, .profile .view .subnav ul li a {
       color: #7692a3;
       line-height: 1.5em;
       margin-right: 1em;
       text-decoration: none; }
-    #teams .view .subnav ul li.current a {
+    #teams .view .subnav ul li.current a, .profile .view .subnav ul li.current a {
       color: inherit; }
 
 #teams .view form.settings {

@@ -1099,6 +1099,9 @@ div.upload-draft-modal {
     p {
         color: inherit;
     }
+    .alpha {
+        margin-left: 0;
+    }
 }
 .v1 .view form .preselected {
     background: $fainter;
@@ -1341,6 +1344,7 @@ div#language_picker {
 
 /* Profile */
 .profile.v1 .header {
+    position: relative;
     float: left;
     width: 100%;
     line-height: 1.75em;
@@ -1362,8 +1366,18 @@ div#language_picker {
     }
 
     .summary {
-        color: $normal;
-        width: 460px;
+
+        dt, dd {
+            display: inline;
+        }
+
+        dt {
+            font-weight: bold;
+        }
+
+        dd {
+            margin: 0 1.5em 0 .5em;
+        }
     }
 }
 .profile.v1 .context h3 .edit {
@@ -2068,7 +2082,7 @@ a.truncated-expand {
     }
 
 }
-#teams .view .subnav {
+#teams .view .subnav, .profile .view .subnav {
     padding: 1em 0;
     text-align: left;
 
