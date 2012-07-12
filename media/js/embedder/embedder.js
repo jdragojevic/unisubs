@@ -62,7 +62,6 @@
 
                 // Variables that will eventually be set after rendering.
                 this.$amaraContainer = null;
-                this.$media = null;
                 this.pop = null;
 
                 this.template = __.template(this.templateHTML);
@@ -92,13 +91,11 @@
                     that.model.set('height', that.pop.position().height);
                     that.model.set('width', that.pop.position().width);
 
-                    that.$media = _$(that.pop.media);
-
-                    that.$media.after(that.template({
+                    that.$el.append(that.template({
                         width: that.model.get('width')
                     }));
 
-                    that.$amaraContainer = that.$media.next();
+                    that.$amaraContainer = $('div.amara-container', that.$el);
                 });
 
                 return this;
