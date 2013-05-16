@@ -11,6 +11,7 @@ class MembersTab(ATeamPage):
     _ACTIONS = "ul.members.listing li ul.actions li"
     _INVITE_MEMBERS = "div.tools a.button[href*='members/invite']"
     _EDIT_USER = "a.edit-role"
+    _DELETE_USER = 'ul.admin-controls li a.delete'
     _SORT_FILTER = "a#sort-filter"
 
     #EDIT USER MODAL
@@ -57,6 +58,10 @@ class MembersTab(ATeamPage):
         """
         return self.get_text_by_css(self._ROLE)
 
+    def displays_invite(self):
+        return self.is_element_present(self._INVITE_MEMBERS)
+
+
     def invite_user_via_form(self, username, message, role):
         """Invite a user to a team via the invite form.
 
@@ -88,6 +93,14 @@ class MembersTab(ATeamPage):
         search_url = "%s?lang=%s" % (team_url, lang)
         self.open_page(search_url)
 
+    def delete_user(self):
+        """Edit a users roles via the  form.
+
+        """
+        self.hover_by_css(self._USERNAME)
+        self.click_by_css(self._DELETE_USER)
+        self.handle_js_alert('accept')
+
     def edit_user(self, role=None, languages=[], projects=[]):
         """Edit a users roles via the  form.
 
@@ -115,3 +128,6 @@ class MembersTab(ATeamPage):
 
         """
         self.select_from_chosen(self._ROLE_PROJ_PULLDOWN, projects)
+
+    def delete_user_link(self):
+        return self.is_element_present(self._DELETE_USER)

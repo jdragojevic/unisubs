@@ -109,21 +109,51 @@ class DeleteLanguageModelTest(UnpublishTestCase):
 
     def test_delete_translation_tasks(self):
         # We should delete translation tasks if there are no more languages
-        # with public versions available.
+        # with public versions available.  However, we should not delete
+        # in-progress translation tasks, or review/approve tasks.  Those can
+        # continue alright with the forked language.
 
         # make a translation task
         Task(team=self.team, team_video=self.team_video, assignee=None,
              language='de', type=Task.TYPE_IDS['Translate']).save()
-        self.assertEquals(Task.objects.filter(language='de').count(), 1)
+        # make an in-progress translation task
+        v = pipeline.add_subtitles(self.video, 'ja', None, complete=False,
+                                   visibility='private')
+        Task(team=self.team, team_video=self.team_video,
+             language='ja', type=Task.TYPE_IDS['Translate'],
+             assignee=self.user,
+             new_subtitle_version=v).save()
+        # make review/approve tasks
+        test_factories.make_review_task(self.team_video, 'es', self.user)
+        test_factories.make_approve_task(self.team_video, 'sv', self.user)
+        # check initial task counts
+        translate_qs = Task.objects.incomplete_translate().filter(
+            language='de')
+        in_progress_qs = Task.objects.incomplete_translate().filter(
+            language='ja')
+        review_qs = Task.objects.incomplete_review().filter(language='es')
+        approve_qs = Task.objects.incomplete_approve().filter(language='sv')
+
+        self.assertEquals(translate_qs.count(), 1)
+        self.assertEquals(in_progress_qs.count(), 1)
+        self.assertEquals(review_qs.count(), 1)
+        self.assertEquals(approve_qs.count(), 1)
         # make a second language.  If we delete that language, we should still
         # keep translation tasks.
         other_lang_version = pipeline.add_subtitles(self.video, 'fr', None)
         other_lang_version.subtitle_language.nuke_language()
-        self.assertEquals(Task.objects.filter(language='de').count(), 1)
+        self.assertEquals(translate_qs.count(), 1)
+        self.assertEquals(in_progress_qs.count(), 1)
+        self.assertEquals(review_qs.count(), 1)
+        self.assertEquals(approve_qs.count(), 1)
         # but when we delete our original language, then there's no source
-        # languages, so we should delete the translation task
+        # languages, so we should delete the translation task, but keep
+        # in-progress translation tasks, as well as review tasks
         self.language.nuke_language()
-        self.assertEquals(Task.objects.filter(language='de').count(), 0)
+        self.assertEquals(translate_qs.count(), 0)
+        self.assertEquals(in_progress_qs.count(), 1)
+        self.assertEquals(review_qs.count(), 1)
+        self.assertEquals(approve_qs.count(), 1)
 
     def test_sublanguages(self):
         sub_lang1 = self.make_dependent_language('ru', self.versions[0])

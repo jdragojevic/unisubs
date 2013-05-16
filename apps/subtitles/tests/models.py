@@ -125,6 +125,19 @@ class TestSubtitleLanguage(TestCase):
         translated = refresh(translated)
         self.assertEqual(translated.get_translation_source_language(), source_lang)
         self.assertEqual(translated.get_translation_source_language_code(), source_lang.language_code)
+        # now fork the translated one
+        translated.is_forked = True
+        translated.save()
+        self.assertIsNone(translated.get_translation_source_language())
+        self.assertIsNone(translated.get_translation_source_language_code())
+        self.assertEqual(
+            translated.get_translation_source_language(ignore_forking=True),
+            source_lang
+        )
+        self.assertEqual(
+            translated.get_translation_source_language_code(ignore_forking=True),
+            source_lang.language_code
+        )
 
     def test_get_tip(self):
         sl = make_sl(self.video, 'en')

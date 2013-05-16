@@ -21,7 +21,6 @@ import urllib, urllib2
 from collections import namedtuple
 
 import simplejson as json
-from babelsubs import get_available_formats
 from babelsubs.storage import diff as diff_subs
 from babelsubs.generators import HTMLGenerator
 from django.conf import settings
@@ -129,17 +128,29 @@ class LanguageList(object):
             tags.append(ugettext(u'incomplete'))
         elif team_video is not None:
             # subtiltes are complete, check if they are under review/approval.
-            for t in Task.objects.incomplete().filter(team_video=team_video):
+            incomplete_tasks = (Task.objects.incomplete()
+                                            .filter(team_video=team_video,
+                                                    language=lang.language_code))
+            for t in incomplete_tasks:
                 if t.type == Task.TYPE_IDS['Review']:
                     tags.append(ugettext(u'needs review'))
                     break
                 elif t.type == Task.TYPE_IDS['Approve']:
                     tags.append(ugettext(u'needs approval'))
                     break
+                else:
+                    # subtitles are complete, but there's a subtitle/translate
+                    # task for them.  They must have gotten sent back.
+                    tags.append(ugettext(u'needs editing'))
+                    break
         return tags
 
     def __iter__(self):
         return iter(self.items)
+
+    def __len__(self):
+        return len(self.items)
+
 
 def index(request):
     context = widget.add_onsite_js_files({})
@@ -444,10 +455,9 @@ def legacy_history(request, video, lang=None):
 
 @get_video_from_code
 def history(request, video, lang=None, lang_id=None, version_id=None):
-    from teams.models import Task
-
     if not lang:
-        return HttpResponseRedirect(video.get_absolute_url(video_id=video._video_id_used))
+        return HttpResponseRedirect(
+            video.get_absolute_url(video_id=video._video_id_used))
     elif lang == 'unknown':
         # A hacky workaround for now.
         # This should go away when we stop allowing for blank SubtitleLanguages.
@@ -512,7 +522,7 @@ def history(request, video, lang=None, lang_id=None, version_id=None):
     context['edit_url'] = language.get_widget_url()
     context['shows_widget_sharing'] = video.can_user_see(request.user)
 
-    context['task'] =  _get_related_task(request)
+    context['task'] = _get_related_task(request)
     _add_share_panel_context_for_history(context, video, language)
 
     versions = list(qs)
@@ -538,9 +548,22 @@ def history(request, video, lang=None, lang_id=None, version_id=None):
                                  if version else None)
     context['next_version'] = version.next_version() if version else None
     context['downloadable_formats'] = AVAILABLE_SUBTITLE_FORMATS_FOR_DISPLAY
-    
-    check_result = can_add_version(request.user, video, language.language_code)
-    context['edit_disabled'] = not check_result
+
+    user_can_add_version = can_add_version(request.user, video,
+                                           language.language_code)
+    context['edit_disabled'] = not user_can_add_version
+
+    # If there are tasks for this language, the user has to go through the tasks
+    # panel to edit things instead of doing it directly from here.
+    if user_can_add_version and team_video:
+        has_open_task = (Task.objects.incomplete()
+                                     .filter(team_video=team_video,
+                                             language=language.language_code)
+                                     .exists())
+        if has_open_task:
+            context['edit_disabled'] = True
+            context['must_use_tasks'] = True
+
 
     return render_to_response("videos/subtitle-view.html", context,
                               context_instance=RequestContext(request))

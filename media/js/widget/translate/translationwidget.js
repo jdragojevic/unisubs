@@ -49,14 +49,7 @@ unisubs.translate.TranslationWidget.prototype.createDom = function() {
 
     var $d = goog.bind(this.getDomHelper().createDom, this.getDomHelper());
 
-    // If we're reviewing or approving a translation, we need to display the timing
-    // from the *translation*, not the original.
-    var timingToDisplay;
-    if (this.dialog_.reviewOrApprovalType_) {
-        timingToDisplay = this.translationCaption_.getStartTime();
-    } else {
-        timingToDisplay = this.dfxpWrapper_['startTime'](this.originalNode_);
-    }
+    var timingToDisplay = this.translationCaption_.getStartTime();
 
     this.setElementInternal(
         $d('li', null,

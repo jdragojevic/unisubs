@@ -23,6 +23,9 @@ class TeamsDirPage(UnisubsPage):
     _NO_MATCH_TEXT = 'Sorry, no teams found.'
     _TEAM_BY_POSITION = "ul.listing li:nth-child(%d)"
 
+    _INVITE_ERROR = 'div#error h1'
+
+
 
     #YOUR TEAMS TAB
     _YOUR_URL = "teams/my/"
@@ -182,6 +185,9 @@ class TeamsDirPage(UnisubsPage):
     def click_leave_link(self, team):
         self.click_item_after_hover(self._team_elem(team), self._LEAVE)
         self.handle_js_alert('accept')
+
+    def invite_error(self):
+        return self.get_text_by_css(self._INVITE_ERROR)
 
 
 

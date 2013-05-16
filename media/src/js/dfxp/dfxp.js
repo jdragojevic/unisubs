@@ -409,7 +409,7 @@ var AmaraDFXPParser = function(AmaraDFXPParser) {
             }
         }
 
-        return $('<div>').append(subtitleContents.clone()).remove().html();
+        return $('<div>').append(subtitleContents.clone()).remove().text();
     };
     this.contentRendered = function(node) {
         /*
@@ -444,7 +444,7 @@ var AmaraDFXPParser = function(AmaraDFXPParser) {
             }
         }
     };
-    this.dfxpToMarkdown = function(node) {
+    this.dfxpToMarkdown = function(node, asText) {
         /**
          * Coverts the DFXP spans to our markdowny syntax
          * in the node's children.
@@ -469,6 +469,9 @@ var AmaraDFXPParser = function(AmaraDFXPParser) {
             }
         }
 
+        if (asText){
+            return $(node).text();
+        }
         return node;
     };
     this.endTime = function(node, endTime) {

@@ -64,9 +64,13 @@ class TestCaseApplicationTeamPage(WebdriverTestCase):
         cls.team = TeamMemberFactory.create(team__membership_policy=1,
                                             user = cls.team_owner).team
         cls.a_team_pg = ATeamPage(cls)
+        cls.team_dir_pg = TeamsDirPage(cls)
+
         cls.members_tab = members_tab.MembersTab(cls)
         cls.a_team_pg.open_team_page(cls.team.slug)
 
+    def tearDown(self):
+        self.browser.get_screenshot_as_file('MYTMP/%s.png' % self.id())
 
     def test_join__guest(self):
         """Guest user sees Sign in message when visiting a team page.
@@ -93,6 +97,77 @@ class TestCaseApplicationTeamPage(WebdriverTestCase):
             interface = "web UI")
         self.members_tab.member_search(self.team.slug, test_joiner.username)
         self.assertEqual(self.members_tab.user_role(), 'Contributor')
+
+    def test_removed_user__no_reapply(self):
+        """User removed from a team can not re-apply.
+
+        """
+        test_joiner = UserFactory.create()
+        self.a_team_pg.log_in(test_joiner.username, 'password')
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.a_team_pg.apply()
+        self.a_team_pg.submit_application()
+        user_app = ApplicationFactory.build(
+            team=self.team,
+            user=test_joiner,
+            pk=1)
+        user_app.approve(
+            author = self.team_owner.username, 
+            interface = "web UI")
+        self.members_tab.log_in(self.team_owner.username, 'password')
+        self.members_tab.member_search(self.team.slug, test_joiner.username)
+        self.members_tab.delete_user()
+        self.a_team_pg.log_in(test_joiner.username, 'password')
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.assertEqual('Your application is pending', 
+                         self.a_team_pg.replacement_text())
+
+    def test_user_leaves__rejoin(self):
+        """User leaves team can rejoin without application
+
+        """
+        test_joiner = UserFactory.create()
+        self.a_team_pg.log_in(test_joiner.username, 'password')
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.a_team_pg.apply()
+        self.a_team_pg.submit_application()
+        user_app = ApplicationFactory.build(
+            team=self.team,
+            user=test_joiner,
+            pk=1)
+        user_app.approve(
+            author = self.team_owner.username, 
+            interface = "web UI")
+
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.a_team_pg.leave_team(self.team.slug)
+
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.a_team_pg.apply()
+        self.a_team_pg.submit_application()
+        self.team_dir_pg.open_my_teams_page()
+        self.assertIn(self.team.name, self.team_dir_pg.teams_on_page())
+
+
+    def test_rejected__no_reapply(self):
+        """User removed from a team can not re-apply.
+
+        """
+        test_joiner = UserFactory.create()
+        self.a_team_pg.log_in(test_joiner.username, 'password')
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.a_team_pg.apply()
+        self.a_team_pg.submit_application()
+        user_app = ApplicationFactory.build(
+            team=self.team,
+            user=test_joiner,
+            pk=1)
+        user_app.deny(
+            author = self.team_owner.username, 
+            interface = "web UI")
+        self.a_team_pg.open_team_page(self.team.slug)
+        self.assertEqual('Your application is pending', 
+                         self.a_team_pg.replacement_text())
 
 
 class TestCaseInvitationTeamPage(WebdriverTestCase):
@@ -147,6 +222,86 @@ class TestCaseInvitationTeamPage(WebdriverTestCase):
         self.team_dir_pg.log_in(user.username, 'password')
         self.team_dir_pg.open_my_teams_page()
         self.assertTrue(self.team_dir_pg.team_displayed(self.team.name))
+
+    def test_no_decline_after_accept(self):
+        """Once accepted, an invitation can not be declined.
+
+        """
+
+        user = UserFactory.create()
+        invitation = TeamInviteFactory.create(
+            team=self.team,
+            user=user,
+            note="Please come join this great team!",
+            author=self.team_owner,
+            )
+        invitation.accept()
+        self.team_dir_pg.log_in(user.username, 'password')
+        self.team_dir_pg.open_page('teams/invite/deny/%s/' % invitation.pk)
+        self.assertEqual('Sorry! This invite is no longer valid',
+                         self.team_dir_pg.invite_error())
+
+
+    def test_no_accept_after_decline(self):
+        """Once declined, an invitation can not be accepted.
+
+        """
+
+        user = UserFactory.create()
+        invitation = TeamInviteFactory.create(
+            team=self.team,
+            user=user,
+            note="Please come join this great team!",
+            author=self.team_owner,
+            )
+        invitation.deny()
+        self.team_dir_pg.log_in(user.username, 'password')
+        self.team_dir_pg.open_page('teams/invite/accept/%s/' % invitation.pk)
+        self.assertEqual('Sorry! This invite is no longer valid',
+                         self.team_dir_pg.invite_error())
+
+    def test_no_double_invites(self):
+        """Can not invite user with pending invitation.
+
+        """
+
+        user = UserFactory.create()
+        invitation = TeamInviteFactory.create(
+            team=self.team,
+            user=user,
+            note="Please come join this great team!",
+            author=self.team_owner,
+            )
+        self.members_tab.log_in(self.team_owner.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.members_tab.invite_user_via_form(username = user.username,
+                                              message = 'Join my team',
+                                              role = 'Contributor')
+        self.assertEqual(('User has already been invited and has not replied '
+                          'yet.'),
+                         self.members_tab.error_message())
+
+
+    def test_decline_invitation(self):
+        """User is not added to team after declining invitation.
+
+        """
+
+        user = UserFactory.create()
+        invitation = TeamInviteFactory.create(
+            team=self.team,
+            user=user,
+            note="Please come join this great team!",
+            author=self.team_owner,
+            )
+        invitation.deny()
+        self.team_dir_pg.log_in(user.username, 'password')
+        self.team_dir_pg.open_my_teams_page()
+        self.logger.info(self.team_dir_pg.teams_on_page())
+        self.assertNotIn(self.team.name, self.team_dir_pg.teams_on_page())
+
+
+
 
     def test_join__admin_invitation(self):
         """User is added to team as admin after accepting invitation.

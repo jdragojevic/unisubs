@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+# Integration repo file format
+INTEGRATION_REPO_LINES=$(grep . optional/unisubs-integration | wc -l | tr -d ' ')
+
+if [ $INTEGRATION_REPO_LINES -eq 1 ]; then
+    tput sgr0
+    echo "optional/unisubs-integration file looks good..."
+else
+    tput bold
+    tput setaf 1
+    echo
+    echo "Bad optional/unisubs-integration file format!"
+    tput sgr0
+    exit 1
+fi
+
 # Integration repo version
 if [ -d unisubs-integration ]; then
     if [ "`cd unisubs-integration; git rev-parse head`" = "`cat optional/unisubs-integration`" ]; then

@@ -63,7 +63,7 @@
                             <ul class="actions">
                                 <li>
                                         {% if task.get_type_display == 'Subtitle' or task.get_type_display == 'Translate' %}
-                                            <a href="" class="perform-task perform-task-{{ task.pk }} button reduced" id="task-{{ task.id }}">
+                                            <a href="{{ task.get_perform_url}}" class="perform-task perform-task-{{ task.pk }} button reduced" id="task-{{ task.id }}">
                                             {% trans "Create" %} {{ task.get_language_display }} {% trans "subtitles" %}
                                         {% else %}
                                             <a href="{{ task.get_perform_url }}" class="perform-task perform-task-{{ task.pk }} button reduced" id="task-{{ task.id }}">
@@ -159,7 +159,7 @@
                                                 <ul>
                                                     {% for task in team_video.tasks %}
                                                         <li>
-                                                            <a class="perform-task-{{ task.pk }}" href="{{ task.get_widget_url }}" title="Get started now">
+                                                            <a class="perform-task-{{ task.pk }}" href="{{ task.get_perform_url }}" title="Get started now">
                                                                 {% if task.get_type_display == 'Subtitle' %}
                                                                     {% trans "Create Subtitles" %}
                                                                 {% else %}

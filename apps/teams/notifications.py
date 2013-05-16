@@ -19,6 +19,10 @@
 from httplib2 import Http
 from urllib import urlencode
 
+from django.conf import settings
+DEFAULT_PROTOCOL = getattr(settings, "DEFAULT_PROTOCOL", 'https')
+
+from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
 from utils import send_templated_email
@@ -94,7 +98,7 @@ class BaseNotification(object):
         self.application_pk = kwargs.pop('application_pk', None)
         self.version_pk = kwargs.pop('version_pk', None)
         if self.language_pk:
-            self.language = self.video.subtitlelanguage_set.get(pk=self.language_pk)
+            self.language = self.video.newsubtitlelanguage_set.get(pk=self.language_pk)
             if self.version_pk:
                 self.version = self.language.subtitleversion_set.full().get(pk=self.version_pk)
         else:
@@ -133,7 +137,7 @@ class BaseNotification(object):
     @property
     def language_code(self):
         if self.language:
-            return  self.from_internal_lang(self.language.language)
+            return  self.from_internal_lang(self.language.language_code)
 
     def send_http_request(self, url, basic_auth_username, basic_auth_password):
         h = Http()
@@ -161,7 +165,9 @@ class BaseNotification(object):
         data = urlencode(data)
         url = "%s?%s" % (url , data)
         try:
-            resp, content = h.request(url, method="POST", body=data)
+            resp, content = h.request(url, method="POST", body=data, headers={
+                'referer': '%s://%s' % (DEFAULT_PROTOCOL, Site.objects.get_current().domain)
+            }, verify=False)
             success = 200 <= resp.status < 400
             if success is False:
                 logger.error("Failed to notify team %s " % (self.team),

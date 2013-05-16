@@ -389,10 +389,10 @@ unisubs.translate.Dialog.prototype.captionReached_ = function(event) {
 
     if (c) {
 
-        var captionID = c.getCaptionID();
+        var captionID = c.getCaptionIndex();
 
         var translatedCaptionSet = this.translationPanel_.getTranslationList().captionSet_;
-        var translatedCaption = translatedCaptionSet.captionByID(captionID);
+        var translatedCaption = translatedCaptionSet.caption(captionID);
 
         if (translatedCaption.getText() !== '') {
             caption = translatedCaption.getText();

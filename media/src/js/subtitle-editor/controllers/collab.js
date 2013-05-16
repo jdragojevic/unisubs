@@ -54,7 +54,6 @@
         };
         $scope.toggleDocking = function(module) {
             $scope.modulesOpen[module] = !$scope.modulesOpen[module];
-            console.warn($scope.modulesOpen);
         };
         $scope.sendBack = function() {
             $scope.$root.$emit('send-back-task');

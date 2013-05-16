@@ -43,7 +43,7 @@ from utils.translation import get_user_languages_from_request
 from videos import models
 from videos.models import record_workflow_origin, Subtitle
 from videos.tasks import (
-    video_changed_tasks, upload_subtitles_to_original_service
+    video_changed_tasks, subtitles_complete_changed
 )
 from widget import video_cache
 from widget.base_rpc import BaseRpc
@@ -763,6 +763,8 @@ class Rpc(BaseRpc):
 
         language.release_writelock()
 
+        # do this here, before _update_language_a... changes it ;)
+        complete_changed = bool(completed ) != language.subtitles_complete
         self._update_language_attributes_for_save(language, completed, session, forked)
 
         if new_version:
@@ -771,20 +773,16 @@ class Rpc(BaseRpc):
         else:
             video_changed_tasks.delay(language.video.id)
             api_video_edited.send(language.video)
+            if completed and complete_changed:
+                # not a new version, but if this just got marked as complete
+                # we want to push this to the third parties:
+                subtitles_complete_changed(language.pk)
 
         user_message = self._get_user_message_for_save(user, language, language.subtitles_complete)
 
         error = self._save_tasks_for_save(
                 request, save_for_later, language, new_version, language.subtitles_complete,
                 task_id, task_type, task_notes, task_approved)
-        try:
-           # if this the result of draft upload + review, you might not be
-           # getting a new public version. We however, create billing records
-           # regardless of publishing status
-           version_to_bill = new_version or language.subtitleversion_set.extant().order_by('-version_number')[0]
-           BillingRecord.objects.insert_record(version_to_bill)
-        except IndexError:
-           pass
 
         if error:
             return error

@@ -217,31 +217,24 @@
             {% for task in tasks %}
                 {% with task.new_subtitle_version.subtitle_language.get_translation_source_language as translated_from %}
                     <li
-                            {% if task.get_type_display == 'Review' or task.get_type_display == 'Approve' %}
-                                {% if translated_from and not translated_from.get_tip %}
-                                    class="disabled">
-                                    <div class="cannot-perform disabled">Locked
-                                    until {{ translated_from.get_language_display }}
-                                    subtitles are completed.</div
-                                {% endif %}
-                            {% endif %}
-                    {%  comment %} check if this is translate task, else we'll show the locked message
-                                               twice for approve and review tasks {% endcomment %}
-                    {% if task.is_blocked and task.get_type_display == 'Translate' %}
-                        class="disabled">
-                        <div class="cannot-perform disabled">
-                            Locked until {{ task.subtitle_version.language }}
-                            subtitles have been approved.</div
-                    {% endif %}
-                    {% if not task|can_perform_task:user and not task.assignee %}
-                        class="disabled">
-                        <div class="cannot-perform">
-                            {% trans "You don't have permission to perform this task." %}
-                        </div
-                    {% endif %}
-                    {% if task.assignee and task.assignee != user %}
-                        class="assigned"
-                    {% endif %}
+                          {% if task.is_blocked  %}
+                              {%if  task.get_type_display == 'Translate' %}
+                                  class="disabled">
+                                  <div class="cannot-perform disabled">Locked until {{ translated_from.get_language_display }} subtitles have been approved.</div
+                              {% endif %}
+                              {% if task.get_type_display == 'Review' or task.get_type_display == 'Approve' %}
+                                      class="disabled">
+                                      <div class="cannot-perform disabled">Locked until {{ translated_from.get_language_display }} subtitles are completed.</div
+
+                              {% endif %}
+                          {% endif %}                                                                                                  
+                          {% if not task|can_perform_task:user and not task.assignee %}
+                              class="disabled">
+                              <div class="cannot-perform">{% trans "You don't have permission to perform this task." %}</div
+                          {% endif %}
+                          {% if task.assignee and task.assignee != user %}
+                              class="assigned"
+                          {% endif %}
                     >
 
                     <h3>
@@ -375,7 +368,6 @@
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}
-                            {% endif %}
                         {% if task.get_subtitle_version %}
                             <li>
                                 <a href="#download-draft-{{ task.id }}"
@@ -501,6 +493,7 @@
                             </div>
                         </div>
                         </div>
+                        {% endif %}
                         {% endif %}
                     </ul>
 

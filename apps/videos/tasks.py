@@ -164,6 +164,25 @@ def video_changed_tasks(video_pk, new_version_id=None, skip_third_party_sync=Fal
 
     video.update_search_index()
 
+@task
+def subtitles_complete_changed(language_pk):
+    """
+    On the editor, if you don't actually change the subs, but still change
+    it to completed, then there's a bunch of things we want to do, namelly
+    check if billing records should be created and if we should push the subtitle
+    to youtube
+    """
+    from teams.models import TeamVideo, BillingRecord
+    language = SubtitleLanguage.objects.get(pk=language_pk)
+    version = language.get_tip()
+    _update_captions_in_original_service(version.pk)
+    try:
+        BillingRecord.objects.insert_record(version)
+    except Exception, e:
+        celery_logger.error("Could not add billing record", extra={
+            "version_pk": version.pk,
+            "exception": str(e)})
+
 @task()
 def send_change_title_email(video_id, user_id, old_title, new_title):
     from videos.models import Video

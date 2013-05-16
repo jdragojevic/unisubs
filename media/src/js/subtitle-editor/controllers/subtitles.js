@@ -40,8 +40,21 @@ var angular = angular || null;
          * side panel.
          */
 
-        $scope.languageChanged = function(lang, versionNumber) {
-            var vers, language;
+        /**
+         * The second param will be either an int or the version data object,
+         * depending if this is being set from the bootstrapped value or later
+         * fetches.
+         */
+        $scope.languageChanged = function(lang, versionOrVersionNumber, another) {
+            // this gets called both on setInitialDisplayLanguage manually at
+            // the first start up, or through the changes to the scope.language.
+            // in the later cases, angular sends (newLang, oldLang) so we can
+            // detect if anything is actually changed. In this case, we just bail
+            // out, because nothing has actually changed.
+            if (lang == versionOrVersionNumber){
+                return;
+            }
+            var vers, language, versionNumber;
 
             if (lang) {
                 language = lang;
@@ -59,6 +72,13 @@ var angular = angular || null;
 
             $scope.versions = vers.reverse();
 
+            if (versionOrVersionNumber !== undefined ){
+                if (!isNaN(parseInt(versionOrVersionNumber.version_no))){
+                    versionNumber = parseInt(versionOrVersionNumber.version_no);
+                }else if(!isNaN(parseInt(versionOrVersionNumber))){
+                    versionNumber = parseInt(versionOrVersionNumber);
+                }
+            }
             if (vers.length && vers.length > 0) {
                 if (isNaN(parseInt(versionNumber))){
                     $scope.version = $scope.versions[0];
@@ -396,6 +416,10 @@ var angular = angular || null;
         $scope.empty = false;
         $scope.isEditing = false;
         $scope.showStartTime = $scope.parser.startTime($scope.subtitle) !== -1;
+        $scope.contentAsHTML = $scope.parser.contentRendered($scope.subtitle);
+        // convert to markdown at init time, then never again to avoid
+        // double scaping
+        initialText = $scope.parser.dfxpToMarkdown($scope.subtitle, true);
 
         $scope.finishEditingMode = function(newValue) {
 
@@ -404,9 +428,14 @@ var angular = angular || null;
             // Tell the root scope that we're no longer editing, now.
             $scope.$root.$emit('editing-done');
 
-            var content = $scope.parser.content($scope.subtitle, newValue);
 
-            if (content !== initialText) {
+            if (newValue !== initialText) {
+                // we can store markdown content directly on the node
+                // then on serialization it will get converted correctly
+                // to dfxp
+                $scope.parser.content($scope.subtitle, newValue);
+                $scope.contentAsHTML = $scope.parser.contentRendered($scope.subtitle);
+                initialText = $scope.parser.content($scope.subtitle);
                 $scope.$root.$emit('work-done');
             }
         };
@@ -415,7 +444,6 @@ var angular = angular || null;
         };
         $scope.startEditingMode = function() {
 
-            initialText = $scope.parser.content($scope.subtitle);
 
             $scope.isEditing = true;
 

@@ -553,9 +553,9 @@ class MakeLanguageListTestCase(TestCase):
         self.setup_team()
         # go through the subtitle task phase
         task = Task(team=self.team, team_video=self.team_video,
-             language='tr', type=Task.TYPE_IDS['Subtitle'],
+             language='en', type=Task.TYPE_IDS['Subtitle'],
              assignee=self.user)
-        lang = self.add_completed_subtitles('tr', [
+        lang = self.add_completed_subtitles('en', [
             (0, 1000, "Hello, ", {'new_paragraph':True}),
             (1500, 2500, "World"),
         ], visibility='private')
@@ -564,16 +564,17 @@ class MakeLanguageListTestCase(TestCase):
         # now in the review phase
         self.assertEquals(review_task.type, Task.TYPE_IDS['Review'])
         self.assertEquals(LanguageList(self.video).items, [
-            ('Turkish', 'needs-review', ['needs review'], lang.get_absolute_url()),
+            ('English', 'needs-review', ['original', 'needs review'],
+             lang.get_absolute_url()),
         ])
 
     def test_needs_approval(self):
         self.setup_team()
         # go through the subtitle task phase
         task = Task(team=self.team, team_video=self.team_video,
-             language='tr', type=Task.TYPE_IDS['Subtitle'],
+             language='en', type=Task.TYPE_IDS['Subtitle'],
              assignee=self.user)
-        lang = self.add_completed_subtitles('tr', [
+        lang = self.add_completed_subtitles('en', [
             (0, 1000, "Hello, ", {'new_paragraph':True}),
             (1500, 2500, "World"),
         ], visibility='private')
@@ -587,7 +588,32 @@ class MakeLanguageListTestCase(TestCase):
         # now in the approval phase
         self.assertEquals(approve_task.type, Task.TYPE_IDS['Approve'])
         self.assertEquals(LanguageList(self.video).items, [
-            ('Turkish', 'needs-review', ['needs approval'], lang.get_absolute_url()),
+            ('English', 'needs-review', ['original', 'needs approval'],
+             lang.get_absolute_url()),
+        ])
+
+    def test_sent_back(self):
+        self.setup_team()
+        # go through the subtitle task phase
+        task = Task(team=self.team, team_video=self.team_video,
+             language='en', type=Task.TYPE_IDS['Subtitle'],
+             assignee=self.user)
+        lang = self.add_completed_subtitles('en', [
+            (0, 1000, "Hello, ", {'new_paragraph':True}),
+            (1500, 2500, "World"),
+        ], visibility='private')
+        task.new_subtitle_version = lang.get_tip(public=False)
+        review_task = task.complete()
+        # have the video get sent back in the review phase
+        self.assertEquals(review_task.type, Task.TYPE_IDS['Review'])
+        review_task.assignee = self.user
+        review_task.approved = Task.APPROVED_IDS['Rejected']
+        new_subtitle_task = review_task.complete()
+        # now in the approval phase
+        self.assertEquals(new_subtitle_task.type, Task.TYPE_IDS['Subtitle'])
+        self.assertEquals(LanguageList(self.video).items, [
+            ('English', 'needs-review', ['original', 'needs editing'],
+             lang.get_absolute_url()),
         ])
 
     def test_no_lines(self):

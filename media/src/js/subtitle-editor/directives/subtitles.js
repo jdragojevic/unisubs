@@ -25,6 +25,24 @@ var USER_IDLE_MINUTES = 5;
 
     var directives = angular.module('amara.SubtitleEditor.directives', []);
 
+    function setCaretPosition(elem, caretPos) {
+        /** Move the caret to the specified position.
+         * This will work, except for text areas with user inserted line breaks
+         */
+        if (elem != null) {
+            if (elem.createTextRange) {
+                var range = elem.createTextRange();
+                range.move('character', caretPos);
+                range.select();
+            }
+            else {
+                if (elem.selectionStart) {
+                    elem.focus();
+                    elem.setSelectionRange(caretPos, caretPos);
+                }
+            }
+        }
+    }
     directives.directive('saveSessionButton', function(SubtitleStorage) {
         return {
             link: function link(scope, elm, attrs) {
@@ -209,12 +227,17 @@ var USER_IDLE_MINUTES = 5;
             selectedScope,
             value;
 
-        function onSubtitleItemSelected(elm) {
+        function onSubtitleItemSelected(elm, event) {
             /**
              * Receives the li.subtitle-list-item to be edited.
              * Will put any previously edited ones in display mode,
              * mark this one as being edited, creating the textarea for
              * editing.
+             *
+             * If this is created by user interaction (clicking on the sub)
+             * we want to keep the caret focus on the place he's clicked. Else
+             * if this initiated by any other action (e.g. advancing the video
+             * playhead / tabbing through subs, we can ignore this).
              */
 
             elm = $(elm).hasClass('subtitle-list-item') ?
@@ -222,6 +245,10 @@ var USER_IDLE_MINUTES = 5;
 
             var controller = angular.element(elm).controller();
             var scope = angular.element(elm).scope();
+            // make sure we're actually changing the editing sub
+            if (scope == selectedScope){
+                return;
+            }
 
             if (controller instanceof SubtitleListItemController) {
                 if (selectedScope) {
@@ -231,13 +258,17 @@ var USER_IDLE_MINUTES = 5;
                 activeTextArea = $('textarea', elm);
                 selectedScope = scope;
 
-                activeTextArea.val(selectedScope.startEditingMode());
+                var textValue = selectedScope.startEditingMode()
+                activeTextArea.val(textValue);
+                var caretPos = (event && document.getSelection().extentOffset) ||
+                                textValue.length;
                 selectedScope.$digest();
 
                 activeTextArea.focus();
                 activeTextArea.autosize();
 
                 selectedScope.$root.$broadcast('subtitle-selected', selectedScope);
+                setCaretPosition($(activeTextArea).get(0), caretPos);
             }
         }
         function onSubtitleTextKeyDown(e) {
@@ -303,6 +334,16 @@ var USER_IDLE_MINUTES = 5;
 
                 // Keep the cursor in the current subtitle.
                 e.preventDefault();
+
+            }
+
+            // enter without shift
+            if (e.keyCode === 13 && !e.shiftKey) {
+                e.preventDefault();
+                if (selectedScope && selectedScope.isEditing) {
+                    selectedScope.finishEditingMode(activeTextArea.val());
+                    selectedScope.$digest();
+                }
 
             }
 
@@ -374,7 +415,7 @@ var USER_IDLE_MINUTES = 5;
 
                         if (scope.isEditable) {
                             $elm.click(function(e) {
-                                onSubtitleItemSelected(e.srcElement || e.target);
+                                onSubtitleItemSelected(e.srcElement || e.target, e);
                             });
                             $elm.on('keydown', 'textarea', onSubtitleTextKeyDown);
                             $elm.on('keyup', 'textarea', onSubtitleTextKeyUp);
@@ -498,7 +539,6 @@ var USER_IDLE_MINUTES = 5;
             compile: function compile(elm, attrs, transclude) {
                 return {
                     post: function post(scope, elm, attrs) {
-                        console.warn('on directive', scope);
                         SubtitleStorage.getLanguages(function(languages){
                             scope.setInitialDisplayLanguage(
                                 languages,

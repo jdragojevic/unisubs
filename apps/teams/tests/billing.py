@@ -153,7 +153,7 @@ class BillingTest(TestCase):
 
         team = video.get_team_video().team
         start = datetime(2013, 1, 1, 0, 0)
-        end = datetime(2013, 5, 1, 0, 0, 0)
+        end = datetime.now() + timedelta(days=1)
 
         csv_data = BillingRecord.objects.csv_report_for_team(team, start, end)
 

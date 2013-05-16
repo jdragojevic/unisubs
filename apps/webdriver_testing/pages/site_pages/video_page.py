@@ -42,9 +42,8 @@ class VideoPage(UnisubsPage):
     _UPLOAD_SUBTITLES = "a#upload-subtitles-link"
 
     #SUBTITLES_SIDE_SECTION
-    _SUB_LANGUAGES = "ul#subtitles-menu li a"
-    _VIDEO_ORIGINAL = ""
-    _VIDEO_LANG = ""
+    _SUB_LANGUAGES = "ul#subtitles-menu li"
+    _STATUS_TAGS = "span.tags"
 
     #TEAM_SIDE_SECTION
     _ADD_TO_TEAM_PULLDOWN = ("ul#moderation-menu.left_nav li div.sort_button "
@@ -175,27 +174,29 @@ class VideoPage(UnisubsPage):
 
     def subtitle_languages(self):
         langs = []
-        els = self.get_elements_list(self._SUB_LANGUAGES)
+        els = self.get_elements_list(self._SUB_LANGUAGES + " a")
         for el in els:
             langs.append(el.text)
         return langs
 
     def language_status(self, language):
         els =  self.get_elements_list(self._SUB_LANGUAGES)
-        try:
-            lang_el = [el for el in els if language in el.text][0]
-        except IndexError:
+        for el in els:
+            e = el.find_element_by_css_selector("a")
+            self.logger.info(e.text)
+            if e.text == language:
+                lang_el = el
+                break
+        else: 
             self.logger.info('language not in list')
-            return None
-        self.logger.info(dir(lang_el.parent))
-        lang_properties = lang_el.get_attribute('class')
-        self.logger.info(lang_properties)
-        if 'language-is-not-complete' in lang_properties:
-            return 'incomplete'
-        elif 'languge-is-complete' in lang_properties:
-            return 'complete'
-        else:
-            self.logger.info('not sure what state is language: %s' 
-                             % lang_el.text)
-            return None
+            return None, None
+        status_img = lang_el.find_element_by_css_selector(
+                              "img").get_attribute("src")
+        try:
+            status_tag = lang_el.find_element_by_css_selector(
+                         self._STATUS_TAGS).text
+        except:
+            status_tag = None
+
+        return status_tag, status_img
 

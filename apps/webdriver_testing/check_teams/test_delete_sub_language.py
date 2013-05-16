@@ -248,6 +248,7 @@ class TestCaseDeletion(WebdriverTestCase):
         cls.video_pg = video_page.VideoPage(cls)
         cls.tasks_tab = TasksTab(cls)
         cls.watch_pg = watch_page.WatchPage(cls)
+        cls.sub_editor = subtitle_editor.SubtitleEditor(cls)
 
         cls.user = UserFactory.create()
         cls.owner = UserFactory.create()
@@ -302,6 +303,14 @@ class TestCaseDeletion(WebdriverTestCase):
         cls._upload_translation(cls.video, 'sv', cls.sv, cls.contributor)
         cls.data_utils.complete_review_task(cls.tv, 20, cls.admin)
 
+        #Add it translation, reviewed
+        cls._upload_translation(cls.video, 'it', cls.sv, cls.contributor)
+        cls.data_utils.complete_review_task(cls.tv, 20, cls.admin)
+
+        #Add hr translation, needs review
+        cls._upload_translation(cls.video, 'hr', cls.sv, cls.contributor)
+
+
         #Add de translation complete waiting review
         cls._upload_translation(cls.video, 'de', cls.sv, cls.contributor)
 
@@ -316,6 +325,10 @@ class TestCaseDeletion(WebdriverTestCase):
         #Delete English subtitle language + Swedish and German
         cls.video_lang_pg.delete_subtitle_language(['Swedish', 'German'])
 
+
+    def setUp(self):
+        self.video_pg.open_video_page(self.video.video_id)
+        self.video_pg.handle_js_alert('accept')
 
     @classmethod
     def _upload_subtitles(cls, video, lc, subs, user, complete=True):
@@ -515,4 +528,58 @@ class TestCaseDeletion(WebdriverTestCase):
         task = list(self.tv.task_set.filter(language='ru'))
         self.assertEqual(1, len(task), 
                          're: https://unisubs.sifterapp.com/issues/2328')
+
+    def test_forked_review__tasks(self):
+        """Review tasks for forked translations are not deleted.
+
+        """
+        self.tasks_tab.open_page('teams/{0}/tasks/?team_video={1}'
+                                 '&assignee=anyone&lang=hr'.format(
+                                 self.team.slug, self.tv.pk))
+
+        task = list(self.tv.task_set.incomplete_review().filter(
+                    language='hr'))
+        self.assertEqual(1, len(task))
+        self.assertTrue(self.tasks_tab.task_present(
+                        'Review Croatian Subtitles', self.video.title))
+
+
+    def test_forked_approve__tasks(self):
+        """Approve tasks for forked translations are not deleted.
+
+        """
+        self.tasks_tab.open_page('teams/{0}/tasks/?team_video={1}'
+                                 '&assignee=anyone&lang=it'.format(
+                                 self.team.slug, self.tv.pk))
+
+        task = list(self.tv.task_set.incomplete_approve().filter(
+                    language='it'))
+        self.assertEqual(1, len(task))
+        self.assertTrue(self.tasks_tab.task_present(
+                        'Approve Italian Subtitles', self.video.title))
+
+
+    def test_perform_forked_approve_task(self):
+        """Approve tasks for forked translations open in timed dialog.
+
+        """
+        self.tasks_tab.open_page('teams/{0}/tasks/?team_video={1}'
+                                 '&assignee=anyone&lang=it'.format(
+                                 self.team.slug, self.tv.pk))
+
+        self.tasks_tab.perform_and_assign_task('Approve Italian Subtitles', 
+                                               self.video.title)
+        self.assertEqual('Approve subtitles', self.sub_editor.dialog_title())
+
+    def test_perform_forked_review_task(self):
+        """Review tasks for forked translations open in timed dialog.
+
+        """
+        self.tasks_tab.open_page('teams/{0}/tasks/?team_video={1}'
+                                 '&assignee=anyone&lang=hr'.format(
+                                 self.team.slug, self.tv.pk))
+
+        self.tasks_tab.perform_and_assign_task('Review Croatian Subtitles', 
+                                               self.video.title)
+        self.assertEqual('Review subtitles', self.sub_editor.dialog_title())
 

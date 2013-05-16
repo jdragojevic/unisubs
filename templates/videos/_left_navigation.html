@@ -6,7 +6,7 @@
     <a href="{{ lang.url }}"> {{ lang.name }} </a>
     {% if lang.tags %}
     <span class="tags">
-        {% for tag in lang.tags %} 
+        {% for tag in lang.tags %}
             {{ tag }}
             {% if not forloop.last %}|{% endif %}
         {% endfor %}

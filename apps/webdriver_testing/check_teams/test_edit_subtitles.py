@@ -84,7 +84,7 @@ class TestCaseApprovalWorkflow(WebdriverTestCase):
         
 
     def test_draft__task_assignee(self):
-        """Edit Subtitles active for task assignee.
+        """Task assignee must Edit Subtitles via task.
 
         """
         video, tv = self._add_team_video()
@@ -93,10 +93,12 @@ class TestCaseApprovalWorkflow(WebdriverTestCase):
         self.video_lang_pg.open_video_lang_page(video.video_id, 'en')
         self.video_lang_pg.log_in(self.contributor.username, 'password')
         self.video_lang_pg.page_refresh()
-        self.assertEqual('active', self.video_lang_pg.edit_subtitles_active())
+        self.assertEqual(self.video_lang_pg.EDIT_VIA_TASK_TEXT,
+                         self.video_lang_pg.edit_subtitles_active())
+
 
     def test_reviewer_sent_back__assignee(self):
-        """Edit Subtitles active for assignee after transcript fails review.
+        """Assignee must Edit Subtitles via task after transcript fails review.
 
         """
         video, tv = self._add_team_video()
@@ -107,7 +109,9 @@ class TestCaseApprovalWorkflow(WebdriverTestCase):
         self.video_lang_pg.open_video_lang_page(video.video_id, 'en')
         self.video_lang_pg.log_in(self.contributor.username, 'password')
         self.video_lang_pg.page_refresh()
-        self.assertEqual('active', self.video_lang_pg.edit_subtitles_active())
+        self.assertEqual(self.video_lang_pg.EDIT_VIA_TASK_TEXT,
+                         self.video_lang_pg.edit_subtitles_active())
+
 
     def test_approver_sent_back__assignee(self):
         """Edit Subtitles NOT active for transcriber when transcript fails approve.
@@ -128,7 +132,7 @@ class TestCaseApprovalWorkflow(WebdriverTestCase):
                          self.video_lang_pg.edit_subtitles_active())
 
     def test_review_not_started__transcriber(self):
-        """Edit Subtitles active for transcriber when waiting review.
+        """Transcriber must Edit Subtitles via task when waiting review.
 
         """
         video, tv = self._add_team_video()
@@ -138,12 +142,13 @@ class TestCaseApprovalWorkflow(WebdriverTestCase):
         self.video_lang_pg.open_video_lang_page(video.video_id, 'en')
         self.video_lang_pg.log_in(self.contributor.username, 'password')
         self.video_lang_pg.page_refresh()
-        self.assertEqual('active', 
+        self.assertEqual(self.video_lang_pg.EDIT_VIA_TASK_TEXT,
                          self.video_lang_pg.edit_subtitles_active())
 
 
+
     def test_approver_sent_back__reviewer(self):
-        """Edit Subtitles active for reviewer after transcript fails approve.
+        """Reviewer must Edit Subtitles via task after fails approve.
 
         """
         reviewer = TeamContributorMemberFactory(team=self.team).user
@@ -159,7 +164,8 @@ class TestCaseApprovalWorkflow(WebdriverTestCase):
         self.video_lang_pg.open_video_lang_page(video.video_id, 'en')
         self.video_lang_pg.log_in(reviewer.username, 'password')
         self.video_lang_pg.page_refresh()
-        self.assertEqual('active', self.video_lang_pg.edit_subtitles_active())
+        self.assertEqual(self.video_lang_pg.EDIT_VIA_TASK_TEXT,
+                         self.video_lang_pg.edit_subtitles_active())
 
 
     def test_draft__not_task_assignee(self):
@@ -686,105 +692,6 @@ class TestCaseNoWorkflow(WebdriverTestCase):
 
 
 
-
-
-
-
-class TestCaseClickEdit(WebdriverTestCase):
-    """TestSuite for clicking EditSubtitles button on a revision. """
-    NEW_BROWSER_PER_TEST_CASE = False
-
-    @classmethod
-    def setUpClass(cls):
-        super(TestCaseClickEdit, cls).setUpClass()
-        cls.data_utils = data_helpers.DataHelpers()
-        cls.video_lang_pg = video_language_page.VideoLanguagePage(cls)
-        cls.sub_editor = subtitle_editor.SubtitleEditor(cls)
-        cls.watch_pg = watch_page.WatchPage(cls)
-        cls.video_pg = video_page.VideoPage(cls)
-
-        cls.user = UserFactory.create()
-
-        cls.owner = UserFactory.create()
-        cls.team = TeamMemberFactory.create(team__workflow_enabled=True,
-                                            team__translate_policy=20, #any team
-                                            team__subtitle_policy=20, #any team
-                                            team__task_assign_policy=10, #any team
-                                            user = cls.owner,
-                                            ).team
-        cls.team_workflow = WorkflowFactory(team = cls.team,
-                                            autocreate_subtitle=True,
-                                            autocreate_translate=True,
-                                            approve_allowed = 10, # manager
-                                            review_allowed = 10, # peer
-                                           )
-        lang_list = ['en', 'ru', 'pt-br', 'de', 'sv']
-        for language in lang_list:
-            TeamLangPrefFactory.create(team=cls.team, language_code=language,
-                                       preferred=True)
-
-        cls.admin = TeamAdminMemberFactory(team=cls.team).user
-        cls.contributor = TeamMemberFactory(team=cls.team).user
-        cls.subs_dir = os.path.join(os.getcwd(), 'apps', 'webdriver_testing', 
-                                    'subtitle_data')  
-
-    def setUp(self):
-        self.video_pg.open_page('videos/create')
-        self.video_pg.handle_js_alert('accept')    
-
-    def _add_team_video(self):
-        video = self.data_utils.create_video()
-        tv = TeamVideoFactory(team=self.team, added_by=self.owner, video=video)
-        return video, tv
-
-    def _upload_en_draft(self, video, subs, user, complete=False):
-        auth_creds = dict(username=user.username, password='password')
-        draft_data = {'language_code': 'en',
-                     'video': video.pk,
-                     'primary_audio_language_code': 'en',
-                     'draft': open(subs),
-                     'complete': int(complete),
-                     'is_complete': complete,
-                    }
-        self.data_utils.upload_subs(video, draft_data, user=auth_creds)
-
-    def test_review_not_started__transcriber_clicks(self):
-        """Edit Subtitles active for transcriber when waiting review.
-
-        """
-        video, tv = self._add_team_video()
-        subs = os.path.join(self.subs_dir, 'Timed_text.en.srt')
-        self._upload_en_draft(video, subs, user=self.contributor, complete=True)
-
-        self.video_lang_pg.open_video_lang_page(video.video_id, 'en')
-        self.video_lang_pg.log_in(self.contributor.username, 'password')
-        self.video_lang_pg.page_refresh()
-        self.assertEqual('active', 
-                         self.video_lang_pg.edit_subtitles_active())
-        self.video_lang_pg.edit_subtitles()
-        self.assertEqual('Typing', self.sub_editor.dialog_title())
-
-
-    def test_approver_sent_back__reviewer_clicks(self):
-        """Reviewer clicks Edit Subtitles after transcript fails approve.
-
-        """
-        reviewer = TeamContributorMemberFactory(team=self.team).user
-
-        video, tv = self._add_team_video()
-        subs = os.path.join(self.subs_dir, 'Timed_text.en.srt')
-        self._upload_en_draft(video, subs, user=self.contributor, complete=True)
-        #Accept transcript in review phase
-        self.data_utils.complete_review_task(tv, 20, reviewer)
-        #Reject transcript in the approve phase
-        self.data_utils.complete_approve_task(tv, 30, self.owner)
-
-        self.video_lang_pg.open_video_lang_page(video.video_id, 'en')
-        self.video_lang_pg.log_in(reviewer.username, 'password')
-        self.video_lang_pg.page_refresh()
-        self.assertEqual('active', self.video_lang_pg.edit_subtitles_active())
-        self.video_lang_pg.edit_subtitles()
-        self.assertEqual('Typing', self.sub_editor.dialog_title())
 
 class TestCaseAdminUnpublish(WebdriverTestCase):
     """Edit Subtitles button display on a revision after latest version set private. """

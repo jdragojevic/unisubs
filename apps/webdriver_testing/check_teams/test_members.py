@@ -6,6 +6,8 @@ from apps.webdriver_testing.pages.site_pages.teams import members_tab
 from apps.webdriver_testing.pages.site_pages import user_messages_page
 from apps.webdriver_testing.data_factories import TeamMemberFactory
 from apps.webdriver_testing.data_factories import TeamContributorMemberFactory
+from apps.webdriver_testing.data_factories import TeamManagerMemberFactory
+from apps.webdriver_testing.data_factories import TeamAdminMemberFactory
 from apps.webdriver_testing.data_factories import TeamProjectFactory
 from apps.webdriver_testing.data_factories import UserFactory
 
@@ -141,4 +143,152 @@ class TestCaseMembersTab(WebdriverTestCase):
                                        self.promoted_admin.username)
         self.assertEqual(self.members_tab.user_role(), 
                       'Admin for %s project' % self.project.name)
+
+class TestCaseManageMembers(WebdriverTestCase):
+    """Verify display of invite, delete links.  """
+    NEW_BROWSER_PER_TEST_CASE = False
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestCaseManageMembers, cls).setUpClass()
+        cls.members_tab = members_tab.MembersTab(cls)
+        cls.team_owner =  UserFactory.create()
+        cls.team = TeamMemberFactory.create(team__membership_policy=1,
+                                            user = cls.team_owner).team
+        cls.manager = TeamManagerMemberFactory.create(
+                               team=cls.team).user
+        cls.admin = TeamAdminMemberFactory.create(
+                             team=cls.team).user
+        cls.member = TeamContributorMemberFactory.create(
+                             team=cls.team).user
+        cls.members_tab.open_members_page(cls.team.slug)
+
+    def test_admin_invite__owner(self):
+        """Admin invite team, owner sees invite button."""
+        self.team.membership_policy = 5
+        self.team.save()
+        self.members_tab.log_in(self.team_owner.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_admin_invite__admin(self):
+        """Admin invite team, admin sees invite button. """
+        self.team.membership_policy = 5
+        self.team.save()
+        self.members_tab.log_in(self.admin.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_admin_invite__manager(self):
+        """Admin invite team, manager does not see invite button."""
+        self.team.membership_policy = 5
+        self.team.save()
+        self.members_tab.log_in(self.manager.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertFalse(self.members_tab.displays_invite())
+
+ 
+    def test_admin_invite__member(self):
+        """Admin invite team, member does not see invite button."""
+
+        self.team.membership_policy = 5
+        self.team.save()
+        self.members_tab.log_in(self.member.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertFalse(self.members_tab.displays_invite())
+
+    def test_manager_invite__admin(self):
+        """Manager invite team, admin sees invite button. """
+
+        self.team.membership_policy = 2
+        self.team.save()
+        self.members_tab.log_in(self.admin.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_manager_invite__manager(self):
+        """Manager invite team, manager sees invite button. """
+        self.team.membership_policy = 2
+        self.team.save()
+        self.members_tab.log_in(self.manager.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_manager_invite__member(self):
+        """Manager invite team, member does not see invite button. """
+        self.team.membership_policy = 2
+        self.team.save()
+        self.members_tab.log_in(self.member.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertFalse(self.members_tab.displays_invite())
+
+    def test_all_invite__admin(self):
+        """All invite team, admin sees invite button. """
+
+        self.team.membership_policy = 3
+        self.team.save()
+        self.members_tab.log_in(self.admin.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_all_invite__manager(self):
+        """All invite team, manager sees invite button. """
+        self.team.membership_policy = 3
+        self.team.save()
+        self.members_tab.log_in(self.manager.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_all_invite__member(self):
+        """All invite team, member sees invite button. """
+        self.team.membership_policy = 3
+        self.team.save()
+        self.members_tab.log_in(self.member.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_open__invite_member(self):
+        """Open team any member sees invite button. """
+        self.team.membership_policy = 4
+        self.team.save()
+        self.members_tab.log_in(self.member.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_application__invite_admin(self):
+        """In application-only team only admin sees invite button. """
+        self.team.membership_policy = 1
+        self.team.save()
+        self.members_tab.log_in(self.admin.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertTrue(self.members_tab.displays_invite())
+
+    def test_application__invite_manager(self):
+        """In application-only team only manager does not see invite button. """
+        self.team.membership_policy = 1
+        self.team.save()
+        self.members_tab.log_in(self.manager.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertFalse(self.members_tab.displays_invite())
+
+    def test_application__invite_member(self):
+        """In application-only team only member does not see invite button. """
+        self.team.membership_policy = 1
+        self.team.save()
+        self.members_tab.log_in(self.member.username, 'password')
+        self.members_tab.open_members_page(self.team.slug)
+        self.assertFalse(self.members_tab.displays_invite())
+
+    def test_delete_user__admin(self):
+        """Admin can delete managers and contributors. """
+        self.members_tab.log_in(self.admin.username, 'password')
+        self.members_tab.member_search(self.team.slug, self.member.username)
+        self.assertTrue(self.members_tab.delete_user_link)
+
+
+
+
+
+
+
 

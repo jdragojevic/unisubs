@@ -28,7 +28,9 @@ class VideoLanguagePage(VideoPage):
     _EDIT_SUBTITLES = "a#edit_subtitles_button"
     _DOWNLOAD_SUBS = "span.sort_label strong"
     _DOWNLOAD_OPTION = "div.sort_button ul li" 
-    EDIT_INACTIVE_TEXT = 'You do not have permission to edit this version'
+    EDIT_INACTIVE_TEXT = 'You do not have permission to edit this version.'
+    EDIT_VIA_TASK_TEXT = ('You must use the tasks panel to work with this '
+                          'version.')
     _ROLLBACK = "a#rollback" 
 
     def open_video_lang_page(self, video_id, lang_code):

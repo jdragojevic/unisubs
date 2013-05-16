@@ -38,7 +38,6 @@ from apps.videos.models import (
         VideoMetadata, VIDEO_META_TYPE_IDS, Video
 )
 from apps.videos.search_indexes import VideoIndex
-from apps.subtitles import models
 from utils.forms import ErrorableModelForm
 from utils.forms.unisub_video_form import UniSubBoundVideoField
 from utils.translation import get_language_choices
@@ -490,8 +489,8 @@ class LanguagesForm(forms.Form):
         super(LanguagesForm, self).__init__(*args, **kwargs)
 
         self.team = team
-        self.fields['preferred'].choices = get_language_choices(True)
-        self.fields['blacklisted'].choices = get_language_choices(True)
+        self.fields['preferred'].choices = get_language_choices()
+        self.fields['blacklisted'].choices = get_language_choices()
 
     def clean(self):
         preferred = set(self.cleaned_data['preferred'])
@@ -638,7 +637,10 @@ class TaskUploadForm(SubtitlesUploadForm):
     def clean(self):
         super(TaskUploadForm, self).clean()
 
-        task = self.cleaned_data['task']
+        try:
+            task = self.cleaned_data['task']
+        except KeyError:
+            raise forms.ValidationError(_(u'Task has been deleted'))
         language_code = self.cleaned_data['language_code']
         from_language_code = self.cleaned_data['from_language_code']
 

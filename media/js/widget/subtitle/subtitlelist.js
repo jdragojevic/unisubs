@@ -281,7 +281,9 @@ unisubs.subtitle.SubtitleList.prototype.setCurrentlyEditing_ = function(editing,
 };
 unisubs.subtitle.SubtitleList.prototype.updateAllStartTimes = function() {
     goog.array.forEach(this.subtitleList_, function(w) {
-        goog.dom.setTextContent(w.timeElement_, unisubs.formatTime(w.originalNode_.getStartTime()));
+        if (w.timeElement_){
+            goog.dom.setTextContent(w.timeElement_, unisubs.formatTime(w.originalNode_.getStartTime()));
+        }
     });
 };
 unisubs.subtitle.SubtitleList.prototype.isCurrentlyEditing = function() {

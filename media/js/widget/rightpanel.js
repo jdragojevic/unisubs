@@ -67,6 +67,7 @@ unisubs.RightPanel = function(serverModel, helpContents, extraHelp, legendKeySpe
      * @type {?string}
      */
     this.mouseDownKeyCode_ = null;
+    this.saveAndOpenInNewEditor  = null;
 };
 
 goog.inherits(unisubs.RightPanel, goog.ui.Component);
@@ -281,30 +282,36 @@ unisubs.RightPanel.prototype.appendStepsContents_ = function($d, el) {
             this.saveAndExitClicked_);
     }
 
-    // If this subtitle version was created from a base language that was forked from a
+    this.createSaveAndOpenInNewEditor(stepsDiv);
+
+    goog.dom.append(el, stepsDiv);
+    this.updateLoginState();
+};
+unisubs.RightPanel.prototype.createSaveAndOpenInNewEditor = function(stepsDiv) {
+   // If this subtitle version was created from a base language that was forked from a
     // translation, we need to display a link to get into the new editor so that the user
     // can compare these captions to captions of other languages.
-    if (this.serverModel_.captionSet_.languageWasForked) {
+    if (this.serverModel_.captionSet_.languageWasForked ||
+        this.serverModel_.captionSet_.wasForkedDuringEdits() &&
+        !this.saveAndOpenInNewEditor) {
 
+        var $d = goog.bind(this.getDomHelper().createDom, this.getDomHelper());
         var videoType = this.parent_.parent_.videoPlayer_.videoPlayerType_;
 
         if (['vimeo', 'youtube', 'html5'].indexOf(videoType) !== -1) {
-            var saveAndOpenInNewEditor = $d(
+            this.saveAndOpenInNewEditor = $d(
                 'div', 'unisubs-saveandopeninneweditor',
                 $d('span', null, 'Beta: '),
                 $d('a', {'href': '#'},
                 $d('span', null, 'Save and open in new editor')));
 
-            goog.dom.append(stepsDiv, saveAndOpenInNewEditor);
+            goog.dom.append(stepsDiv, this.saveAndOpenInNewEditor);
             this.getHandler().listen(
-                saveAndOpenInNewEditor, goog.events.EventType.CLICK,
+                this.saveAndOpenInNewEditor, goog.events.EventType.CLICK,
                 this.saveAndOpenInNewEditorClicked_);
         }
     }
-
-    goog.dom.append(el, stepsDiv);
-    this.updateLoginState();
-};
+}
 unisubs.RightPanel.prototype.legendKeyClicked_ = function(keyCode, modifiers, event) {
     this.dispatchEvent(
         new unisubs.RightPanel.LegendKeyEvent(keyCode, modifiers, event.type));

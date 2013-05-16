@@ -115,7 +115,7 @@
                 ({{ video.languages_count }})
             {% endif %}
         </h3>
-        {% if video.subtitle_language or translations %}
+        {% if language_list %}
             <ul id="subtitles-menu" {% if video.languages_count > 14 %} class="list-collapsible"{% endif %}>
                 {% include 'videos/_left_navigation.html' %}
                 {% if video.languages_count > 14 %}
@@ -132,7 +132,7 @@
                             {% if team_video.task_set.incomplete.exists %}
                                 <p>{% trans "No subtitles yet." %} <a href="{% url teams:team_tasks slug=team_video.team.slug %}?team_video={{ team_video.pk }}">{% trans "View tasks for this video." %}</a></p>
                             {% else %}
-                                {% trans "This video doesn't have any subtitles or tasks yet" %}
+                                {% trans "This video doesn't have any subtitles or tasks yet." %}
                             {% endif %}
                         {% else %}
                             <p>{% trans "Be the first to " %}<a href="#" class="add_subtitles">{% trans 'create subtitles' %}</a>!</p>
@@ -143,7 +143,7 @@
                 {% endwith %}
             {% else %}
                 <p>
-                    {% trans "This video doesn't have any subtitles yet" %}
+                    {% trans "This video doesn't have any subtitles yet." %}
                 </p>
             {% endif %}
         {% endif %}

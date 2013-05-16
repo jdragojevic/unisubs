@@ -31,6 +31,8 @@ class ATeamPage(UnisubsPage):
     _TASKS_TAB = "ul.tabs li a[href*='tasks']"
 
 
+    _ERROR = '.errorlist li'
+
     #JOIN / APPLY
     _JOIN_TEAM = ".join p a"
     _APPLY_TEAM = "a#apply"
@@ -40,6 +42,8 @@ class ATeamPage(UnisubsPage):
     _CUSTOM_APPLICATION_MESSAGE = "div.message"
     _APPLICATION_TEXT = "div#apply-modal div.form textarea"
     _SUBMIT_APPLICATION = "div#apply-modal button"
+
+    _REPLACEMENT_TEXT = 'div.join p.action-replacement'
 
    #FILTER AND SORT
 
@@ -119,7 +123,7 @@ class ATeamPage(UnisubsPage):
         self.click_by_css(self._APPLY_TEAM)
 
     def leave_team(self, team_url):
-        leave_url = "teams/leave_team/%s/" % team_stub
+        leave_url = "teams/leave_team/%s/" % team_url
         self.open_page(leave_url)
 
     def dashboard_welcome_message(self):
@@ -140,6 +144,12 @@ class ATeamPage(UnisubsPage):
                 return True
         else:
             return False
+
+    def error_message(self):
+        return self.get_text_by_css(self._ERROR)
+
+    def replacement_text(self):
+        return self.get_text_by_css(self._REPLACEMENT_TEXT)
 
 
         

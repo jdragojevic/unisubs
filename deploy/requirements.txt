@@ -31,7 +31,7 @@ simplejson==2.3.0
 pysolr==2.0.14
 chardet==1.0.1
 vendor/boto-2.1.0-0.tar.gz
-python-memcached
+-e git+https://github.com/linsomniac/python-memcached.git@bacb8058152873e46e6a2367452a353e4d98a065#egg=python-memcached
 feedparser
 lxml==2.3
 raven==1.8.2

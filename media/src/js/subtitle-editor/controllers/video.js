@@ -96,16 +96,17 @@
 
         };
 
-        $scope.$root.$on('subtitle-key-up', function($event, options) {
-
-            var parser = options.parser;
-            var subtitle = options.subtitle;
-            var value = options.value;
-
-            // Update the Popcorn subtitle instance's text.
+        $scope.updateSubtitleOverlay = function(parser, subtitle, value){
+           // Update the Popcorn subtitle instance's text.
             $scope.pop.amarasubtitle(subtitle.$id, {
                 text: parser.markdownToHTML(value)
             });
+        }
+        $scope.$root.$on('subtitle-key-up', function($event, options) {
+            $scope.updateSubtitleOverlay(options.subtitle.parser,
+                                         options.subtitle,
+                                         options.value)
+
 
         });
         $scope.$root.$on('subtitle-ready', function($event, subtitle) {
@@ -126,11 +127,14 @@
             });
 
         });
-        $scope.$root.$on('subtitle-selected', function($event, subtitle) {
+        $scope.$root.$on('subtitle-selected', function($event, scope) {
 
-            var parser = subtitle.parser;
-            var startTimeSeconds = parser.startTime(subtitle.subtitle) / 1000;
-
+            var parser = scope.parser;
+            var startTimeSeconds = parser.startTime(scope.subtitle) / 1000;
+            var endTimeSeconds = parser.endTime(scope.subtitle) / 1000;
+            if (!isNaN(endTimeSeconds)){
+                $scope.playChunk(startTimeSeconds, endTimeSeconds- startTimeSeconds);
+            }else{
             // If this video is not a Vimeo video, set the current time to
             // the start of the subtitle.
             //
@@ -140,6 +144,9 @@
                 $scope.pop.currentTime(startTimeSeconds);
             }
 
+            }
+
+            $scope.updateSubtitleOverlay(parser, scope.subtitle, parser.content(scope.subtitle));
         });
 
     };

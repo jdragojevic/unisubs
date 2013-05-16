@@ -26,14 +26,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from apps.subtitles import pipeline
 from apps.subtitles.shims import is_dependent
-from apps.subtitles.models import ORIGIN_UPLOAD
+from apps.subtitles.models import ORIGIN_UPLOAD, SubtitleLanguage
 from apps.teams.models import Task
 from apps.teams.permissions import (
     can_perform_task, can_create_and_edit_subtitles,
     can_create_and_edit_translations
 )
 from apps.videos.tasks import video_changed_tasks
-from utils.translation import get_language_choices
+from utils.translation import get_language_choices, get_language_label
 
 
 SUBTITLE_FILESIZE_LIMIT_KB = 512
@@ -67,10 +67,12 @@ class SubtitlesUploadForm(forms.Form):
         self.fields['language_code'].choices = all_languages
         self.fields['primary_audio_language_code'].choices = all_languages
 
-        # TODO: Check that the subtitles are synced as well?
-        choices = [(sl.language_code, sl.get_language_code_display())
-                   for sl in video.newsubtitlelanguage_set.all()
-                   if sl.subtitles_complete]
+        language_qs = (SubtitleLanguage.objects.having_public_versions()
+                       .filter(video=video))
+        choices = [
+            (sl.language_code, sl.get_language_code_display())
+            for sl in language_qs
+        ]
         if allow_transcription:
             choices.append(('', 'None (Direct from Video)'))
 
@@ -249,9 +251,18 @@ class SubtitlesUploadForm(forms.Form):
         if from_language_code:
             # If this is a translation, we'll retrieve the source
             # language/version here so we can use it later.
-            sl = self.video.subtitle_language(from_language_code)
-            self.from_sl = sl
-            self.from_sv = sl.get_tip(public=True) if sl else None
+            self.from_sl = self.video.subtitle_language(from_language_code)
+            if self.from_sl is None:
+                raise forms.ValidationError(
+                    _(u'Invalid from language: %(language)s') % {
+                        'language': get_language_label(from_language_code),
+                    })
+            self.from_sv = self.from_sl.get_tip(public=True)
+            if self.from_sv is None:
+                raise forms.ValidationError(
+                    _(u'%(language)s has no public versions') % {
+                        'language': get_language_label(from_language_code),
+                    })
         else:
             self.from_sl = None
             self.from_sv = None
