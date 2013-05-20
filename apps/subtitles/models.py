@@ -754,17 +754,11 @@ class SubtitleLanguage(models.Model):
         could be revisited in the future.
 
         """
-        if not ignore_forking and self.is_forked:
-            return None
+        source_language = self.get_translation_source_language(
+            ignore_forking=ignore_forking
+        )
+        return source_language.language_code if source_language else None
 
-        tip_version = self.get_tip()
-        if not tip_version:
-            return None
-
-        lineage = tip_version.lineage
-        source_codes = [lc for lc in lineage.keys() if lc != self.language_code]
-
-        return source_codes[0] if source_codes else None
 
     def get_translation_source_language(self, ignore_forking=False):
         """
@@ -776,17 +770,11 @@ class SubtitleLanguage(models.Model):
         could be revisited in the future.
 
         """
-        source_lc = self.get_translation_source_language_code(
+        source_version = self.get_translation_source_version(
             ignore_forking=ignore_forking)
 
-        if not source_lc:
-            return None
+        return source_version.subtitle_language if source_version else None
 
-        try:
-            return SubtitleLanguage.objects.get(
-                video=self.video, language_code=source_lc)
-        except (SubtitleLanguage.DoesNotExist, IndexError):
-            return None
 
     def get_translation_source_version(self, ignore_forking=False):
         '''
@@ -800,25 +788,45 @@ class SubtitleLanguage(models.Model):
         if  not ignore_forking and self.is_forked:
             return None
 
-        tip_version = self.get_tip()
-        if not tip_version:
+        current_version = self.get_tip()
+        if not current_version:
             return None
 
-        lineage = tip_version.lineage
+        while True:
+            parents = current_version.parents.full().order_by('-pk')
+            # parents can be on the same language, try other languages at first
+            other_languages = parents.exclude(subtitle_language=self)
+            try:
+                return other_languages[0]
+            except IndexError:
+                if current_version.version_number > 1:
+                    try:
+                        # previous versions might have parents in other languages
+                        # so set the current version to the same language, and
+                        # check that out
+                        current_version = parents[0]
+                    except IndexError:
+                        return None
+                else:
+                    return None
 
-        try:
-            source_pair = [(lc, version_no) for lc,version_no in lineage.items()\
-                           if lc != self.language_code][0]
-            return SubtitleVersion.objects.get(
-                language_code = source_pair[0],
-                version_number = source_pair[1],
-                video__id = self.video.id)
-        except (SubtitleVersion.DoesNotExist, IndexError):
-            return None
-        return None
 
-    def get_dependent_subtitle_languages(self):
+    def get_dependent_subtitle_languages(self, direct=False):
         """Return a list of SLs that are dependents/translations of this.
+
+        If direct is given, only direct dependents will be returned.  Direct
+        dependents are languages that were directly translated from this one.
+        Indirect dependents have a language in between.  For example:
+
+            en -> fr -> de
+
+            >>> en.get_dsl(direct=False)
+            [fr, de]
+
+            >>> en.get_dsl(direct=True)
+            [fr]
+
+        Note that this is NOT going to be very performant.
 
         This is a shim for the existing UI.  Once the new one comes this
         monstrosity will be torn out.
@@ -845,7 +853,21 @@ class SubtitleLanguage(models.Model):
             if tip and self.language_code in tip.lineage:
                 results.append(sl)
 
+        # Direct translations are restricted to those that come directly from
+        # the source language (this).
+        if direct:
+            lc = self.language_code
+            results = [sl for sl in results
+                       if sl.get_translation_source_language_code() == lc]
+
         return results
+
+
+    def fork(self):
+        """Fork this language."""
+
+        self.is_forked = True
+        self.save()
 
 
     def get_widget_url(self, mode=None, task_id=None):

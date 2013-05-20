@@ -744,6 +744,8 @@ class Rpc(BaseRpc):
             language.is_forked = True
 
         language.save()
+        if forked:
+            pipeline._fork_dependents(language)
 
         if must_trigger_api_language_edited:
             language.video.save()

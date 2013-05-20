@@ -310,15 +310,14 @@ class UploadSubtitlesTest(WebUseTest):
         video = get_video()
         self._assertVersionCount(video, 0)
 
-        # You cannot upload subtitles to a language that already has dependents.
-        # So if you create English and then create a French translation of it
-        # English is now off limits to uploads.
+        # You CAN upload subtitles to a language that already has dependents (it
+        # will just fork the dependents).
         self._upload(video, 'en', 'en', None, True, 'test.srt')
         self._upload(video, 'fr', 'en', 'en', True, 'test.srt')
         self._assertVersionCount(video, 2)
 
         self._upload(video, 'en', 'en', None, True, 'test.srt')
-        self._assertVersionCount(video, 2)
+        self._assertVersionCount(video, 3)
 
     def test_upload_translation_with_fewer_subs(self):
         video = get_video()
@@ -355,22 +354,21 @@ class UploadSubtitlesTest(WebUseTest):
         # |
         # 1
 
-        # Let's sanity check that we can't upload to English now that it has
+        # Let's sanity check that we can still upload to English now that it has
         # a dependent language (French).
         self._upload(video, 'en', 'en', None, True, 'test_fewer_subs.srt')
-        self._assertCounts(video, {'en': 2, 'fr': 1})
-
-        # Now let's roll English back to v1.
-        pipeline.rollback_to(video, 'en', 1)
         self._assertCounts(video, {'en': 3, 'fr': 1})
 
         # The translation should now be forked.
         self.assertTrue(video.subtitle_language('fr').is_forked)
 
-        # Now that the translation is forked, we should be able to upload to
-        # English again.  Whee!
-        self._upload(video, 'en', 'en', None, True, 'test_fewer_subs.srt')
+        # Now let's roll English back to v1.
+        pipeline.rollback_to(video, 'en', 1)
         self._assertCounts(video, {'en': 4, 'fr': 1})
+
+        # And try uploading something on top of the rollback.
+        self._upload(video, 'en', 'en', None, True, 'test_fewer_subs.srt')
+        self._assertCounts(video, {'en': 5, 'fr': 1})
 
 
     def test_upload_origin_on_version(self):

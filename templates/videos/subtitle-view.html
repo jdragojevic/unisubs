@@ -200,9 +200,9 @@
                     <p class="view-notice{% if not last_version.is_public %} draft{% endif %}">
                         {% if not last_version.is_public %}<em>{% trans 'Draft only' %}</em>{% endif %}
                         {% if language.get_translation_source_language_code %}
-                            {% trans "Subtitles" %}
-                            {% trans 'translated from' %}
-                            {{  language.get_translation_source_language_code|to_localized_display }}.
+                            {% blocktrans with language.get_translation_source_language_code|to_localized_display as language %}
+                            Subtitles translated from {{ language }}
+                            {% endblocktrans %}
                         {% endif %}
                         {% trans "Showing" %}
                         <strong>{% trans "Revision" %} {{ last_version.version_number }}</strong>,

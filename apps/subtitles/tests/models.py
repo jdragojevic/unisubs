@@ -125,6 +125,13 @@ class TestSubtitleLanguage(TestCase):
         translated = refresh(translated)
         self.assertEqual(translated.get_translation_source_language(), source_lang)
         self.assertEqual(translated.get_translation_source_language_code(), source_lang.language_code)
+
+        # now a translation off a translation
+        chained_translation = make_sl(self.video, 'pt')
+        chained_translation.add_version(parents=[translated.get_tip()])
+        self.assertEqual(chained_translation.get_translation_source_language(), translated)
+        self.assertEqual(chained_translation.get_translation_source_language_code(), translated.language_code)
+
         # now fork the translated one
         translated.is_forked = True
         translated.save()

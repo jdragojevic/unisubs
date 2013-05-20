@@ -132,7 +132,8 @@ var angular = angular || null;
         $scope.$watch('language', $scope.languageChanged);
         $scope.$watch('version', $scope.versionChanged);
     };
-    var SaveSessionController = function($scope, SubtitleListFinder, SubtitleStorage) {
+    var SaveSessionController = function($scope, SubtitleListFinder,
+                                         SubtitleStorage, OldEditorConfig) {
 
         $scope.discard = function() {
 
@@ -210,11 +211,12 @@ var angular = angular || null;
 
             var subtitleListScope = SubtitleListFinder.get('working-subtitle-set').scope;
 
-            $scope.fromOldEditor = window.location.search.indexOf('from-old-editor') !== -1 ? true : false;
+            var oldEditorURL = OldEditorConfig.get()
+            $scope.fromOldEditor = Boolean(oldEditorURL);
             $scope.primaryVideoURL = '/videos/' + subtitleListScope.videoID + '/';
 
             if ($scope.fromOldEditor) {
-                $scope.dialogURL = '/onsite_widget/?config=' + window.location.search.split('config=')[1];
+                $scope.dialogURL = oldEditorURL;
             }
         };
         $scope.showCloseModal = function() {

@@ -30,7 +30,11 @@ var Popcorn = Popcorn || null;
             }
         },
         start: function(event, options){
-            if (options.text !== '') {
+            // popcorn will call start on two ocasions:
+            // - on startup, where options.id is set
+            // - during playback, where options id is not set
+            // we only need to change the text at that time, so:
+            if (!options.id &&options.text !== '') {
                 newdiv.style.display = 'inline-block';
                 newdiv.innerHTML = options.text || '';
             }

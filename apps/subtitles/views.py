@@ -21,6 +21,7 @@ from django.contrib.auth.decorators import login_required
 from videos.models import Video
 from teams.models import Task
 from subtitles.models import SubtitleLanguage, SubtitleVersion
+from subtitles.shims import get_widget_url
 from subtitles.templatetags.new_subtitles_tags import visibility_display
 
 from django.http import HttpResponse
@@ -139,8 +140,6 @@ def subtitle_editor(request, video_id, language_code, task_id=None):
 
     # if this language is a translation, show both
     editing_version = editing_language.get_tip(public=False)
-    translated_from_version = None
-    lineage = editing_version and editing_version.get_lineage()
     # we ignore forking because even if it *is* a fork, we still want to show
     # the user the rererence languages:
     translated_from_version = editing_language.\
@@ -172,7 +171,8 @@ def subtitle_editor(request, video_id, language_code, task_id=None):
             'videoURLs': video_urls,
         },
         'languages': [_language_data(lang, editing_version, translated_from_version) for lang in languages],
-        'languageCode': request.LANGUAGE_CODE
+        'languageCode': request.LANGUAGE_CODE,
+        'oldEditorURL': get_widget_url(editing_language)
     }
 
     task = task_id and Task.objects.get(pk=task_id)

@@ -244,4 +244,18 @@ var angular = angular || null;
         };
     });
 
-}).call(this);
+    module.factory('OldEditorConfig', function($window) {
+        /**
+         * A sevice to cache and retrieve instances of the subtitle-list directive.
+         *
+         * TODO: We don't really need this service. We can simply use angular.element to retrieve
+         * subtitle-list instances and access the scope / controller from there.
+         */
+        var oldEditorURL = window.editorData.oldEditorURL;
+
+        return {
+            get: function() {
+                return oldEditorURL;
+            }
+        };
+    });}).call(this);

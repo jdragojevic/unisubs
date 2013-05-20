@@ -328,8 +328,7 @@ unisubs.subtitle.Dialog.prototype.handleSaveAndOpenInNewEditor_ = function(event
     // if this is related to a task, send the new editor the right task id
     var taskURLPart = unisubs.task_id ? "/" + unisubs.task_id : "";
     this.exitURL = '/subtitles/editor/' + this.serverModel_.videoID_ + '/' +
-        this.subtitles_.LANGUAGE + taskURLPart + '/?from-old-editor=true&' +
-        window.location.search.replace('?', '');
+        this.subtitles_.LANGUAGE + taskURLPart + '/?from-old-editor=true&' ;
     this.saveWork(false, true);
 };
 unisubs.subtitle.Dialog.prototype.handleSaveAndExitKeyPress_ = function(event) {

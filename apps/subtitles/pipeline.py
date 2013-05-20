@@ -56,7 +56,10 @@ a nutshell:
 
 from django.db import transaction
 
-from apps.subtitles.models import SubtitleLanguage, SubtitleVersion, ORIGIN_ROLLBACK
+from apps.subtitles.models import (
+    SubtitleLanguage, SubtitleVersion, ORIGIN_ROLLBACK, ORIGIN_API,
+    ORIGIN_UPLOAD
+)
 
 
 # Utility Functions -----------------------------------------------------------
@@ -301,11 +304,8 @@ def _update_video_title(subtitle_language, version):
             version.video.save()
 
 def _fork_dependents(subtitle_language):
-    dependents = [sl.id for sl in
-                  subtitle_language.get_dependent_subtitle_languages()]
-
-    if dependents:
-        SubtitleLanguage.objects.filter(id__in=dependents).update(is_forked=True)
+    for dsl in subtitle_language.get_dependent_subtitle_languages(direct=True):
+        dsl.fork()
 
 def _get_version(video, v):
     """Get the appropriate SV belonging to the given video.
@@ -379,6 +379,9 @@ def _add_subtitles(video, language_code, subtitles, title, description, author,
     _update_video_title(sl, version)
     _update_followers(sl, author)
     _perform_team_operations(version, committer, complete)
+
+    if origin in (ORIGIN_UPLOAD, ORIGIN_API):
+        _fork_dependents(sl)
 
     return version
 

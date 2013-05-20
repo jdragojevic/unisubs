@@ -198,6 +198,7 @@ unisubs.subtitle.EditableCaptionSet.prototype.insertCaption = function(atIndex, 
         new unisubs.subtitle.EditableCaptionSet.CaptionEvent(
             unisubs.subtitle.EditableCaptionSet.EventType.ADD,
             c));
+    this.forkedDuringEdits_ = true;
     return c;
 };
 unisubs.subtitle.EditableCaptionSet.prototype.setTimesOnInsertedSub_ = function(insertedSub, prevSub, nextSub) {
@@ -274,6 +275,7 @@ unisubs.subtitle.EditableCaptionSet.prototype.deleteCaption = function(caption) 
         new unisubs.subtitle.EditableCaptionSet.CaptionEvent(
             unisubs.subtitle.EditableCaptionSet.EventType.DELETE,
             sub, index));
+    this.forkedDuringEdits_ = true;
 };
 unisubs.subtitle.EditableCaptionSet.prototype.findSubIndex_ = function(caption) {
     return this.x['getSubtitleIndex'](caption.node);

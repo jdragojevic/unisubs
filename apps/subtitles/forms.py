@@ -108,16 +108,6 @@ class SubtitlesUploadForm(forms.Form):
                 raise forms.ValidationError(_(
                     u"The language already exists as a translation from %s." % existing_from_language.get_language_code_display()))
 
-    def _verify_no_dependents(self, subtitle_language):
-        # You cannot upload to a language with dependents.
-        dependents = subtitle_language.get_dependent_subtitle_languages()
-        if dependents:
-            raise forms.ValidationError(_(
-                u"Sorry, we cannot upload subtitles for this language "
-                u"because this would fork the %s translation(s) made from it."
-                % ", ".join([sl.get_language_code_display() for sl in dependents])
-            ))
-
     def _verify_no_blocking_subtitle_translate_tasks(self, team_video,
                                                      language_code):
         tasks = list(
@@ -285,12 +275,6 @@ class SubtitlesUploadForm(forms.Form):
             self._verify_no_translation_conflict(subtitle_language,
                                                  from_language_code)
 
-            # Make sure that the language being uploaded to has no translations
-            # that are based on it.  We do this because uploading to a source
-            # language would require us to fork all the translations, and that's
-            # not nice.  See Sifter #1075 for more information.
-            self._verify_no_dependents(subtitle_language)
-
         # If we are translating from another version, check that the number of
         # subtitles matches the source.
         self._verify_translation_subtitle_counts(from_language_code)
@@ -403,13 +387,12 @@ class SubtitlesUploadForm(forms.Form):
         #
         # For example: assume there is a French translation of English.
         # Uploading a "straight from video" version of French should fork it.
-        if not from_language_code and is_dependent(version.subtitle_language):
-            version.subtitle_language.is_forked = True
-            version.subtitle_language.save()
+        sl = version.subtitle_language
+        if not from_language_code and is_dependent(sl):
+            sl.fork()
 
         # TODO: Pipeline this.
-        video_changed_tasks.delay(version.subtitle_language.video_id,
-                                  version.id)
+        video_changed_tasks.delay(sl.video_id, version.id)
 
         return version
 
