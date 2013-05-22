@@ -62,7 +62,7 @@ class EditorDialogs(Page):
         self.logger.info('clicking the subtitles saved confirmation box')
         if self.check_if_element_present(self._SAVED_OK, wait_time=10):
             self.click_by_css(self._SAVED_OK)
-        #self.wait_for_element_not_present(self._SAVED_OK)
+        self.wait_for_element_not_present(self._SAVED_OK)
 
     def resume_dialog_ok(self):
         self.logger.info('clicking OK in the resume dialog')
@@ -85,7 +85,7 @@ class EditorDialogs(Page):
                 self.logger.info('Marking subs as complete')
                 if not self.is_element_present(self._CHECKBOX_CHECKED):
                     self.click_by_css(self._CHECKBOX)
-        self.click_saved_ok()
+        self.click_by_css(self._SAVED_OK)
         
 
     def incomplete_alert_text(self):

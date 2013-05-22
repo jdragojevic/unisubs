@@ -172,7 +172,8 @@ def subtitle_editor(request, video_id, language_code, task_id=None):
         },
         'languages': [_language_data(lang, editing_version, translated_from_version) for lang in languages],
         'languageCode': request.LANGUAGE_CODE,
-        'oldEditorURL': get_widget_url(editing_language)
+        'oldEditorURL': get_widget_url(editing_language),
+        'savedNotes': request.GET.get('saved-notes', '')
     }
 
     task = task_id and Task.objects.get(pk=task_id)

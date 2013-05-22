@@ -359,11 +359,6 @@ def _add_subtitles(video, language_code, subtitles, title, description, author,
 
     """
     sl, language_needs_save = _get_language(video, language_code)
-
-    if complete != None:
-        sl.subtitles_complete = complete
-        language_needs_save = True
-
     if language_needs_save:
         sl.save()
 
@@ -375,7 +370,12 @@ def _add_subtitles(video, language_code, subtitles, title, description, author,
     _strip_nones(data)
 
     version = sl.add_version(subtitles=subtitles, **data)
-
+    if complete != None:
+        is_complete = complete and version.get_subtitles().fully_synced
+        # only save if the value has changed
+        if is_complete != sl.subtitles_complete:
+            sl.subtitles_complete = is_complete
+            sl.save()
     _update_video_title(sl, version)
     _update_followers(sl, author)
     _perform_team_operations(version, committer, complete)

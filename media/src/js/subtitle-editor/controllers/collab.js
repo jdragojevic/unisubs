@@ -22,6 +22,7 @@
 
     var CollabController = function($scope, $timeout, SubtitleStorage) {
 
+        $scope.notes = SubtitleStorage.getCachedData().savedNotes || "";
         // Some modules can be opened and closed. These are the default states.
         $scope.modulesOpen = {
             notes: false,

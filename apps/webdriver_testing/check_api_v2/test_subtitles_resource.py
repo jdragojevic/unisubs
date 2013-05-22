@@ -86,7 +86,51 @@ class TestCaseSubtitlesUpload(WebdriverTestCase):
         return subtitle_lang
 
 
+    def test_upload__fork_dependents(self):
+        video = self.data_utils.create_video()
+        auth_creds = dict(username=self.user.username, password='password')
+        subs_dir = os.path.join(os.getcwd(), 'apps', 'webdriver_testing', 
+                                'subtitle_data') 
+        en_rev1 = os.path.join(subs_dir, 'Timed_text.en.srt')
+        en_rev2 = os.path.join(subs_dir, 'Timed_text.rev2.en.srt')
+        sv = os.path.join(subs_dir, 'Timed_text.sv.dfxp')
+        complete = True
+        draft_data = {'language_code': 'en',
+                     'video': video.pk,
+                     'primary_audio_language_code': 'en',
+                     'draft': open(en_rev1),
+                     'complete': int(complete),
+                     'is_complete': complete,
+                    }
+        self.data_utils.upload_subs(video, draft_data, user=auth_creds)
+
+        draft_data = {'language_code': 'sv',
+                     'video': video.pk,
+                     'from_language_code': 'en',
+                     'draft': open(sv),
+                     'complete': int(complete),
+                     'is_complete': complete,
+                    }
+        self.data_utils.upload_subs(video, draft_data, user=auth_creds)
+        sl_sv = video.subtitle_language('sv')
+        self.assertFalse(sl_sv.is_forked)
+
+        #Upload a new set of subs via the api
+        upload_url = ( 'videos/%s/languages/en/subtitles/' 
+            % video.video_id )
+        upload_data = { 'subtitles': open(en_rev2).read(), 'sub_format': 'srt' } 
+        status, response = self.data_utils.post_api_request(self.user,
+                                                            upload_url, 
+                                                            upload_data)
+        sl_sv = video.subtitle_language('sv')
+        self.assertTrue(sl_sv.is_forked)
+
+
+
+
+
     def test_upload__display(self):
+        """Upload subs via api and check display on language page. """
         #Create the language for the test video
         create_url = ( 'videos/%s/languages/'  % self.test_video.video_id  )
         create_data = { 'language_code': 'en', 'is_original': True }

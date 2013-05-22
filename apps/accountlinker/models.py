@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.utils import translation
 
 from videos.models import VIDEO_TYPE, VIDEO_TYPE_YOUTUBE
-from .videos.types import (
+from videos.types import (
     video_type_registrar, UPDATE_VERSION_ACTION,
     DELETE_LANGUAGE_ACTION, VideoTypeError,
     YoutubeVideoType
@@ -195,15 +195,15 @@ class ThirdPartyAccountManager(models.Manager):
     def mirror_on_third_party(self, video, language, action, version=None):
         """
         Does the specified action (video.types.UPDATE_VERSION_ACTION or
-                                   video.types.DELETE_LANGUAGE_ACTION) 
+                                   video.types.DELETE_LANGUAGE_ACTION)
         on the original account (e.g. Youtube video).
         For example, to update a given version to Youtube:
              ThirdPartyAccountManager.objects.mirror_on_third_party(
                        video, language, "update_subtitles", version)
-        For deleting, we only delete languages, so it should be 
+        For deleting, we only delete languages, so it should be
               ThirdPartyAccountManager.objects.mirror_on_third_party(
                         video, language, "delete_subtitles")
-        This method is 'safe' to call, meaning that we only do syncing if there 
+        This method is 'safe' to call, meaning that we only do syncing if there
         are matching third party credentials for this video.
         The update will only be done if the version is synced
         """
@@ -329,18 +329,18 @@ class ThirdPartyAccount(models.Model):
     type = models.CharField(max_length=10, choices=ACCOUNT_TYPES)
 
     # this is the third party account user name, eg the youtube user
-    username  = models.CharField(max_length=255, db_index=True, 
+    username  = models.CharField(max_length=255, db_index=True,
                                  null=False, blank=False)
 
     # user's real/full name, like Foo Bar
     full_name = models.CharField(max_length=255, null=True, blank=True, default='')
-    oauth_access_token = models.CharField(max_length=255, db_index=True, 
+    oauth_access_token = models.CharField(max_length=255, db_index=True,
                                           null=False, blank=False)
     oauth_refresh_token = models.CharField(max_length=255, db_index=True,
                                            null=False, blank=False)
-    
+
     objects = ThirdPartyAccountManager()
-    
+
     class Meta:
         unique_together = ("type", "username")
 

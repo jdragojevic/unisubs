@@ -80,7 +80,12 @@ def st_sub_fetch_handler_update(**kwargs):
 
 @task
 def st_video_view_handler_update(**kwargs):
-    st_video_view_handler.update(**kwargs)
+    try:
+        st_video_view_handler.update(**kwargs)
+    except:
+        # Don't worry if we can't reach Redis for this -- it's only a view
+        # counter.
+        pass
 
 
 @task

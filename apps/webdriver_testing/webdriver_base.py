@@ -87,7 +87,7 @@ class WebdriverTestCase(LiveServerTestCase, TestCase):
             cls.sauce_user = os.environ.get('SAUCE_USER_NAME')
             test_browser = os.environ.get('SELENIUM_BROWSER', 'Firefox').upper()
             dc = getattr(webdriver.DesiredCapabilities, test_browser)
-            dc['selenium-version'] = '2.31.0'
+            dc['selenium-version'] = '2.32.0' 
             dc['version'] = os.environ.get('SELENIUM_VERSION', '')
             dc['platform'] = os.environ.get('SELENIUM_PLATFORM', 'WINDOWS 2008')
             dc['name'] = suite_or_test 

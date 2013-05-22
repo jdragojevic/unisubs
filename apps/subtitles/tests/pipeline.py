@@ -581,8 +581,8 @@ class TestBasicAdding(TestCase):
                                               language_code='en')
             return sl.subtitles_complete
 
-        def _add(complete):
-            pipeline.add_subtitles(self.video, 'en', [], complete=complete)
+        def _add(complete, subs=None):
+            pipeline.add_subtitles(self.video, 'en', subs or [], complete=complete)
 
         # Completion defaults to false.
         _add(None)
@@ -607,6 +607,10 @@ class TestBasicAdding(TestCase):
         _add(False)
         self.assertEqual(_get_sl_completion(), False)
 
+
+        # tell it's complete, but it isn't really:
+        _add(True, [(100,200, "hey"), (None, None, "there")])
+        self.assertFalse(_get_sl_completion())
 
 class TestRollbacks(TestCase):
     def setUp(self):
@@ -751,4 +755,5 @@ class TestRollbacks(TestCase):
         # Shut up, Pyflakes.
         assert (en1 and en2 and is1 and is2 and de1 and de2 and fr1 and fr2 and
                 pt1 and pt2 and pl1 and pl2 and ja1 and ja2 and ja3)
+
 
