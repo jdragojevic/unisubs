@@ -440,6 +440,39 @@ class TestCaseSubtitlesFetch(WebdriverTestCase):
 
         self.assertEqual(2, response['version_number'])
 
+    def test_fetch__vtt(self):
+        """Fetch the subtitle data in vtt format.
+        
+        GET /api2/partners/videos/[video-id]/languages/[lang-identifier]/
+            subtitles/?format=vtt
+        """
+        video_id = self.test_video.video_id
+        lang_code = 'en'
+        output_format = 'vtt'
+
+        url_part = 'videos/{0}/languages/{1}/subtitles/?format={2}'.format(
+            video_id, lang_code, output_format)
+        status, response = self.data_utils.api_get_request(self.user,  url_part, 
+            output_type = 'content') 
+
+        self.assertNotEqual(404, status)
+
+        #Verify returned subs are valid - by uploading back to system
+        upload_url = ( 'videos/%s/languages/en/subtitles/' 
+            % self.test_video.video_id )
+
+        upload_data = { 'subtitles': response, 'sub_format': 'vtt' } 
+        status, response = self.data_utils.post_api_request(self.user,  
+            upload_url, 
+            upload_data)
+
+        #Open the language page on the site.        
+        self.video_language_pg.open_video_lang_page(self.test_video.video_id, 
+            'en')
+
+        self.assertEqual(2, response['version_number'])
+
+
     def test_fetch__sbv(self):
         """Fetch the subtitle data in sbv format'
         
@@ -627,4 +660,172 @@ class TestCaseModeratedSubtitlesUpload(WebdriverTestCase):
             self.test_video.video_id, lang_code, output_format) 
             
         status, response = self.data_utils.api_get_request(self.user,  url_part) 
+
+
+
+class TestCaseSubtitlesFormatting(WebdriverTestCase):
+    """TestSuite for checking supported subtitle formats are preserved.
+
+    """
+    NEW_BROWSER_PER_TEST_CASE = False
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestCaseSubtitlesFormatting, cls).setUpClass()
+        cls.data_utils = data_helpers.DataHelpers()
+        cls.user = UserFactory.create()
+        cls.data_utils.create_user_api_key(cls.user)
+        cls.test_video = cls.data_utils.create_video()
+        #Create the test video and path to the sub data directory.
+        cls.subs_data_dir = os.path.join(os.getcwd(), 'apps', 
+            'webdriver_testing', 'subtitle_data')
+
+        data = {'language_code': 'en',
+                'video': cls.test_video.pk,
+                'primary_audio_language_code': 'en',
+                'draft': open(os.path.join(cls.subs_data_dir, 
+                                           'formatted.srt')),
+                'is_complete': True,
+                'complete': 1
+                }
+        cls.data_utils.upload_subs(cls.test_video, data=data)
+        #Open the video language page for the test video.
+        #cls.video_language_pg = video_language_page.VideoLanguagePage(cls)
+        #cls.video_language_pg.open_video_lang_page(cls.test_video.video_id, 'en')
+
+
+    def test_formatted__dfxp(self):
+        """Fetch the subtitle data in srt format.
         
+        GET /api2/partners/videos/[video-id]/languages/[lang-identifier]/
+            subtitles/?format=srt
+        """
+
+        expected_dfxp_lines = ["""<p>this is a single line of subtitles</p>""",
+
+                               """<p>this is line 1<br/>this is line 2</p>""",
+
+                               ("""<p><span tts:fontStyle="italic"> line 1 """
+                                """is italicized</span><br/>line 2</p>"""),
+
+                               ("""<span tts:fontWeight="bold">line 1 is """
+                                """bold</span>""")
+
+                              ]
+        video_id = self.test_video.video_id
+        lang_code = 'en'
+        lang = self.test_video.subtitle_language(language_code=lang_code)
+        self.assertTrue(lang is not None)
+        output_format = 'dfxp'
+
+        url_part = 'videos/{0}/languages/{1}/subtitles/?format={2}'.format(
+            video_id, lang_code, output_format)
+
+        status, response = self.data_utils.api_get_request(self.user,  url_part, 
+            output_type = 'content') 
+        self.logger.info(response)
+
+        for line in expected_dfxp_lines:
+            self.assertIn(line, response)
+
+
+    def test_formatted__vtt(self):
+        """Fetch the subtitle data in webvtt format.
+        
+        GET /api2/partners/videos/[video-id]/languages/[lang-identifier]/
+            subtitles/?format=srt
+        """
+        expected_vtt_lines = ["""WEBVTT""",
+                              """<i> line 1 is italicized</i>""",
+                              """<b>line 1 is bold</b>"""
+                             ]
+        output_format = 'vtt'
+
+        url_part = 'videos/{0}/languages/{1}/subtitles/?format={2}'.format(
+            self.test_video.video_id, 'en', output_format)
+
+        status, response = self.data_utils.api_get_request(self.user,  url_part, 
+            output_type = 'content') 
+        rlines = response.split("""\n""")
+        for line in expected_vtt_lines:
+            self.assertIn(line, rlines)
+
+    def test_formatted__srt(self):
+        """Fetch the subtitle data in srt format.
+        
+        GET /api2/partners/videos/[video-id]/languages/[lang-identifier]/
+            subtitles/?format=srt
+        """
+        expected_srt_lines = ["""<i> line 1 is italicized</i>""",
+                              """<b>line 1 is bold</b>"""
+                             ]
+        output_format = 'srt'
+
+        url_part = 'videos/{0}/languages/{1}/subtitles/?format={2}'.format(
+            self.test_video.video_id, 'en', output_format)
+
+        status, response = self.data_utils.api_get_request(self.user,  url_part, 
+            output_type = 'content') 
+        rlines = response.split("""\n""")
+        for line in expected_srt_lines:
+            self.assertIn(line, rlines)
+
+
+
+    def test_formatted__sbv(self):
+        """Fetch the subtitle data in srt format.
+        
+        GET /api2/partners/videos/[video-id]/languages/[lang-identifier]/
+            subtitles/?format=srt
+        """
+
+        expected_sbv_lines = ["""this is line 1[br]this is line 2""",
+                               """line 1 is italicized[br]line 2"""
+                              ]
+        video_id = self.test_video.video_id
+        lang_code = 'en'
+        lang = self.test_video.subtitle_language(language_code=lang_code)
+        self.assertTrue(lang is not None)
+        output_format = 'sbv'
+
+        url_part = 'videos/{0}/languages/{1}/subtitles/?format={2}'.format(
+            video_id, lang_code, output_format)
+
+        status, response = self.data_utils.api_get_request(self.user,  url_part, 
+            output_type = 'content') 
+        self.logger.info(response)
+
+        for line in expected_sbv_lines:
+            self.assertIn(line, response)
+
+    def test_formatted__ssa(self):
+        """Fetch the subtitle data in srt format.
+        
+        GET /api2/partners/videos/[video-id]/languages/[lang-identifier]/
+            subtitles/?format=ssa
+        """
+
+        expected_ssa_lines = [('Dialogue: 0,9:59:59.99,9:59:59.99,Default,,'
+                                '0000,0000,0000,,this is line 1\nthis is line 2'),
+                               
+                               ('Dialogue: 0,9:59:59.99,9:59:59.99,Default,,'
+                                '0000,0000,0000,,this is line 1this is line 2'),
+
+                              ]
+        video_id = self.test_video.video_id
+        lang_code = 'en'
+        lang = self.test_video.subtitle_language(language_code=lang_code)
+        self.assertTrue(lang is not None)
+        output_format = 'ssa'
+
+        url_part = 'videos/{0}/languages/{1}/subtitles/?format={2}'.format(
+            video_id, lang_code, output_format)
+
+        status, response = self.data_utils.api_get_request(self.user,  url_part, 
+            output_type = 'content') 
+        self.logger.info(response)
+
+        for line in expected_ssa_lines:
+            self.assertIn(line, response, 
+                          ('see https://github.com/pculture/unisubs/issues/692 '
+                           'for ssa linebreak issue'))

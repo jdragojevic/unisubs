@@ -1,12 +1,16 @@
 import time
 import itertools
 import operator
+
+from django.core import management
+
 from apps.webdriver_testing.webdriver_base import WebdriverTestCase
 from apps.webdriver_testing import data_helpers
 from apps.webdriver_testing.data_factories import UserFactory
 from apps.webdriver_testing.data_factories import TeamMemberFactory
 from apps.webdriver_testing.data_factories import TeamProjectFactory
 from apps.webdriver_testing.data_factories import TeamVideoFactory
+from apps.webdriver_testing.data_factories import VideoUrlFactory
 from apps.webdriver_testing.pages.site_pages import video_page 
 from apps.webdriver_testing.pages.site_pages.teams import videos_tab
 
@@ -303,5 +307,52 @@ class TestCaseVideoResource(WebdriverTestCase):
         team_videos_tab.open_team_project(self.open_team.slug, 
                                           self.project2.slug)
         self.assertTrue(team_videos_tab.video_present(url_data['title']))
+
+    def test_move_team(self):
+        """Move videos from 1 team to another.
+
+        """
+        team1 = TeamMemberFactory.create(
+            user=self.user
+            ).team
+        self.logger.info(team1.slug)
+
+        v1 = VideoUrlFactory().video
+        tv1 = TeamVideoFactory.create(
+            team=team1, 
+            video=v1, 
+            added_by=self.user)
+        sub_file = ('apps/webdriver_testing/subtitle_data/'
+                              'Timed_text.en.srt')
+        data = {'language_code': 'en',
+                'video': v1.pk,
+                'draft': open(sub_file),
+                'primary_audio_language_code': 'en',
+                'is_complete': True,
+                'complete': 1
+                }
+        
+        team2 = TeamMemberFactory.create(
+            user=self.user
+            ).team
+        self.logger.info(team2.slug)
+
+        self.data_utils.upload_subs(v1, data=data)
+ 
+        #Team 1 videos list
+        url_part = 'videos/%s/languages/en' % v1.video_id
+        status, response = self.data_utils.api_get_request(self.user, url_part)
+        team_data = {"team": team2.slug} 
+        url_part = 'videos/%s/' % v1.video_id
+        status, response = self.data_utils.put_api_request(self.user,
+                                                  url_part, team_data)
+        self.logger.info("**** TEAM MOVED RESPONSE ****")
+        self.assertEqual(team2.slug, response['team'])
+
+        management.call_command('update_index', interactive=False)
+        url_part = 'videos/?team=%s' % team2.slug
+        status, response = self.data_utils.api_get_request(self.user, url_part)
+        objs =  response['objects']
+        self.assertEqual(v1.video_id, objs[0]['id'])
 
 

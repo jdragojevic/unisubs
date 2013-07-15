@@ -7,6 +7,8 @@ from apps.webdriver_testing.data_factories import UserFactory
 from apps.webdriver_testing.data_factories import TeamMemberFactory
 from apps.webdriver_testing.data_factories import TeamContributorMemberFactory
 from apps.webdriver_testing.data_factories import TeamVideoFactory
+
+
 from apps.webdriver_testing import data_helpers
 from apps.webdriver_testing.pages.site_pages.teams_dir_page import TeamsDirPage
 
@@ -213,6 +215,3 @@ class TestCaseTeamsResource(WebdriverTestCase):
         s, _ = self.data_utils.delete_api_request(self.user, url_part)
         self.assertEqual(s, 403)
 
-        
-        
-        
